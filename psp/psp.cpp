@@ -709,18 +709,13 @@ static void update_pad(){
 // set psp cpu clock
 ////////////////////////////////////////////////////////////////////////////////////////
 static void set_cpu_clock(){
-#ifndef ME_SOUND
-		switch (os9x_cpuclock){
-			case 266:scePowerSetClockFrequency(266,266,133);break;
-			case 300:scePowerSetClockFrequency(300,300,150);break;
-			case 333:scePowerSetClockFrequency(333,333,166);break;
-			default :scePowerSetClockFrequency(222,222,111);
-		}
-#else
-		//void PowerSetClockFrequency(int clock);
-		//PowerSetClockFrequency(os9x_cpuclock);
 
-#endif
+	switch (os9x_cpuclock){
+		case 266:scePowerSetClockFrequency(266,266,133);break;
+		case 300:scePowerSetClockFrequency(300,300,150);break;
+		case 333:scePowerSetClockFrequency(333,333,166);break;
+		default :scePowerSetClockFrequency(222,222,111);
+	}
 }
 
 
@@ -2426,15 +2421,15 @@ static void initvar_withdefault() {
 	os9x_render=2;  //zoom 4/3 (tv mode)
 	os9x_showfps=0;
 	os9x_showpass=0;
-	os9x_vsync=0;
-	os9x_cpuclock=300;
+	os9x_vsync=1;
+	os9x_cpuclock=333;
 	os9x_SA1_exec=1;
 
 	os9x_apuenabled=2;
 
 	os9x_gammavalue=0;
 	os9x_fastsprite=0;
-	os9x_softrendering=4;//psp accel+approx soft
+	os9x_softrendering=3;//psp accel+acur. soft
 	os9x_smoothing=1;
 	os9x_fskipvalue=0;
 	os9x_autofskip_MaxSkipFrames=9;
