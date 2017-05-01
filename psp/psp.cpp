@@ -171,6 +171,14 @@ extern "C" {
 #endif
 
 uint32 caCRC32(uint8 *array, uint32 size, register uint32 crc32 = 0xFFFFFFFF);
+static int net_waitpause_state(int show_menu);
+static void net_send_state();
+static void net_receive_settings();
+static void net_send_settings();
+static void net_flush_net(int to_send);
+static void before_pause();
+static void after_pause();
+static void set_cpu_clock();
 #ifndef FW3X
 int initUSBdrivers();
 int endUSBdrivers();
@@ -397,7 +405,7 @@ static void ErrorExit(const char *msg)
 ////////////////////////////////////////////////////////////////////////////////////////
 static void update_pad(){
 	SceCtrlData	ctl;
-	int i,j;
+	
 	//sceCtrlReadBufferPositive( &ctl, 1 );
 	sceCtrlPeekBufferPositive( &ctl, 1 );
 
@@ -412,9 +420,10 @@ static void update_pad(){
 	os9x_padvalue_ax=ctl.Lx;
 	os9x_padvalue_ay=ctl.Ly;
 
-
-
 	os9x_oldsnespad=os9x_snespad;
+
+#ifdef USE_ADHOC
+	int i,j;
 	if (os9x_netplay) {
 		for (i=0;i<5;i++) {
 			for (j=0;j<NET_DELAY-1;j++) {
@@ -423,6 +432,7 @@ static void update_pad(){
 			}
 		}
 	}
+#endif
 
 	os9x_snespad=0;
 	os9x_specialaction=0;
@@ -496,9 +506,8 @@ static void update_pad(){
 	//  cmd = 3 => unpause => load state
 	//
 
-	if (os9x_netplay) {
 #ifdef USE_ADHOC
-		char str[16];
+	if (os9x_netplay) {
 
 		os9x_netcrc32[NET_DELAY-1][os9x_netpadindex]=caCRC32((uint8*)&Registers,sizeof(SRegisters))&0xFFFF;
 		os9x_netsnespad[NET_DELAY-1][os9x_netpadindex]=os9x_snespad;
@@ -698,9 +707,9 @@ static void update_pad(){
 				}
 			}
 		}
-#endif
-	}
 
+	}
+#endif
 	os9x_oldframe=os9x_updatepadFrame;
 }
 }
@@ -3918,7 +3927,7 @@ void MyCounter_Init(void)
 	debug_count=0;
 	//for(int i=0;i<100;i++)debug_counts[i]=0;
 }
-static void MyCounter_drawCount()
+void MyCounter_drawCount()
 {
 	//if(!os9x_showcounter)
 	//	return;

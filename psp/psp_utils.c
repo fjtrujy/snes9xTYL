@@ -1001,9 +1001,9 @@ static int net_waitpause_state(int show_menu){
 	before_pause();
 	if (show_menu) {
 		if (!os9x_lowbat) {
-			if (CPUPack.CPU.SRAMModified) {
+			if (CPU.SRAMModified) {
 				Memory.SaveSRAM( (char*)S9xGetSaveFilename(".SRM") );
-				CPUPack.CPU.SRAMModified=0;
+				CPU.SRAMModified=0;
 			}
 		}
 		//initUSBdrivers();
@@ -1029,6 +1029,9 @@ static int net_waitpause_state(int show_menu){
 	}
 
 #ifdef USE_ADHOC
+	char *filename;
+	int ret;
+	uint8 c;
 	if (os9x_netplay) {
 		msgBoxLines(s9xTYL_msg[ADHOC_WAITING_OTHER], 10);
 
@@ -1100,8 +1103,6 @@ static void net_send_settings() {
 }
 #ifdef USE_ADHOC
 static void net_receive_settings() {
-	unsigned int file_size,length;
-	unsigned int crc32,rlen;
 	int ret;
 	char filename[256];
 	uint8 c;

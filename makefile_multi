@@ -78,6 +78,7 @@ endif
 ifdef USE_ADHOC
 LIBS += -lpspnet_adhoc -lpspnet_adhocctl -lpspnet_adhocmatching
 OBJS += $(NETOBJ)
+CFLAGS+= -DUSE_ADHOC
 endif
 
 CFLAGS += -DNOKERNEL
