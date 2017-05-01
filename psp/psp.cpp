@@ -139,7 +139,8 @@ PSP_MAIN_THREAD_STACK_SIZE_KB(256); /* smaller stack for kernel thread */
 //12000 ok
 //14000x
 //28000x
-PSP_HEAP_SIZE_MAX();
+//PSP_HEAP_SIZE_MAX();
+PSP_HEAP_SIZE_KB(8192);
 
 #ifdef PROFILE
 profile_t profile_data;
@@ -1086,7 +1087,7 @@ static void me_StartSound (){
 
 	me_sound_t *p=(me_sound_t *)((int)(&me_sound_data)|0x40000000);
 
-	//ƒTƒEƒ“ƒhƒoƒOb’è3
+	//ã‚µã‚¦ãƒ³ãƒ‰ãƒã‚°æš«å®š3
 	sceKernelDcacheWritebackInvalidateAll();
 	CallME(me_data, (int)(&me_Dummy),0, -1, 0, 0, 0); // all we want is the ME to inv its dcache
 
@@ -3910,7 +3911,7 @@ static int user_main(SceSize args, void* argp) {
 
 }
 /////////////////////////////////////////////////////////////////////
-// ƒJƒEƒ“ƒ^À‘Ô
+// ã‚«ã‚¦ãƒ³ã‚¿å®Ÿæ…‹
 
 uint32 g_nCount;
 clock_t g_ulStart;
