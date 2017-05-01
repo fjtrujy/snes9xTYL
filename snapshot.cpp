@@ -650,7 +650,7 @@ static void Freeze_Internal (STREAM stream)
     }
     if (Settings.SA1)
     {
-	// SA1Registers.PC = SA1.PC - SA1.PCBase;
+	SA1Registers.PCw = SA1.PC - SA1.PCBase;
 	S9xSA1PackStatus ();
 	FreezeStruct (stream, "SA1", &SA1, SnapSA1, COUNT (SnapSA1));
 	FreezeStruct (stream, "SAR", &SA1Registers, SnapSA1Registers, 

@@ -575,7 +575,7 @@ static void checkdirs() {
 		sceIoMkdir(SaveDir, 0777);
 	} else sceIoDclose(i);
 
-	strcpy(dst, "SAVES");
+	strcpy(dst, "/SAVES");
 	i = sceIoDopen(SaveDir);
 	if (i < 0) {
 		strcpy(SaveDir, "ms0:/PSP/SAVEDATA/S9XTYLSAVES");

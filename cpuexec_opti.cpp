@@ -278,7 +278,7 @@ void S9xMainLoop (void)
 	}		
 #endif	
 	
-  // Registers.PC = CPU.PC - CPU.PCBase;
+  Registers.PCw = CPU.PC - CPU.PCBase;
     
   S9xPackStatus ();
       
