@@ -369,6 +369,10 @@ typedef struct {
 
 volatile me_sound_t __attribute__((aligned(64))) me_sound_data;
 volatile struct me_struct *me_data;
+
+int devkit_version;
+bool8 s9xStandBy = false; 
+
 #endif
 
 //static uint8 __attribute__((aligned(64))) 	GFX_Screen[SNES_WIDTH * SNES_HEIGHT_EXTENDED * 2];
@@ -2520,7 +2524,66 @@ static void MyExceptionHandler(PspDebugRegBlock *regs)
 }
 #endif
 
+#ifdef ME_SOUND
+////////////////////////////////////////////////////////////////////////////////////////
+//Code based on PSPSDK Power Example
+////////////////////////////////////////////////////////////////////////////////////////
+/* Power Callback */
+static int power_callback(int unknown, int pwrflags, void *common)
+{
+    /* check for power switch and suspending as one is manual and the other automatic */
+    if (pwrflags & PSP_POWER_CB_POWER_SWITCH || pwrflags & PSP_POWER_CB_SUSPENDING)
+	{
+		if(!os9x_netplay)
+		{
+			if(os9x_getnewfile||(os9x_specialaction&OS9X_MENUACCESS))
+			{
+				KillME(me_data, devkit_version);
+				scePowerUnlock(0);
+			}
+			else
+			{
+				s9xStandBy = true;
+				Settings.Paused = true;
+			}
+		}	
+    }
+	else if (pwrflags & PSP_POWER_CB_RESUMING)
+	{
+		s9xStandBy = false;
+		scePowerLock(0);
+		InitME(me_data, devkit_version);
+		if(!os9x_getnewfile&&!(os9x_specialaction&OS9X_MENUACCESS))
+		{
+			after_pause();
+		}
+    } 
+    sceDisplayWaitVblankStart();
 
+	return 0;
+}
+
+/* Callback thread */
+static int CallbackThread(SceSize args, void *argp)
+{
+    int cbid;
+    cbid = sceKernelCreateCallback("Power Callback", power_callback, NULL);
+    scePowerRegisterCallback(0, cbid);
+    sceKernelSleepThreadCB();
+
+	return 0;
+}
+
+/* Sets up the callback thread and returns its thread id */
+static int SetupCallbacks(void)
+{
+    int thid = 0;
+    thid = sceKernelCreateThread("update_thread", CallbackThread, 0x11, 0xFA0, 0, 0);
+    if (thid >= 0)
+	sceKernelStartThread(thid, 0, 0);
+    return thid;
+}
+#endif
 ////////////////////////////////////////////////////////////////////////////////////////
 //
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -2558,34 +2621,37 @@ int main(int argc,char **argv) {
 	//pspDebugProfilerEnable();
 #if defined(ME_SOUND) || defined(HOME_HOOK)
 	char str[256];
-	int devkit_version = sceKernelDevkitVersion();
+	devkit_version = sceKernelDevkitVersion();
 	SceUID mod;
 #endif
 #ifdef ME_SOUND // [Shoey/Chilly]
 	// have to do this before ME enabled or BOOOOOOOMMMMMM!!!!!!
 	scePowerSetClockFrequency(333,333,166);
 
-
     sprintf(str,"%s/%s",LaunchDir,"mediaengine.prx");
+
     if( (mod = pspSdkLoadStartModule(str, PSP_MEMORY_PARTITION_KERNEL)) < 0 )
     {
-		ErrorExit(" Error  loading/mediaengine");
-//        sceKernelDelayThread(3*1000*1000);
+		ErrorExit(" Error loading/mediaengine");
  		return 0;
     }
-
-    me_data = (volatile struct me_struct*)malloc_64( sizeof( struct me_struct ) );  // [Shoey]
+	
+	me_data = (volatile struct me_struct*)malloc_64( sizeof( struct me_struct ) );  // [Shoey]
 	if(!me_data)
 	{
 		ErrorExit(" malloc fail ME\n" );
 		return 0;
 	}
+	
     me_data = (volatile struct me_struct*)(((int) me_data) | 0x40000000 );          // [Shoey]
     if( InitME( me_data, devkit_version ) )
     {
 		ErrorExit(" Error Initializing ME\n" );
 		return 0;
     }
+	
+	SetupCallbacks();
+	
 #endif
 #ifdef HOME_HOOK
 //#ifndef ME_SOUND
@@ -2626,14 +2692,14 @@ int main(int argc,char **argv) {
     msgBoxLines(s9xTYL_msg[ADHOC_DRIVERLOAD_ERR], 60 * 2);
   }
 #endif
-#ifdef ME_SOUND
+/*#ifdef ME_SOUND
 //  me_data = me_struct_init();               // [jonny]
 //  me_startproc((u32)me_function, (u32)me_data); // [jonny]
 #endif
 	// create user thread, tweek stack size here if necessary
 #ifdef ME_SOUND
 //me_stopproc();
-#endif
+#endif*/
 	//user_main(0,NULL);
   //user thread for network
 	SceUID g_mainthread = sceKernelCreateThread("User Mode Thread", user_main,
@@ -3854,19 +3920,26 @@ static int user_main(SceSize args, void* argp) {
 #endif
 		}
 
-		if ((in_emu==1) && ( !Settings.Paused )){
-			S9xMainLoop();
-		static int printed=false;
-		extern uint32 g_nCount;
-		if(g_nCount>200 && printed==false)
+		if ((in_emu==1) && ( !Settings.Paused ))
 		{
-			printed=true;
-			debug_dump("PPU2100Dump");
+			S9xMainLoop();
+			static int printed=false;
+			extern uint32 g_nCount;
+			if(g_nCount>200 && printed==false)
+			{
+				printed=true;
+				debug_dump("PPU2100Dump");
+			}
 		}
-/*				char szBuf[16];
-				sprintf(szBuf,"EXE:%d",IAPU_APUExecuting);
-				pgPrintBG(0,3,0xffff,szBuf);	*/
+#ifdef ME_SOUND
+		else if (s9xStandBy == true)
+		{
+			before_pause();
+			KillME(me_data, devkit_version);
+			scePowerUnlock(0);
+			sceKernelDelayThread(3000000);
 		}
+#endif
 		//if(strlen(me_debug_str)!=0){
 		//	FileLog(me_debug_str);me_debug_str[0]=0;
 		//}
