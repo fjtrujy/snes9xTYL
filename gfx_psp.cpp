@@ -1943,12 +1943,12 @@ void pspDrawBackgroundOffset (uint32 BGMode, uint32 bg, uint8 Z1, uint8 Z2)
     uint16 *BPS1;
     uint16 *BPS2;
     uint16 *BPS3;
-    uint32 Width;
+    //uint32 Width;
 
 
   if (last_palette!=GPUPack.BG.DirectColourMode){  	 
 			//DirectColourMode has changed, so we have to reload palette
-			waitRendering();
+			//waitRendering();
 			last_palette=GPUPack.BG.DirectColourMode;
 			clut = (u16*)NO_CPU_CACHE(&clut256[0]);
 			memcpy(clut,GPUPack.GFX.ScreenColors,256*2);			
@@ -2024,7 +2024,7 @@ void pspDrawBackgroundOffset (uint32 BGMode, uint32 bg, uint8 Z1, uint8 Z2)
 		SC3-=0x10000;
 
 
-    /*static const */int Lines = 1;
+    //static const int Lines = 1;
     int OffsetMask;
     int OffsetShift;
     int OffsetEnableMask = 1 << (bg + 13);
@@ -2040,100 +2040,94 @@ void pspDrawBackgroundOffset (uint32 BGMode, uint32 bg, uint8 Z1, uint8 Z2)
 	OffsetShift = 3;
     }
 
-    for (uint32 Y = GPUPack.GFX.StartY; Y <= GPUPack.GFX.EndY; Y += Lines)
-    {
-		uint32 VOff = LineData [Y].BG[2].VOffset - 1;
-//		uint32 VOff = LineData [Y].BG[2].VOffset;
-	uint32 HOff = LineData [Y].BG[2].HOffset;
-
-	int VirtAlign;
-	int ScreenLine = VOff >> 3;
-	int t1;
-	int t2;
-	uint16 *s0;
-	uint16 *s1;
-	uint16 *s2;
-
-	if (ScreenLine & 0x20)
-	    s1 = BPS2, s2 = BPS3;
-	else
-	    s1 = BPS0, s2 = BPS1;
-
-	s1 += (ScreenLine & 0x1f) << 5;
-	s2 += (ScreenLine & 0x1f) << 5;
-
-		if(BGMode != 4)
+// Optimized version of the offset per tile renderer
+// Based on snes9x_3DS by bubble2k16 
+	
+    for (uint32 OY = GPUPack.GFX.StartY; OY <= GPUPack.GFX.EndY; )
+    {	
+		// Do a check to find out how many scanlines
+		// that the BGnVOFS, BGnHOFS, BG2VOFS, BG2HOS
+		// remains constant
+		
+		int TotalLines = 1;
+		for (; TotalLines < PPUPack.PPU.ScreenHeight - 1; TotalLines++)
 		{
-			if((ScreenLine & 0x1f) == 0x1f)
-			{
-				if(ScreenLine & 0x20)
-					VOffsetOffset = BPS0 - BPS2 - 0x1f*32;
-				else
-					VOffsetOffset = BPS2 - BPS0 - 0x1f*32;
-			}
-			else
-			{
-				VOffsetOffset = 32;
-			}
+			uint32 y = OY + TotalLines - 1;
+			if (y >= GPUPack.GFX.EndY)
+				break;
+			if (!(LineData [y].BG[bg].VOffset == LineData [y + 1].BG[bg].VOffset &&
+				LineData [y].BG[bg].HOffset == LineData [y + 1].BG[bg].HOffset &&
+				LineData [y].BG[2].VOffset == LineData [y + 1].BG[2].VOffset && 
+				LineData [y].BG[2].HOffset == LineData [y + 1].BG[2].HOffset))
+				break;
 		}
-
-	int clipcount = GPUPack.GFX.pCurrentClip->Count [bg];
-	if (!clipcount)
-	    clipcount = 1;
-
-	for (int clip = 0; clip < clipcount; clip++)
-	{
-	    uint32 Left;
-	    uint32 Right;
-
-	    if (!GPUPack.GFX.pCurrentClip->Count [bg])
-	    {
-		Left = 0;
-		Right = 256;
-	    }
-	    else
-	    {
-		Left = GPUPack.GFX.pCurrentClip->Left [clip][bg];
-		Right = GPUPack.GFX.pCurrentClip->Right [clip][bg];
-
-		if (Right <= Left)
-		    continue;
-	    }
-
-	    uint32 VOffset;
-	    uint32 HOffset;
-			//added:
-			uint32 LineHOffset=LineData [Y].BG[bg].HOffset;
-
-	    uint32 Offset;
-	    uint32 HPos;
-	    uint32 Quot;
-	    uint32 Count;
-	    uint16 *t;
-	    uint32 Quot2;
-	    uint32 VCellOffset;
-	    uint32 HCellOffset;
-	    uint16 *b1;
-	    uint16 *b2;
-	    uint32 TotalCount = 0;
-	    uint32 MaxCount = 8;
-
-	    int Xt = Left;// * 1 + Y * GPUPack.GFX.PPL;
-		int Yt =Y;
-	    bool8 left_hand_edge = (Left == 0);
-	    Width = Right - Left;
-
-	    if (Left & 7)
-		MaxCount = 8 - (Left & 7);
-
-	    while (Left < Right)
-	    {
-		if (left_hand_edge)
+		
+		// For those lines, draw the tiles column by column 
+		// (from the left to the right of the screen)
+		//
+		for (uint32 Left = 0; Left <= 256; Left += 8)
 		{
-		    // The SNES offset-per-tile background mode has a
-		    // hardware limitation that the offsets cannot be set
-		    // for the tile at the left-hand edge of the screen.
-		    VOffset = LineData [Y].BG[bg].VOffset;
+			for (uint32 Y = OY; Y < OY + TotalLines; )
+			{
+				uint32 VOff = LineData [Y].BG[2].VOffset - 1;
+				//uint32 VOff = LineData [Y].BG[2].VOffset;
+				uint32 HOff = LineData [Y].BG[2].HOffset;
+
+				int VirtAlign;
+				int ScreenLine = VOff >> 3;
+				int t1;
+				int t2;
+				uint16 *s0;
+				uint16 *s1;
+				uint16 *s2;
+
+				if (ScreenLine & 0x20)
+					s1 = BPS2, s2 = BPS3;
+				else
+					s1 = BPS0, s2 = BPS1;
+
+				s1 += (ScreenLine & 0x1f) << 5;
+				s2 += (ScreenLine & 0x1f) << 5;
+
+				if(BGMode != 4)
+				{
+					if((ScreenLine & 0x1f) == 0x1f)
+					{
+						if(ScreenLine & 0x20)
+							VOffsetOffset = BPS0 - BPS2 - 0x1f*32;
+						else
+							VOffsetOffset = BPS2 - BPS0 - 0x1f*32;
+					}
+					else
+					{
+						VOffsetOffset = 32;
+					}
+				}
+					
+				uint32 VOffset;
+				uint32 HOffset;
+				//added:
+				uint32 LineHOffset=LineData [Y].BG[bg].HOffset;
+
+				uint32 Offset;
+				uint32 HPos;
+				uint32 Quot;
+				uint16 *t;
+				uint32 Quot2;
+				uint32 VCellOffset;
+				uint32 HCellOffset;
+				uint16 *b1;
+				uint16 *b2;
+				uint32 Lines;
+
+				bool8 left_hand_edge = (Left == 0);
+								
+				if (left_hand_edge)
+				{
+					// The SNES offset-per-tile background mode has a
+					// hardware limitation that the offsets cannot be set
+					// for the tile at the left-hand edge of the screen.
+					VOffset = LineData [Y].BG[bg].VOffset;
 
 					//MKendora; use temp var to reduce memory accesses
 					//HOffset = LineData [Y].BG[bg].HOffset;
@@ -2141,162 +2135,154 @@ void pspDrawBackgroundOffset (uint32 BGMode, uint32 bg, uint8 Z1, uint8 Z2)
 					HOffset = LineHOffset;
 					//End MK
 
-		    left_hand_edge = FALSE;
-		}
-		else
+					left_hand_edge = FALSE;
+				}
+				else
+				{
+					// All subsequent offset tile data is shifted left by one,
+					// hence the - 1 below.
 
-		{
-		    // All subsequent offset tile data is shifted left by one,
-		    // hence the - 1 below.
+					Quot2 = ((HOff + Left - 1) & OffsetMask) >> 3;
 
-		    Quot2 = ((HOff + Left - 1) & OffsetMask) >> 3;
+					if (Quot2 > 31)
+						s0 = s2 + (Quot2 & 0x1f);
+					else
+						s0 = s1 + Quot2;
 
-		    if (Quot2 > 31)
-			s0 = s2 + (Quot2 & 0x1f);
-		    else
-			s0 = s1 + Quot2;
+					HCellOffset = READ_2BYTES (s0);
 
-		    HCellOffset = READ_2BYTES (s0);
-
-		    if (BGMode == 4)
-		    {
-			VOffset = LineData [Y].BG[bg].VOffset;
+					if (BGMode == 4)
+					{
+						VOffset = LineData [Y].BG[bg].VOffset;
 
 						//MKendora another mem access hack
 						//HOffset = LineData [Y].BG[bg].HOffset;
 						HOffset=LineHOffset;
 						//end MK
 
-			if ((HCellOffset & OffsetEnableMask))
-			{
-			    if (HCellOffset & 0x8000)
-				VOffset = HCellOffset + 1;
-			    else
-				HOffset = HCellOffset;
-			}
-		    }
-		    else
-		    {
-			VCellOffset = READ_2BYTES (s0 + VOffsetOffset);
-			if ((VCellOffset & OffsetEnableMask))
-			    VOffset = VCellOffset + 1;
-			else
-			    VOffset = LineData [Y].BG[bg].VOffset;
+						if ((HCellOffset & OffsetEnableMask))
+						{
+							if (HCellOffset & 0x8000)
+							VOffset = HCellOffset + 1;
+							else
+							HOffset = HCellOffset;
+						}
+					}				
+					else
+					{
+						VCellOffset = READ_2BYTES (s0 + VOffsetOffset);
+						if ((VCellOffset & OffsetEnableMask))
+							VOffset = VCellOffset + 1;
+						else
+							VOffset = LineData [Y].BG[bg].VOffset;
 
 						//MKendora Strike Gunner fix
-			if ((HCellOffset & OffsetEnableMask))
+						if ((HCellOffset & OffsetEnableMask))
 						{
 							//HOffset= HCellOffset;
 
 							HOffset = (HCellOffset & ~7)|(LineHOffset&7);
 							//HOffset |= LineData [Y].BG[bg].HOffset&7;
 						}
-			else
+						else
 							HOffset=LineHOffset;
 							//HOffset = LineData [Y].BG[bg].HOffset -
 							//Settings.StrikeGunnerOffsetHack;
-						//HOffset &= (~7);
-						//end MK
-		    }
-		}
-		VirtAlign = ((Y + VOffset) & 7)/* << 3*/;
-		ScreenLine = (VOffset + Y) >> OffsetShift;
-
-		//for (Lines = 1; Lines < 8 - VirtAlign; Lines++)
-		//	if ((LineData [Y].BG[bg].VOffset != LineData [Y + Lines].BG[bg].VOffset) ||	(LineData [Y].BG[bg].HOffset != LineData [Y + Lines].BG[bg].HOffset)) break;
-
-		//if (Y + Lines > GPUPack.GFX.EndY) Lines = GPUPack.GFX.EndY + 1 - Y;
-
-		if (((VOffset + Y) & 15) > 7)
-		{
-		    t1 = 16;
-		    t2 = 0;
-		}
-		else
-		{
-		    t1 = 0;
-		    t2 = 16;
-		}
-
-		if (ScreenLine & 0x20)
-		    b1 = SC2, b2 = SC3;
-		else
-		    b1 = SC0, b2 = SC1;
-
-		b1 += (ScreenLine & 0x1f) << 5;
-		b2 += (ScreenLine & 0x1f) << 5;
-
-		HPos = (HOffset + Left) & OffsetMask;
-
-		Quot = HPos >> 3;
-
-		if (GPUPack.BG.TileSize == 8)
-		{
-		    if (Quot > 31)
-			t = b2 + (Quot & 0x1f);
-		    else
-			t = b1 + Quot;
-		}
-		else
-		{
-		    if (Quot > 63)
-			t = b2 + ((Quot >> 1) & 0x1f);
-		    else
-			t = b1 + (Quot >> 1);
-		}
-
-		if (MaxCount + TotalCount > Width)
-		    MaxCount = Width - TotalCount;
-
-		Offset = HPos & 7;
-
-				//Count =1;
-		Count = 8 - Offset;
-		if (Count > MaxCount)
-		    Count = MaxCount;
-
-		Xt -= Offset;
-		Tile = READ_2BYTES(t);
-		GPUPack.GFX.Z1 = GPUPack.GFX.Z2 = depths [(Tile & 0x2000) >> 13];
-		short realZ2=(short)GPUPack.GFX.Z2;
-		if (GPUPack.BG.TileSize == 8)
-			pspDrawClippedTile16_order (Tile, Xt,Yt, Offset, Count, VirtAlign, Lines,realZ2);
-		    //(*DrawClippedTilePtr)    (Tile,     s, Offset, Count, VirtAlign, Lines);
-		else
-		{
-			if (!(Tile & (V_FLIP | H_FLIP)))
-			{
-					// Normal, unflipped
-					pspDrawClippedTile16_order(Tile + t1 + (Quot & 1),Xt,Yt, Offset, Count, VirtAlign, Lines,realZ2);
-					//(*DrawClippedTilePtr)   (Tile + t1 + (Quot & 1), s,    Offset, Count, VirtAlign, Lines);
-		    } else if (Tile & H_FLIP) 
-			{
-				if (Tile & V_FLIP) 
-				{
-			    	// H & V flip
-			    	pspDrawClippedTile16_order (Tile + t2 + 1 - (Quot & 1),Xt,Yt, Offset, Count, VirtAlign, Lines,realZ2);
-					//(*DrawClippedTilePtr)    (Tile + t2 + 1 - (Quot & 1),    s, Offset, Count, VirtAlign, Lines);
-				} else
-				{
-			    	// H flip only
-			    	pspDrawClippedTile16_order (Tile + t1 + 1 - (Quot & 1),Xt,Yt, Offset, Count, VirtAlign, Lines,realZ2);
-					//(*DrawClippedTilePtr)    (Tile + t1 + 1 - (Quot & 1),	   s, Offset, Count, VirtAlign, Lines);
+							//HOffset &= (~7);
+							//end MK
+					}
 				}
-		    } else 
-			{
-				// V flip only
-				pspDrawClippedTile16_order (Tile + t2 + (Quot & 1), Xt,Yt,Offset, Count, VirtAlign, Lines,realZ2);
+				VirtAlign = ((Y + VOffset) & 7) << 3;
+				Lines = 8 - (VirtAlign >> 3);
+												
+				if (Y + Lines >= OY + TotalLines)
+					Lines = OY + TotalLines - Y;
+				ScreenLine = (VOffset + Y) >> OffsetShift;
+
+				if (((VOffset + Y) & 15) > 7)
+				{
+					t1 = 16;
+					t2 = 0;
+				}
+				else
+				{
+					t1 = 0;
+					t2 = 16;
+				}
+
+				if (ScreenLine & 0x20)
+					b1 = SC2, b2 = SC3;
+				else
+					b1 = SC0, b2 = SC1;
+
+				b1 += (ScreenLine & 0x1f) << 5;
+				b2 += (ScreenLine & 0x1f) << 5;
+
+				HPos = (HOffset + Left) & OffsetMask;
+
+				Quot = HPos >> 3;
+
+				if (GPUPack.BG.TileSize == 8)
+				{
+					if (Quot > 31)
+					t = b2 + (Quot & 0x1f);
+					else
+					t = b1 + Quot;
+				}
+				else
+				{
+					if (Quot > 63)
+					t = b2 + ((Quot >> 1) & 0x1f);
+					else
+					t = b1 + (Quot >> 1);
+				}
+
+				Offset = HPos & 7;
+
+				int sX = Left - Offset;
+				
+				// Don't display anything beyond the right edge.
+				if (sX >= 256)
+					break;
+				
+				Tile = READ_2BYTES(t);
+				
+				GPUPack.GFX.Z1 = GPUPack.GFX.Z2 = depths [(Tile & 0x2000) >> 13];
+				short realZ2=(short)GPUPack.GFX.Z2;	
+				
+				if (GPUPack.BG.TileSize == 8)
+					
+					pspDrawTile16_order (Tile,sX,Y, VirtAlign>>3, Lines,realZ2);
+					
+				else
+				{
+					if (!(Tile & (V_FLIP | H_FLIP)))
+					{
+						// Normal, unflipped
+						pspDrawTile16_order (Tile + t1 + (Quot & 1),sX,Y, VirtAlign>>3, Lines,realZ2);
+					} else if (Tile & H_FLIP) 
+						{
+							if (Tile & V_FLIP) 
+							{
+								// H & V flip
+								pspDrawTile16_order (Tile + t2 + 1 - (Quot & 1),sX,Y, VirtAlign>>3, Lines,realZ2);
+							} else
+							{
+								// H flip only
+								pspDrawTile16_order (Tile + t1 + 1 - (Quot & 1),sX,Y, VirtAlign>>3, Lines,realZ2);
+							}
+						} else 
+						{
+							// V flip only
+							pspDrawTile16_order (Tile + t2 + (Quot & 1),sX,Y, VirtAlign>>3, Lines,realZ2);
+						}
+				}
+				// Proceed to the tile below, in the same column.
+				Y += Lines;
 			}
 		}
-
-		Left += Count;
-		TotalCount += Count;
-		Xt += (Offset + Count) * 1;
-		//Xt+=8;
-		MaxCount = 8;
-	    }
+		OY += TotalLines;
 	}
-    }
 	
 	//render
 	if (vertices_ptr[current_bitshift]-vertices[current_bitshift]) {  
