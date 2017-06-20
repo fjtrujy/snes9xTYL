@@ -10,5 +10,7 @@ me: makefile_multi
 	$(MAKE) -f $< ME_ACTIVE=1
 mehomeadhoc: makefile_multi
 	$(MAKE) -f $< ME_ACTIVE=1 HOME_HOOK_ON=1 USE_ADHOC=1
+mefat: makefile_multi
+	$(MAKE) -f $< ME_ACTIVE=1 HOME_HOOK_ON=1 USE_ADHOC=1 FAT_SUPPORT=1
 clean: makefile_multi
 	$(MAKE) -f $< clean

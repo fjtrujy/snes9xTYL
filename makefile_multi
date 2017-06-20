@@ -9,15 +9,19 @@ endif
 INCDIR = psp psp/me psp/openspc++ psp/adhoc zlib danzeff
 
 CFLAGS = -O2 -G0 -Wall -pipe \
-	-fsingle-precision-constant \
-	-DFW3X -DEMUNAME_VERSION="\"$(EMUNAME_VERSION)\""
+	-fsingle-precision-constant  \
+	-DFW3X -DPSP -D__PSP__ -DEMUNAME_VERSION="\"$(EMUNAME_VERSION)\""
 LDFLAGS = -fwhole-program
 
 ifndef ME_ACTIVE
 USE_USER_LIBS = 1
 endif
 
+ifndef FAT_SUPPORT
 BUILD_PRX = 1
+endif
+
+PSP_FW_VERSION = 371
 
 CXXFLAGS = $(CFLAGS) -fno-exceptions -fno-rtti
 ASFLAGS = $(CFLAGS) -c
@@ -79,6 +83,10 @@ ifdef USE_ADHOC
 LIBS += -lpspnet_adhoc -lpspnet_adhocctl -lpspnet_adhocmatching
 OBJS += $(NETOBJ)
 CFLAGS+= -DUSE_ADHOC
+endif
+
+ifdef FAT_SUPPORT
+CFLAGS+= -DFAT_SUPPORT
 endif
 
 CFLAGS += -DNOKERNEL

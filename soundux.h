@@ -116,9 +116,9 @@ enum { MODE_NONE = SOUND_SILENT, MODE_ADSR, MODE_RELEASE = SOUND_RELEASE,
 typedef struct {
     int sound_fd;
 	int sound_switch;
-//#ifndef __psp__
+//#ifndef PSP
     int playback_rate;
-//#endif // __psp__
+//#endif // PSP
     int buffer_size;
     int noise_gen;
     bool8 mute_sound;

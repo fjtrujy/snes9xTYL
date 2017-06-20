@@ -128,7 +128,7 @@ __asm__ (
 	".global __lib_stub_top;"
 	".global __lib_stub_bottom;");
 
-PSP_MODULE_INFO(snes9xTYL, 0, 0, 4);
+PSP_MODULE_INFO("snes9xTYL", 0, 1, 0);
 /* Define the main thread's attribute value (optional) */
 //PSP_MAIN_THREAD_ATTR(PSP_THREAD_ATTR_VFPU);
 PSP_MAIN_THREAD_ATTR(THREAD_ATTR_USER|PSP_THREAD_ATTR_VFPU);
@@ -140,7 +140,11 @@ PSP_MAIN_THREAD_STACK_SIZE_KB(256); /* smaller stack for kernel thread */
 //14000x
 //28000x
 //PSP_HEAP_SIZE_MAX();
-PSP_HEAP_SIZE_KB(8192);
+#ifdef FAT_SUPPORT
+PSP_HEAP_SIZE_KB(-512);
+#else
+PSP_HEAP_SIZE_KB(12000);
+#endif
 
 #ifdef PROFILE
 profile_t profile_data;
@@ -490,7 +494,7 @@ static void update_pad(){
 	if (os9x_padvalue & PSP_CTRL_LTRIGGER) os9x_snespad|=os9x_inputs[PSP_TL];
 	if (os9x_padvalue & PSP_CTRL_RTRIGGER) os9x_snespad|=os9x_inputs[PSP_TR];
 	//if (os9x_padvalue & PSP_CTRL_NOTE) os9x_snespad|=os9x_inputs[PSP_NOTE];
-
+	
 
 	os9x_specialaction=os9x_snespad&0xFFFF0000;
 	os9x_snespad&=0xFFFF;
@@ -2795,9 +2799,9 @@ static void low_level_deinit(){
 #ifndef SOUNDDUX_151
 	S9xFreeSound();
 #endif
+
 	//OSK
 	if (os9x_osk) danzeff_free();
-
 
 	//network
 #ifdef USE_ADHOC
@@ -3939,15 +3943,8 @@ static int user_main(SceSize args, void* argp) {
 			scePowerUnlock(0);
 			sceKernelDelayThread(3000000);
 		}
-#endif
-		//if(strlen(me_debug_str)!=0){
-		//	FileLog(me_debug_str);me_debug_str[0]=0;
-		//}
-		if (g_bSleep){
-#ifdef ME_SOUND
-			os9x_specialaction|=OS9X_MENUACCESS;
-			S9xProcessEvents(false);
 #else
+		if (g_bSleep){
 			while(g_bSleep) pgWaitV();
 			pgWaitVn(60*3);//give some times to wake up, 3seconds
 			resync_var();
@@ -3955,8 +3952,9 @@ static int user_main(SceSize args, void* argp) {
 			if (os9x_apuenabled==2)	S9xSetSoundMute( false );
 			else S9xSetSoundMute( true );
 			*os9x_paused_ptr=0;
-#endif
 		}
+#endif
+		
 #ifdef HOME_HOOK
     if( readHomeButton() > 0 )
     {
@@ -3976,7 +3974,8 @@ static int user_main(SceSize args, void* argp) {
 			in_emu=0;
 		}
 	}
-
+	
+	KillME(me_data, devkit_version);
 	low_level_deinit();
 
 	if (bg_img) image_free(bg_img);

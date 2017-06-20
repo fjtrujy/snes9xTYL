@@ -157,7 +157,7 @@ public:
 	};
   //  enum { MAX_ROM_SIZE = 0x400000 };
 	uint32 MAX_ROM_SIZE;
-/*#ifdef __psp__
+/*#ifdef __PSP__
 	SceUID ROM_HANDLER;
 #endif*/
 

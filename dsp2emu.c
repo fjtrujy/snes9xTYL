@@ -326,4 +326,4 @@ void DSP2_Op0D()
 }
 
 #endif
-#endif // __psp__
+#endif // PSP
