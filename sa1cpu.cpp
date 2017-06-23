@@ -51,10 +51,10 @@
 
 #undef Registers
 #define Registers SA1Registers
-#define S9xGetByte S9xSA1GetByte
-#define S9xGetWord S9xSA1GetWord
-#define S9xSetByte S9xSA1SetByte
-#define S9xSetWord S9xSA1SetWord
+#define S9xGetByte S9xSA1GetByteFast
+#define S9xGetWord S9xSA1GetWordFast
+#define S9xSetByte S9xSA1SetByteFast
+#define S9xSetWord S9xSA1SetWordFast
 #define S9xSetPCBase S9xSA1SetPCBase
 #define S9xOpcodesM1X1 S9xSA1OpcodesM1X1
 #define S9xOpcodesM1X0 S9xSA1OpcodesM1X0
@@ -96,9 +96,9 @@
 
 void S9xSA1MainLoop ()
 {
-    int i;
+    //int i;
 
-#if 0
+/*#if 0
     if (SA1.Flags & NMI_FLAG)
     {
 	SA1.Flags &= ~NMI_FLAG;
@@ -109,7 +109,7 @@ void S9xSA1MainLoop ()
 	}
 	S9xSA1Opcode_NMI ();
     }
-#endif
+#endif*/
     if (SA1.Flags & IRQ_PENDING_FLAG)
     {
 	if (SA1.IRQActive)
@@ -125,7 +125,7 @@ void S9xSA1MainLoop ()
 	else
 	    SA1.Flags &= ~IRQ_PENDING_FLAG;
     }
-#ifdef DEBUGGER
+/*#ifdef DEBUGGER
     if (SA1.Flags & TRACE_FLAG)
     {
 	for (i = 0; i < 3 && SA1.Executing; i++)
@@ -145,5 +145,24 @@ void S9xSA1MainLoop ()
 	SA1.PCAtOpcodeStart = SA1.PC;
 #endif
 	(*SA1.S9xOpcodes [*SA1.PC++].S9xOpcode) ();
-    }
+    }*/
+    (*SA1.S9xOpcodes [*SA1.PC++].S9xOpcode) ();
+    (*SA1.S9xOpcodes [*SA1.PC++].S9xOpcode) ();
+	(*SA1.S9xOpcodes [*SA1.PC++].S9xOpcode) ();
 }
+
+void S9xSA1CheckIRQ()
+{
+	if (SA1.IRQActive)
+	{
+	    if (SA1.WaitingForInterrupt)
+	    {
+		SA1.WaitingForInterrupt = FALSE;
+		SA1.PC++;
+	    }
+	    if (!SA1CheckFlag (IRQ))
+		S9xSA1Opcode_IRQ ();
+	}
+	else
+	    SA1.Flags &= ~IRQ_PENDING_FLAG;    
+}	

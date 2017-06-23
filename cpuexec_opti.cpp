@@ -55,6 +55,7 @@
 #include "sa1.h"
 
 extern char str_tmp[256];
+extern struct SSA1 SA1;
 
 #define FLAGS_NMI() \
 				if (--CPU.NMICycleCount == 0) {\
@@ -126,8 +127,13 @@ void S9xMainLoop_SA1_APU (void) {
 
     //S9xUpdateAPUTimer ();
 
-    if (SA1.Executing) S9xSA1MainLoop ();
-      
+    if (SA1.Executing) //S9xSA1MainLoop ();
+	{
+		if (SA1.Flags & IRQ_PENDING_FLAG) S9xSA1CheckIRQ(); \
+		(*SA1.S9xOpcodes [*SA1.PC++].S9xOpcode) (); \
+		(*SA1.S9xOpcodes [*SA1.PC++].S9xOpcode) (); \
+		(*SA1.S9xOpcodes [*SA1.PC++].S9xOpcode) (); \
+	}
     DO_HBLANK_CHECK ();
   }
 }
@@ -211,8 +217,13 @@ void S9xMainLoop_SA1_NoAPU (void) {
 	extern int  os9x_SA1_exec;
 	for(int i=0;i<os9x_SA1_exec;i++)
     (*ICPU.S9xOpcodes[*CPU.PC++].S9xOpcode) ();
-    if (SA1.Executing) S9xSA1MainLoop ();
-      
+    if (SA1.Executing) //S9xSA1MainLoop ();
+	{
+		if (SA1.Flags & IRQ_PENDING_FLAG) S9xSA1CheckIRQ(); \
+		(*SA1.S9xOpcodes [*SA1.PC++].S9xOpcode) (); \
+		(*SA1.S9xOpcodes [*SA1.PC++].S9xOpcode) (); \
+		(*SA1.S9xOpcodes [*SA1.PC++].S9xOpcode) (); \
+	}
     DO_HBLANK_CHECK ();
   }
 }
