@@ -128,6 +128,12 @@ struct InternalPPU {
 	//int    PaletteLineCount;
 	//uint8  PaletteLines[256];
 	//uint16 ScreenColorsLog[256][256];
+	
+	// Added for register change optimization.
+    // Helps in reducing number of FLUSH_REDRAWs per frame.
+    //
+	int DeferredRegisterWrite[0x100];
+	
 };
 
 struct SOBJ
@@ -357,6 +363,8 @@ void ComputeClipWindowsFix ();
 #include "gfx.h"
 #include "memmap.h"
 
+#define DEBUG_FLUSH_REDRAW(a,b) 
+
 STATIC inline uint8 REGISTER_4212()
 {
     GetBank = 0;
@@ -388,7 +396,8 @@ STATIC inline void REGISTER_2104 (uint8 byte)
     if (byte != PPUPack.PPU.OAMData [addr])
     {
     	INFO_FLUSH_REDRAW("2104");
-	FLUSH_REDRAW ();
+	DEBUG_FLUSH_REDRAW(0x2104, byte);
+	FLUSH_REDRAW ();	
 	PPUPack.PPU.OAMData [addr] = byte;
 	IPPU.OBJChanged = TRUE;
 	if (addr & 0x200)
@@ -706,11 +715,15 @@ STATIC inline void REGISTER_2122(uint8 Byte)
 			{
 				if((IPPU.CurrentLine&7)==0 || (IPPU.CurrentLine-IPPU.PreviousLine)>7 )
 				{
+					DEBUG_FLUSH_REDRAW(0x2122, Byte);
 					FLUSH_REDRAW ();
 				}
 			}
 			else
+			{
+				DEBUG_FLUSH_REDRAW(0x2122, Byte);
 				FLUSH_REDRAW ();
+			}
 		}
 		ScreenColorsLog_BeforeUpdate();
 	    PPUPack.PPU.CGDATA[PPUPack.PPU.CGADD] &= 0x00FF;
@@ -741,11 +754,15 @@ STATIC inline void REGISTER_2122(uint8 Byte)
 			{
 				if((IPPU.CurrentLine&7)==0) /*|| (IPPU.CurrentLine-IPPU.PreviousLine)>7*/ 
 				{
+					DEBUG_FLUSH_REDRAW(0x2122, Byte);
 					FLUSH_REDRAW ();
 				}
 			}
 			else
+			{
+				DEBUG_FLUSH_REDRAW(0x2122, Byte);
 				FLUSH_REDRAW ();
+			}
 		}
 		ScreenColorsLog_BeforeUpdate();
 	    PPUPack.PPU.CGDATA[PPUPack.PPU.CGADD] &= 0x7F00;

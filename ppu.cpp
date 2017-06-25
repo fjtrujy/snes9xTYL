@@ -704,7 +704,14 @@ void S9xSetPPU (uint8 Byte, uint16 Address)
 	break;
     case 0x212c:
 	// Main screen designation (backgrounds 1 - 4 and objects)
-	if (Byte != ROM_GLOBAL [0x212c])
+		
+		// Defer the write. This is ok since the read of this register
+		// returns the Open Bus value.
+		// 
+		IPPU.DeferredRegisterWrite[Address - 0x2100] = Byte;
+		return; 
+		
+	/*if (Byte != ROM_GLOBAL [0x212c])
 	{
 		INFO_FLUSH_REDRAW("212C");
 	    FLUSH_REDRAW ();
@@ -713,10 +720,16 @@ void S9xSetPPU (uint8 Byte, uint16 Address)
 	    ROM_GLOBAL [Address] = Byte;
 	    return;
 	}
-	break;
+	break;*/
+	
     case 0x212d:
 	// Sub-screen designation (backgrounds 1 - 4 and objects)
-	if (Byte != ROM_GLOBAL [0x212d])
+		// Defer the write. This is ok since the read of this register
+		// returns the Open Bus value.
+		// 
+		IPPU.DeferredRegisterWrite[Address - 0x2100] = Byte;
+		return; 
+	/*if (Byte != ROM_GLOBAL [0x212d])
 	{
 		INFO_FLUSH_REDRAW("212D");
 		FLUSH_REDRAW ();
@@ -729,30 +742,45 @@ void S9xSetPPU (uint8 Byte, uint16 Address)
 	    ROM_GLOBAL [Address] = Byte;
 	    return;
 	}
-	break;
+	break;*/
     case 0x212e:
 	// Window mask designation for main screen ?
-	if (Byte != ROM_GLOBAL [0x212e])
+		// Defer the write. This is ok since the read of this register
+		// returns the Open Bus value.
+		// 
+		IPPU.DeferredRegisterWrite[Address - 0x2100] = Byte;
+		return; 
+	/*if (Byte != ROM_GLOBAL [0x212e])
 	{
 		INFO_FLUSH_REDRAW("212E");
 	    FLUSH_REDRAW ();
 		INC_DEBUG_COUNT(22);
 	    PPUPack.PPU.RecomputeClipWindows = TRUE;
 	}
-	break;
+	break;*/
     case 0x212f:
 	// Window mask designation for sub-screen ?
-	if (Byte != ROM_GLOBAL [0x212f])
+		// Defer the write. This is ok since the read of this register
+		// returns the Open Bus value.
+		// 
+		IPPU.DeferredRegisterWrite[Address - 0x2100] = Byte;
+		return; 
+	/*if (Byte != ROM_GLOBAL [0x212f])
 	{
 		INFO_FLUSH_REDRAW("212F");
 	    FLUSH_REDRAW ();
 		INC_DEBUG_COUNT(23);
 	    PPUPack.PPU.RecomputeClipWindows = TRUE;
 	}
-	break;
+	break;*/
     case 0x2130:
 	// Fixed colour addition or screen addition
-	if (Byte != ROM_GLOBAL [0x2130])
+		// Defer the write. This is ok since the read of this register
+		// returns the Open Bus value.
+		// 
+		IPPU.DeferredRegisterWrite[Address - 0x2100] = Byte;
+		return; 
+	/*if (Byte != ROM_GLOBAL [0x2130])
 	{
 		if (os9x_hack&PPU_IGNORE_ADDSUB) return;
 		INFO_FLUSH_REDRAW("2130");
@@ -764,10 +792,15 @@ void S9xSetPPU (uint8 Byte, uint16 Address)
 		missing.direct = 1;
 #endif
 	}
-	break;
+	break;*/
     case 0x2131:
 	// Colour addition or subtraction select
-	if (Byte != ROM_GLOBAL[0x2131])
+		// Defer the write. This is ok since the read of this register
+		// returns the Open Bus value.
+		// 
+		IPPU.DeferredRegisterWrite[Address - 0x2100] = Byte;
+		return; 
+	/*if (Byte != ROM_GLOBAL[0x2131])
 	{
 		if (os9x_hack&PPU_IGNORE_ADDSUB) return;
 		INFO_FLUSH_REDRAW("2131");
@@ -794,7 +827,7 @@ void S9xSetPPU (uint8 Byte, uint16 Address)
 	    }
 #endif
 	}
-	break;
+	break;*/
     case 0x2132:
 	if (Byte != ROM_GLOBAL [0x2132])
 	{
@@ -2846,6 +2879,9 @@ void S9xResetPPU ()
     // For BS Suttehakkun 2...
     ZeroMemory (&ROM_GLOBAL [0x1000], 0x1000);
 
+	for (int i = 0; i < 0x100; i++)
+		IPPU.DeferredRegisterWrite[i] = 0xff00;	
+	
 	ResetClipWindowsFix();
 }
 #ifndef NOT_SUPPORT_MOUSE

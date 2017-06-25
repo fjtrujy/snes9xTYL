@@ -350,7 +350,36 @@ S9xDoHBlankProcessing_HBLANK_END_EVENT () {
   CPU.WaitCounter++;
 #endif
   if (Settings.SuperFX) S9xSuperFXExec ();
-  	  
+
+	static const int addr[] = { 0x2c, 0x2d, 0x2e, 0x2f, 0x30, 0x31 };
+
+	// Based on snes9x 3DS by bubble2k16
+	// Optimization for a small number of PPU registers,
+	// we will trigger the FLUSH_REDRAW here instead of
+	// us doing it when the register values change. This is
+	// because some games like FF3 and Ace o Nerae changes
+	// the registers multiple times in the same scanline,
+	// even though the end value is the same by the end of
+	// the scanline. But because they modify the registers,
+	// the rendering is forced to do a FLUSH_REDRAW.
+	//
+	// In this optimization, we simply defer the FLUSH_REDRAW
+	// until this point here and only when we determine that 
+	// at least one of the registers have changed from the
+	// value in the previous scanline.
+	//
+	for (uint i = 0; i < sizeof(addr) / sizeof(int); i++)
+	{
+		int a = addr[i];
+		if (IPPU.DeferredRegisterWrite[a] != 0xff00 &&
+			IPPU.DeferredRegisterWrite[a] != ROM_GLOBAL[a + 0x2100])
+		{
+			DEBUG_FLUSH_REDRAW(a + 0x2100, IPPU.DeferredRegisterWrite[a]);
+			FLUSH_REDRAW();
+			ROM_GLOBAL[a + 0x2100] = IPPU.DeferredRegisterWrite[a];
+		}
+		IPPU.DeferredRegisterWrite[a] = 0xff00;
+	}
 
 	cpu_glob_cycles += CPU.Cycles-old_cpu_cycles;		
 	CPU.Cycles -= Settings.H_Max;	
