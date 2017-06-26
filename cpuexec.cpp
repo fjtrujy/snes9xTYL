@@ -1,553 +1,588 @@
-/***********************************************************************************
-  Snes9x - Portable Super Nintendo Entertainment System (TM) emulator.
-
-  (c) Copyright 1996 - 2002  Gary Henderson (gary.henderson@ntlworld.com),
-                             Jerremy Koot (jkoot@snes9x.com)
-
-  (c) Copyright 2002 - 2004  Matthew Kendora
-
-  (c) Copyright 2002 - 2005  Peter Bortas (peter@bortas.org)
-
-  (c) Copyright 2004 - 2005  Joel Yliluoma (http://iki.fi/bisqwit/)
-
-  (c) Copyright 2001 - 2006  John Weidman (jweidman@slip.net)
-
-  (c) Copyright 2002 - 2006  funkyass (funkyass@spam.shaw.ca),
-                             Kris Bleakley (codeviolation@hotmail.com)
-
-  (c) Copyright 2002 - 2010  Brad Jorsch (anomie@users.sourceforge.net),
-                             Nach (n-a-c-h@users.sourceforge.net),
-
-  (c) Copyright 2002 - 2011  zones (kasumitokoduck@yahoo.com)
-
-  (c) Copyright 2006 - 2007  nitsuja
-
-  (c) Copyright 2009 - 2011  BearOso,
-                             OV2
-
-
-  BS-X C emulator code
-  (c) Copyright 2005 - 2006  Dreamer Nom,
-                             zones
-
-  C4 x86 assembler and some C emulation code
-  (c) Copyright 2000 - 2003  _Demo_ (_demo_@zsnes.com),
-                             Nach,
-                             zsKnight (zsknight@zsnes.com)
-
-  C4 C++ code
-  (c) Copyright 2003 - 2006  Brad Jorsch,
-                             Nach
-
-  DSP-1 emulator code
-  (c) Copyright 1998 - 2006  _Demo_,
-                             Andreas Naive (andreasnaive@gmail.com),
-                             Gary Henderson,
-                             Ivar (ivar@snes9x.com),
-                             John Weidman,
-                             Kris Bleakley,
-                             Matthew Kendora,
-                             Nach,
-                             neviksti (neviksti@hotmail.com)
-
-  DSP-2 emulator code
-  (c) Copyright 2003         John Weidman,
-                             Kris Bleakley,
-                             Lord Nightmare (lord_nightmare@users.sourceforge.net),
-                             Matthew Kendora,
-                             neviksti
-
-  DSP-3 emulator code
-  (c) Copyright 2003 - 2006  John Weidman,
-                             Kris Bleakley,
-                             Lancer,
-                             z80 gaiden
-
-  DSP-4 emulator code
-  (c) Copyright 2004 - 2006  Dreamer Nom,
-                             John Weidman,
-                             Kris Bleakley,
-                             Nach,
-                             z80 gaiden
-
-  OBC1 emulator code
-  (c) Copyright 2001 - 2004  zsKnight,
-                             pagefault (pagefault@zsnes.com),
-                             Kris Bleakley
-                             Ported from x86 assembler to C by sanmaiwashi
-
-  SPC7110 and RTC C++ emulator code used in 1.39-1.51
-  (c) Copyright 2002         Matthew Kendora with research by
-                             zsKnight,
-                             John Weidman,
-                             Dark Force
-
-  SPC7110 and RTC C++ emulator code used in 1.52+
-  (c) Copyright 2009         byuu,
-                             neviksti
-
-  S-DD1 C emulator code
-  (c) Copyright 2003         Brad Jorsch with research by
-                             Andreas Naive,
-                             John Weidman
-
-  S-RTC C emulator code
-  (c) Copyright 2001 - 2006  byuu,
-                             John Weidman
-
-  ST010 C++ emulator code
-  (c) Copyright 2003         Feather,
-                             John Weidman,
-                             Kris Bleakley,
-                             Matthew Kendora
-
-  Super FX x86 assembler emulator code
-  (c) Copyright 1998 - 2003  _Demo_,
-                             pagefault,
-                             zsKnight
-
-  Super FX C emulator code
-  (c) Copyright 1997 - 1999  Ivar,
-                             Gary Henderson,
-                             John Weidman
-
-  Sound emulator code used in 1.5-1.51
-  (c) Copyright 1998 - 2003  Brad Martin
-  (c) Copyright 1998 - 2006  Charles Bilyue'
-
-  Sound emulator code used in 1.52+
-  (c) Copyright 2004 - 2007  Shay Green (gblargg@gmail.com)
-
-  SH assembler code partly based on x86 assembler code
-  (c) Copyright 2002 - 2004  Marcus Comstedt (marcus@mc.pp.se)
-
-  2xSaI filter
-  (c) Copyright 1999 - 2001  Derek Liauw Kie Fa
-
-  HQ2x, HQ3x, HQ4x filters
-  (c) Copyright 2003         Maxim Stepin (maxim@hiend3d.com)
-
-  NTSC filter
-  (c) Copyright 2006 - 2007  Shay Green
-
-  GTK+ GUI code
-  (c) Copyright 2004 - 2011  BearOso
-
-  Win32 GUI code
-  (c) Copyright 2003 - 2006  blip,
-                             funkyass,
-                             Matthew Kendora,
-                             Nach,
-                             nitsuja
-  (c) Copyright 2009 - 2011  OV2
-
-  Mac OS GUI code
-  (c) Copyright 1998 - 2001  John Stiles
-  (c) Copyright 2001 - 2011  zones
-
-
-  Specific ports contains the works of other authors. See headers in
-  individual files.
-
-
-  Snes9x homepage: http://www.snes9x.com/
-
-  Permission to use, copy, modify and/or distribute Snes9x in both binary
-  and source form, for non-commercial purposes, is hereby granted without
-  fee, providing that this license information and copyright notice appear
-  with all copies and any derived work.
-
-  This software is provided 'as-is', without any express or implied
-  warranty. In no event shall the authors be held liable for any damages
-  arising from the use of this software or it's derivatives.
-
-  Snes9x is freeware for PERSONAL USE only. Commercial users should
-  seek permission of the copyright holders first. Commercial use includes,
-  but is not limited to, charging money for Snes9x or software derived from
-  Snes9x, including Snes9x or derivatives in commercial game bundles, and/or
-  using Snes9x as a promotion for your commercial product.
-
-  The copyright holders request that bug fixes and improvements to the code
-  should be forwarded to them so everyone can benefit from the modifications
-  in future versions.
-
-  Super NES and Super Nintendo Entertainment System are trademarks of
-  Nintendo Co., Limited and its subsidiary companies.
- ***********************************************************************************/
-
+/*
+ * Snes9x - Portable Super Nintendo Entertainment System (TM) emulator.
+ *
+ * (c) Copyright 1996 - 2001 Gary Henderson (gary.henderson@ntlworld.com) and
+ *                           Jerremy Koot (jkoot@snes9x.com)
+ *
+ * Super FX C emulator code 
+ * (c) Copyright 1997 - 1999 Ivar (ivar@snes9x.com) and
+ *                           Gary Henderson.
+ * Super FX     assembler emulator code (c) Copyright 1998 zsKnight and _Demo_.
+ *
+ * DSP1 emulator code (c) Copyright 1998 Ivar, _Demo_ and Gary Henderson.
+ * C4 asm and some C emulation code (c) Copyright 2000 zsKnight and _Demo_.
+ * C4 C code (c) Copyright 2001 Gary Henderson (gary.henderson@ntlworld.com).
+ *
+ * DOS port code contains the works of other authors. See headers in
+ * individual files.
+ *
+ * Snes9x homepage: http://www.snes9x.com
+ *
+ * Permission to use, copy, modify and distribute Snes9x in both binary and
+ * source form, for non-commercial purposes, is hereby granted without fee,
+ * providing that this license information and copyright notice appear with
+ * all copies and any derived work.
+ *
+ * This software is provided 'as-is', without any express or implied
+ * warranty. In no event shall the authors be held liable for any damages
+ * arising from the use of this software.
+ *
+ * Snes9x is freeware for PERSONAL USE only. Commercial users should
+ * seek permission of the copyright holders first. Commercial use includes
+ * charging money for Snes9x or software derived from Snes9x.
+ *
+ * The copyright holders request that bug fixes and improvements to the code
+ * should be forwarded to them so everyone can benefit from the modifications
+ * in future versions.
+ *
+ * Super NES and Super Nintendo Entertainment System are trademarks of
+ * Nintendo Co., Limited and its subsidiary companies.
+ */
 
 #include "snes9x.h"
+
 #include "memmap.h"
 #include "cpuops.h"
-#include "dma.h"
-#include "apu/apu.h"
-#include "fxemu.h"
-#include "snapshot.h"
-#ifdef DEBUGGER
+#include "ppu.h"
+#include "cpuexec.h"
 #include "debug.h"
+#include "snapshot.h"
+#include "gfx.h"
 #include "missing.h"
+#include "apu.h"
+#include "dma.h"
+#include "fxemu.h"
+#include "sa1.h"
+
+extern char str_tmp[256];
+extern struct SSA1 SA1;
+
+#define FLAGS_NMI() \
+				if (--CPU.NMICycleCount == 0) {\
+		  		CPU.Flags &= ~NMI_FLAG;\
+		  		if (CPU.WaitingForInterrupt) {\
+		      	CPU.WaitingForInterrupt = FALSE;\
+		      	CPU.PC++;\
+		    	}\
+		  		S9xOpcode_NMI ();\
+				}
+#define FLAGS_IRQ() \
+				if (CPU.IRQCycleCount == 0) {\
+		  		if (CPU.WaitingForInterrupt) {\
+		      	CPU.WaitingForInterrupt = FALSE;\
+		      	CPU.PC++;\
+		    	}\
+		  		if (CPU.IRQActive && !Settings.DisableIRQ) {\
+		      	if (!CheckFlag (IRQ)) S9xOpcode_IRQ ();\
+		    	} else CPU.Flags &= ~IRQ_PENDING_FLAG;\
+				} else CPU.IRQCycleCount--;
+#define FLAGS_SCAN_KEYS_FLAG() return
+
+#ifdef DEBUGGER
+#define IRQ_ACTIVE	CPU.IRQActive && !Settings.DisableIRQ
+#else
+#define IRQ_ACTIVE	CPU.IRQActive
 #endif
+			
+void (*S9x_Current_HBlank_Event)();
 
-static inline void S9xReschedule (void);
+void S9xMainLoop_SA1_APU (void) {
+	for (;;) { 
+		UPDATE_APU_COUNTER();
+		
+    if (CPU.Flags) {
+	  	if (CPU.Flags & NMI_FLAG) {
+	      if (--CPU.NMICycleCount == 0) {
+		  		CPU.Flags &= ~NMI_FLAG;
+		  		if (CPU.WaitingForInterrupt) {
+		      	CPU.WaitingForInterrupt = FALSE;
+		      	CPU.PC++;
+		    	}
+		  		S9xOpcode_NMI ();
+				}
+	    }
 
+	  	if (CPU.Flags & IRQ_PENDING_FLAG) {
+	      if (CPU.IRQCycleCount == 0) {
+		  		if (CPU.WaitingForInterrupt) {
+		      	CPU.WaitingForInterrupt = FALSE;
+		      	CPU.PC++;
+		    	}
+		  		if (IRQ_ACTIVE) {
+		      	if (!CheckFlag (IRQ)) S9xOpcode_IRQ ();
+		    	} else CPU.Flags &= ~IRQ_PENDING_FLAG;
+				} else CPU.IRQCycleCount--;
+	    }
+	  	if (CPU.Flags & SCAN_KEYS_FLAG) break;
+		}
+
+		#ifdef CPU_SHUTDOWN
+    CPU.PCAtOpcodeStart = CPU.PC;
+		#endif
+				
+    CPU.Cycles += CPU.MemSpeed;
+	extern int  os9x_SA1_exec;
+	for(int i=0;i<os9x_SA1_exec;i++)
+		(*ICPU.S9xOpcodes[*CPU.PC++].S9xOpcode) ();
+
+    //S9xUpdateAPUTimer ();
+
+    if (SA1.Executing) //S9xSA1MainLoop ();
+	{
+		if (SA1.Flags & IRQ_PENDING_FLAG) S9xSA1CheckIRQ(); \
+		(*SA1.S9xOpcodes [*SA1.PC++].S9xOpcode) (); \
+		(*SA1.S9xOpcodes [*SA1.PC++].S9xOpcode) (); \
+		(*SA1.S9xOpcodes [*SA1.PC++].S9xOpcode) (); \
+	}
+    DO_HBLANK_CHECK ();
+  }
+}
+
+
+
+void S9xMainLoop_NoSA1_APU (void) {
+	for (;;) {
+		UPDATE_APU_COUNTER();
+		
+    if (CPU.Flags) {
+	  	if (CPU.Flags & NMI_FLAG) {
+	      if (--CPU.NMICycleCount == 0) {
+		  		CPU.Flags &= ~NMI_FLAG;
+		  		if (CPU.WaitingForInterrupt) {
+		      	CPU.WaitingForInterrupt = FALSE;
+		      	CPU.PC++;
+		    	}
+		  		S9xOpcode_NMI ();
+				}
+	    }
+
+	  	if (CPU.Flags & IRQ_PENDING_FLAG) {
+	      if (CPU.IRQCycleCount == 0) {
+		  		if (CPU.WaitingForInterrupt) {
+		      	CPU.WaitingForInterrupt = FALSE;
+		      	CPU.PC++;
+		    	}
+		  		if (IRQ_ACTIVE) {
+		      	if (!CheckFlag (IRQ)) S9xOpcode_IRQ ();
+		    	} else CPU.Flags &= ~IRQ_PENDING_FLAG;
+				} else CPU.IRQCycleCount--;
+	    }
+	  	if (CPU.Flags & SCAN_KEYS_FLAG) break;
+		}
+
+		#ifdef CPU_SHUTDOWN
+    CPU.PCAtOpcodeStart = CPU.PC;
+		#endif
+    CPU.Cycles += CPU.MemSpeed;
+	(*ICPU.S9xOpcodes[*CPU.PC++].S9xOpcode) ();
+
+    DO_HBLANK_CHECK ();
+  } 
+  
+}
+
+
+void S9xMainLoop_SA1_NoAPU (void) {
+	for (;;) {		
+    if (CPU.Flags) {
+	  	if (CPU.Flags & NMI_FLAG) {
+	      if (--CPU.NMICycleCount == 0) {
+		  		CPU.Flags &= ~NMI_FLAG;
+		  		if (CPU.WaitingForInterrupt) {
+		      	CPU.WaitingForInterrupt = FALSE;
+		      	CPU.PC++;
+		    	}
+		  		S9xOpcode_NMI ();
+				}
+	    }
+
+	  	if (CPU.Flags & IRQ_PENDING_FLAG) {
+	      if (CPU.IRQCycleCount == 0) {
+		  		if (CPU.WaitingForInterrupt) {
+		      	CPU.WaitingForInterrupt = FALSE;
+		      	CPU.PC++;
+		    	}
+		  		if (IRQ_ACTIVE) {
+		      	if (!CheckFlag (IRQ)) S9xOpcode_IRQ ();
+		    	} else CPU.Flags &= ~IRQ_PENDING_FLAG;
+				} else CPU.IRQCycleCount--;
+	    }
+	  	if (CPU.Flags & SCAN_KEYS_FLAG) break;
+		}
+
+		#ifdef CPU_SHUTDOWN
+    CPU.PCAtOpcodeStart = CPU.PC;
+		#endif
+    CPU.Cycles += CPU.MemSpeed;
+	extern int  os9x_SA1_exec;
+	for(int i=0;i<os9x_SA1_exec;i++)
+    (*ICPU.S9xOpcodes[*CPU.PC++].S9xOpcode) ();
+    if (SA1.Executing) //S9xSA1MainLoop ();
+	{
+		if (SA1.Flags & IRQ_PENDING_FLAG) S9xSA1CheckIRQ(); \
+		(*SA1.S9xOpcodes [*SA1.PC++].S9xOpcode) (); \
+		(*SA1.S9xOpcodes [*SA1.PC++].S9xOpcode) (); \
+		(*SA1.S9xOpcodes [*SA1.PC++].S9xOpcode) (); \
+	}
+    DO_HBLANK_CHECK ();
+  }
+}
+
+void S9xMainLoop_NoSA1_NoAPU (void) {
+	for (;;) {
+    if (CPU.Flags) {
+	  	if (CPU.Flags & NMI_FLAG) {
+	      if (--CPU.NMICycleCount == 0) {
+		  		CPU.Flags &= ~NMI_FLAG;
+		  		if (CPU.WaitingForInterrupt) {
+		      	CPU.WaitingForInterrupt = FALSE;
+		      	CPU.PC++;
+		    	}
+		  		S9xOpcode_NMI ();
+				}
+	    }
+
+	  	if (CPU.Flags & IRQ_PENDING_FLAG) {
+	      if (CPU.IRQCycleCount == 0) {
+		  		if (CPU.WaitingForInterrupt) {
+		      	CPU.WaitingForInterrupt = FALSE;
+		      	CPU.PC++;
+		    	}
+		  		if (IRQ_ACTIVE) {
+		      	if (!CheckFlag (IRQ)) S9xOpcode_IRQ ();
+		    	} else CPU.Flags &= ~IRQ_PENDING_FLAG;
+				} else CPU.IRQCycleCount--;
+	    }
+	  	if (CPU.Flags & SCAN_KEYS_FLAG) break;
+		}
+
+		#ifdef CPU_SHUTDOWN
+    CPU.PCAtOpcodeStart = CPU.PC;
+		#endif
+    CPU.Cycles += CPU.MemSpeed;
+
+    (*ICPU.S9xOpcodes[*CPU.PC++].S9xOpcode) ();
+      
+    DO_HBLANK_CHECK ();
+  }
+  return;
+  
+}
 
 void S9xMainLoop (void)
 {
-	for (;;)
-	{
-		if (CPU.NMILine)
-		{
-			if (Timings.NMITriggerPos <= CPU.Cycles)
-			{
-				CPU.NMILine = FALSE;
-				Timings.NMITriggerPos = 0xffff;
-				if (CPU.WaitingForInterrupt)
-				{
-					CPU.WaitingForInterrupt = FALSE;
-					Registers.PCw++;
-				}
-
-				S9xOpcode_NMI();
-			}
-		}
-
-		if (CPU.IRQTransition || CPU.IRQExternal)
-		{
-			if (CPU.IRQPending)
-				CPU.IRQPending--;
-			else
-			{
-				if (CPU.WaitingForInterrupt)
-				{
-					CPU.WaitingForInterrupt = FALSE;
-					Registers.PCw++;
-				}
-
-				CPU.IRQTransition = FALSE;
-				CPU.IRQPending = Timings.IRQPendCount;
-
-				if (!CheckFlag(IRQ))
-					S9xOpcode_IRQ();
-			}
-		}
-
-	#ifdef DEBUGGER
-		if ((CPU.Flags & BREAK_FLAG) && !(CPU.Flags & SINGLE_STEP_FLAG))
-		{
-			for (int Break = 0; Break != 6; Break++)
-			{
-				if (S9xBreakpoint[Break].Enabled &&
-					S9xBreakpoint[Break].Bank == Registers.PB &&
-					S9xBreakpoint[Break].Address == Registers.PCw)
-				{
-					if (S9xBreakpoint[Break].Enabled == 2)
-						S9xBreakpoint[Break].Enabled = TRUE;
-					else
-						CPU.Flags |= DEBUG_MODE_FLAG;
-				}
-			}
-		}
-
-		if (CPU.Flags & DEBUG_MODE_FLAG)
-			break;
-
-		if (CPU.Flags & TRACE_FLAG)
-			S9xTrace();
-
-		if (CPU.Flags & SINGLE_STEP_FLAG)
-		{
-			CPU.Flags &= ~SINGLE_STEP_FLAG;
-			CPU.Flags |= DEBUG_MODE_FLAG;
-		}
-	#endif
-
-		if (CPU.Flags & SCAN_KEYS_FLAG)
-			break;
-
-		register uint8				Op;
-		register struct	SOpcodes	*Opcodes;
-
-		if (CPU.PCBase)
-		{
-			Op = CPU.PCBase[Registers.PCw];
-			CPU.PrevCycles = CPU.Cycles;
-			CPU.Cycles += CPU.MemSpeed;
-			S9xCheckInterrupts();
-			Opcodes = ICPU.S9xOpcodes;
-		}
-		else
-		{
-			Op = S9xGetByte(Registers.PBPC);
-			OpenBus = Op;
-			Opcodes = S9xOpcodesSlow;
-		}
-
-		if ((Registers.PCw & MEMMAP_MASK) + ICPU.S9xOpLengths[Op] >= MEMMAP_BLOCK_SIZE)
-		{
-			uint8	*oldPCBase = CPU.PCBase;
-
-			CPU.PCBase = S9xGetBasePointer(ICPU.ShiftedPB + ((uint16) (Registers.PCw + 4)));
-			if (oldPCBase != CPU.PCBase || (Registers.PCw & ~MEMMAP_MASK) == (0xffff & ~MEMMAP_MASK))
-				Opcodes = S9xOpcodesSlow;
-		}
-
-		Registers.PCw++;
-		(*Opcodes[Op].S9xOpcode)();
-
-		if (Settings.SA1)
-			S9xSA1MainLoop();
+	START_PROFILE_FUNC (S9xMainLoop);
+	//Setting_SA1=Settings.SA1;
+	if (Settings.APUEnabled) {
+		if (Settings.SA1) S9xMainLoop_SA1_APU();
+		else {
+			S9xMainLoop_NoSA1_APU();
+		}				
+	} else {
+		if (Settings.SA1) S9xMainLoop_SA1_NoAPU();
+		else S9xMainLoop_NoSA1_NoAPU();
 	}
+	
+#ifndef ME_SOUND	
+	if (cpu_glob_cycles>=0x00000000) {		
+			APU_EXECUTE2 ();
+	}		
+#endif	
+	
+  Registers.PCw = CPU.PC - CPU.PCBase;
+    
+  S9xPackStatus ();
+      
+  if (CPU.Flags & SCAN_KEYS_FLAG) {
+    FINISH_PROFILE_FUNC (S9xMainLoop);
+    S9xSyncSpeed ();
+    CPU.Flags &= ~SCAN_KEYS_FLAG;
+  }
+  if (CPU.BRKTriggered && Settings.SuperFX && !CPU.TriedInterleavedMode2) {
+    CPU.TriedInterleavedMode2 = TRUE;
+    CPU.BRKTriggered = FALSE;
+    S9xDeinterleaveMode2 ();
+  }
 
-	S9xPackStatus();
-
-	if (CPU.Flags & SCAN_KEYS_FLAG)
-	{
-	#ifdef DEBUGGER
-		if (!(CPU.Flags & FRAME_ADVANCE_FLAG))
-	#endif
-		S9xSyncSpeed();
-		CPU.Flags &= ~SCAN_KEYS_FLAG;
-	}
+  /*(APURegistersUncached.PC) = (IAPUuncached.PC) - (IAPUuncached.RAM);
+  S9xAPUPackStatusUncached ();*/
 }
 
-static inline void S9xReschedule (void)
+void
+S9xSetIRQ (uint32 source)
 {
-	switch (CPU.WhichEvent)
-	{
-		case HC_HBLANK_START_EVENT:
-			CPU.WhichEvent = HC_HDMA_START_EVENT;
-			CPU.NextEvent  = Timings.HDMAStart;
-			break;
-
-		case HC_HDMA_START_EVENT:
-			CPU.WhichEvent = HC_HCOUNTER_MAX_EVENT;
-			CPU.NextEvent  = Timings.H_Max;
-			break;
-
-		case HC_HCOUNTER_MAX_EVENT:
-			CPU.WhichEvent = HC_HDMA_INIT_EVENT;
-			CPU.NextEvent  = Timings.HDMAInit;
-			break;
-
-		case HC_HDMA_INIT_EVENT:
-			CPU.WhichEvent = HC_RENDER_EVENT;
-			CPU.NextEvent  = Timings.RenderPos;
-			break;
-
-		case HC_RENDER_EVENT:
-			CPU.WhichEvent = HC_WRAM_REFRESH_EVENT;
-			CPU.NextEvent  = Timings.WRAMRefreshPos;
-			break;
-
-		case HC_WRAM_REFRESH_EVENT:
-			CPU.WhichEvent = HC_HBLANK_START_EVENT;
-			CPU.NextEvent  = Timings.HBlankStart;
-			break;
-	}
+  CPU.IRQActive |= source;
+  CPU.Flags |= IRQ_PENDING_FLAG;
+  CPU.IRQCycleCount = 3;
+  if (CPU.WaitingForInterrupt)
+    {
+      // Force IRQ to trigger immediately after WAI - 
+      // Final Fantasy Mystic Quest crashes without this.
+      CPU.IRQCycleCount = 0;
+      CPU.WaitingForInterrupt = FALSE;
+      CPU.PC++;
+    }
 }
 
-void S9xDoHEventProcessing (void)
+void
+S9xClearIRQ (uint32 source)
 {
-#ifdef DEBUGGER
-	static char	eventname[7][32] =
-	{
-		"",
-		"HC_HBLANK_START_EVENT",
-		"HC_HDMA_START_EVENT  ",
-		"HC_HCOUNTER_MAX_EVENT",
-		"HC_HDMA_INIT_EVENT   ",
-		"HC_RENDER_EVENT      ",
-		"HC_WRAM_REFRESH_EVENT"
-	};
+  CLEAR_IRQ_SOURCE (source);
+}
+
+void
+S9xDoHBlankProcessing_HBLANK_START_EVENT ()
+{
+	//START_PROFILE_FUNC (S9xDoHBlankProcessing);
+#ifdef CPU_SHUTDOWN
+  CPU.WaitCounter++;
 #endif
 
-#ifdef DEBUGGER
-	if (Settings.TraceHCEvent)
-		S9xTraceFormattedMessage("--- HC event processing  (%s)  expected HC:%04d  executed HC:%04d",
-			eventname[CPU.WhichEvent], CPU.NextEvent, CPU.Cycles);
+  if (IPPU.HDMA && CPU.V_Counter <= PPUPack.PPU.ScreenHeight) IPPU.HDMA = S9xDoHDMA (IPPU.HDMA);
+  S9xReschedule ();
+  //FINISH_PROFILE_FUNC (S9xDoHBlankProcessing); 
+}
+
+void
+S9xDoHBlankProcessing_HBLANK_END_EVENT () {
+	//START_PROFILE_FUNC (S9xDoHBlankProcessing);			
+#ifdef CPU_SHUTDOWN
+  CPU.WaitCounter++;
 #endif
+  if (Settings.SuperFX) S9xSuperFXExec ();
 
-	switch (CPU.WhichEvent)
+	static const int addr[] = { 0x2c, 0x2d, 0x2e, 0x2f, 0x30, 0x31 };
+
+	// Based on snes9x 3DS by bubble2k16
+	// Optimization for a small number of PPU registers,
+	// we will trigger the FLUSH_REDRAW here instead of
+	// us doing it when the register values change. This is
+	// because some games like FF3 and Ace o Nerae changes
+	// the registers multiple times in the same scanline,
+	// even though the end value is the same by the end of
+	// the scanline. But because they modify the registers,
+	// the rendering is forced to do a FLUSH_REDRAW.
+	//
+	// In this optimization, we simply defer the FLUSH_REDRAW
+	// until this point here and only when we determine that 
+	// at least one of the registers have changed from the
+	// value in the previous scanline.
+	//
+	for (uint i = 0; i < sizeof(addr) / sizeof(int); i++)
 	{
-		case HC_HBLANK_START_EVENT:
-			S9xReschedule();
-			break;
-
-		case HC_HDMA_START_EVENT:
-			S9xReschedule();
-
-			if (PPU.HDMA && CPU.V_Counter <= PPU.ScreenHeight)
-			{
-			#ifdef DEBUGGER
-				S9xTraceFormattedMessage("*** HDMA Transfer HC:%04d, Channel:%02x", CPU.Cycles, PPU.HDMA);
-			#endif
-				PPU.HDMA = S9xDoHDMA(PPU.HDMA);
-			}
-
-			break;
-
-		case HC_HCOUNTER_MAX_EVENT:
-			if (Settings.SuperFX)
-			{
-				if (!SuperFX.oneLineDone)
-					S9xSuperFXExec();
-				SuperFX.oneLineDone = FALSE;
-			}
-
-			S9xAPUEndScanline();
-			CPU.Cycles -= Timings.H_Max;
-			CPU.PrevCycles -= Timings.H_Max;
-			S9xAPUSetReferenceTime(CPU.Cycles);
-
-			if ((Timings.NMITriggerPos != 0xffff) && (Timings.NMITriggerPos >= Timings.H_Max))
-				Timings.NMITriggerPos -= Timings.H_Max;
-
-			CPU.V_Counter++;
-			if (CPU.V_Counter >= Timings.V_Max)	// V ranges from 0 to Timings.V_Max - 1
-			{
-				CPU.V_Counter = 0;
-				Timings.InterlaceField ^= 1;
-
-				// From byuu:
-				// [NTSC]
-				// interlace mode has 525 scanlines: 263 on the even frame, and 262 on the odd.
-				// non-interlace mode has 524 scanlines: 262 scanlines on both even and odd frames.
-				// [PAL] <PAL info is unverified on hardware>
-				// interlace mode has 625 scanlines: 313 on the even frame, and 312 on the odd.
-				// non-interlace mode has 624 scanlines: 312 scanlines on both even and odd frames.
-				if (IPPU.Interlace && !Timings.InterlaceField)
-					Timings.V_Max = Timings.V_Max_Master + 1;	// 263 (NTSC), 313?(PAL)
-				else
-					Timings.V_Max = Timings.V_Max_Master;		// 262 (NTSC), 312?(PAL)
-
-				Memory.ROM_GLOBAL[0x213F] ^= 0x80;
-				PPU.RangeTimeOver = 0;
-
-				// FIXME: reading $4210 will wait 2 cycles, then perform reading, then wait 4 more cycles.
-				Memory.ROM_GLOBAL[0x4210] = Model->_5A22;
-				CPU.NMILine = FALSE;
-				Timings.NMITriggerPos = 0xffff;
-
-				ICPU.Frame++;
-				PPU.HVBeamCounterLatched = 0;
-				CPU.Flags |= SCAN_KEYS_FLAG;
-			}
-
-			// From byuu:
-			// In non-interlace mode, there are 341 dots per scanline, and 262 scanlines per frame.
-			// On odd frames, scanline 240 is one dot short.
-			// In interlace mode, there are always 341 dots per scanline. Even frames have 263 scanlines,
-			// and odd frames have 262 scanlines.
-			// Interlace mode scanline 240 on odd frames is not missing a dot.
-			if (CPU.V_Counter == 240 && !IPPU.Interlace && Timings.InterlaceField)	// V=240
-				Timings.H_Max = Timings.H_Max_Master - ONE_DOT_CYCLE;	// HC=1360
-			else
-				Timings.H_Max = Timings.H_Max_Master;					// HC=1364
-
-			if (Model->_5A22 == 2)
-			{
-				if (CPU.V_Counter != 240 || IPPU.Interlace || !Timings.InterlaceField)	// V=240
-				{
-					if (Timings.WRAMRefreshPos == SNES_WRAM_REFRESH_HC_v2 - ONE_DOT_CYCLE)	// HC=534
-						Timings.WRAMRefreshPos = SNES_WRAM_REFRESH_HC_v2;					// HC=538
-					else
-						Timings.WRAMRefreshPos = SNES_WRAM_REFRESH_HC_v2 - ONE_DOT_CYCLE;	// HC=534
-				}
-			}
-			else
-				Timings.WRAMRefreshPos = SNES_WRAM_REFRESH_HC_v1;
-
-			if (CPU.V_Counter == PPU.ScreenHeight + FIRST_VISIBLE_LINE)	// VBlank starts from V=225(240).
-			{
-				S9xEndScreenRefresh();
-				PPU.HDMA = 0;
-				// Bits 7 and 6 of $4212 are computed when read in S9xGetPPU.
-			#ifdef DEBUGGER
-				missing.dma_this_frame = 0;
-			#endif
-				IPPU.MaxBrightness = PPU.Brightness;
-				PPU.ForcedBlanking = (Memory.ROM_GLOBAL[0x2100] >> 7) & 1;
-
-				if (!PPU.ForcedBlanking)
-				{
-					PPU.OAMAddr = PPU.SavedOAMAddr;
-
-					uint8	tmp = 0;
-
-					if (PPU.OAMPriorityRotation)
-						tmp = (PPU.OAMAddr & 0xFE) >> 1;
-					if ((PPU.OAMFlip & 1) || PPU.FirstSprite != tmp)
-					{
-						PPU.FirstSprite = tmp;
-						IPPU.OBJChanged = TRUE;
-					}
-
-					PPU.OAMFlip = 0;
-				}
-
-				// FIXME: writing to $4210 will wait 6 cycles.
-				Memory.ROM_GLOBAL[0x4210] = 0x80 | Model->_5A22;
-				if (Memory.ROM_GLOBAL[0x4200] & 0x80)
-				{
-					// FIXME: triggered at HC=6, checked just before the final CPU cycle,
-					// then, when to call S9xOpcode_NMI()?
-					CPU.NMILine = TRUE;
-					Timings.NMITriggerPos = 6 + 6;
-				}
-
-			}
-
-			if (CPU.V_Counter == PPU.ScreenHeight + 3)	// FIXME: not true
-			{
-				if (Memory.ROM_GLOBAL[0x4200] & 1)
-					S9xDoAutoJoypad();
-			}
-
-			if (CPU.V_Counter == FIRST_VISIBLE_LINE)	// V=1
-				S9xStartScreenRefresh();
-
-			S9xReschedule();
-
-			break;
-
-		case HC_HDMA_INIT_EVENT:
-			S9xReschedule();
-
-			if (CPU.V_Counter == 0)
-			{
-			#ifdef DEBUGGER
-				S9xTraceFormattedMessage("*** HDMA Init     HC:%04d, Channel:%02x", CPU.Cycles, PPU.HDMA);
-			#endif
-				S9xStartHDMA();
-			}
-
-			break;
-
-		case HC_RENDER_EVENT:
-			if (CPU.V_Counter >= FIRST_VISIBLE_LINE && CPU.V_Counter <= PPU.ScreenHeight)
-				RenderLine((uint8) (CPU.V_Counter - FIRST_VISIBLE_LINE));
-
-			S9xReschedule();
-
-			break;
-
-		case HC_WRAM_REFRESH_EVENT:
-		#ifdef DEBUGGER
-			S9xTraceFormattedMessage("*** WRAM Refresh  HC:%04d", CPU.Cycles);
-		#endif
-
-			CPU.PrevCycles = CPU.Cycles;
-			CPU.Cycles += SNES_WRAM_REFRESH_CYCLES;
-			S9xCheckInterrupts();
-
-			S9xReschedule();
-
-			break;
+		int a = addr[i];
+		if (IPPU.DeferredRegisterWrite[a] != 0xff00 &&
+			IPPU.DeferredRegisterWrite[a] != ROM_GLOBAL[a + 0x2100])
+		{
+			DEBUG_FLUSH_REDRAW(a + 0x2100, IPPU.DeferredRegisterWrite[a]);
+			FLUSH_REDRAW();
+			ROM_GLOBAL[a + 0x2100] = IPPU.DeferredRegisterWrite[a];
+		}
+		IPPU.DeferredRegisterWrite[a] = 0xff00;
 	}
 
-#ifdef DEBUGGER
-	if (Settings.TraceHCEvent)
-		S9xTraceFormattedMessage("--- HC event rescheduled (%s)  expected HC:%04d  current  HC:%04d",
-			eventname[CPU.WhichEvent], CPU.NextEvent, CPU.Cycles);
+	cpu_glob_cycles += CPU.Cycles-old_cpu_cycles;		
+	CPU.Cycles -= Settings.H_Max;	
+	old_cpu_cycles=CPU.Cycles;
+	
+#ifdef FAST_IAPU_APUEXECUTING_CHECK
+	if (IAPU_APUExecuting_Main==false || APUExecuting_Main_Counter==0)
+		IAPU_APUExecuting_Main = IAPU_APUExecuting;
+	if (IAPU_APUExecuting_Main){
+		apu_glob_cycles_Main=cpu_glob_cycles;
+		if (cpu_glob_cycles>=0x00700000) {
+			APU_EXECUTE2();
+		}
+	}
+	else {
+  		apu_glob_cycles=apu_glob_cycles_Main=0;
+  		Uncache_APU_Cycles = 0;
+	}
+	if (APUExecuting_Main_Counter==0){
+		FLUSH_APU();
+	}
+#else
+  //(IAPUuncached.NextAPUTimerPos) -= (Settings.H_Max * 10000L);      
+  if (  (IAPU_APUExecuting_Main)) {
+  	//(APUPack.APU.Cycles) -= Settings.H_Max;
+		apu_glob_cycles=cpu_glob_cycles;
+#ifdef ME_SOUND		
+		if (cpu_glob_cycles>=0x00700000) {		
+			APU_EXECUTE2 ();
+		}
+#else
+//		if (cpu_glob_cycles>=0x00000000) {		
+//			APU_EXECUTE2 ();
+//		}
+#endif		
+  }
+  else {
+  	//(APUPack.APU.Cycles) = 0;
+  	apu_glob_cycles=0;
+  	Uncache_APU_Cycles = 0;
+  }
 #endif
+  
+       
+  CPU.NextEvent = -1;
+// not use
+//  ICPU.Scanline++;
+
+  if (++CPU.V_Counter > (Settings.PAL ? SNES_MAX_PAL_VCOUNTER : SNES_MAX_NTSC_VCOUNTER)) {
+  	//PPUPack.PPU.OAMAddr = PPUPack.PPU.SavedOAMAddr;
+    //PPUPack.PPU.OAMFlip = 0;            
+    CPU.V_Counter = 0;
+    ROM_GLOBAL[0x213F]^=0x80;
+    CPU.NMIActive = FALSE;
+    //ICPU.Frame++;
+    PPUPack.PPU.HVBeamCounterLatched = 0;
+    CPU.Flags |= SCAN_KEYS_FLAG;
+    S9xStartHDMA ();
+  }
+
+  if (PPUPack.PPU.VTimerEnabled && !PPUPack.PPU.HTimerEnabled && CPU.V_Counter == PPUPack.PPU.IRQVBeamPos) S9xSetIRQ (PPU_V_BEAM_IRQ_SOURCE);
+#if (1)
+//  pEvent->apu_event1[pEvent->apu_event1_cpt2 & 0xFFFF]=(os9x_apu_ratio != 256) ? cpu_glob_cycles * os9x_apu_ratio / 256: cpu_glob_cycles;
+//  pEvent->apu_event1_cpt2++;
+  uint32 EventVal = (os9x_apu_ratio != 256) ? cpu_glob_cycles * os9x_apu_ratio / 256: cpu_glob_cycles;
+  if (CPU.V_Counter & 1) {
+    EventVal |= 0x80000000;
+  }
+#ifdef ME_SOUND
+  int pos=apu_event1_cpt2_main++;
+  apu_event1[pos & APU_EVENT_MASK] = EventVal;
+  apu_event1_cpt2=apu_event1_cpt2_main;
+#else
+  int pos=apu_event1_cpt2;
+  apu_event1[pos & APU_EVENT_MASK] = EventVal;
+  apu_event1_cpt2=pos+1;
+#endif
+
+  //APU_EXECUTE2 ();
+    
+  /*if ((APUPack.APU.TimerEnabled) [2]) {
+		(APUPack.APU.Timer) [2] += 4;
+		while ((APUPack.APU.Timer) [2] >= (APUPack.APU.TimerTarget) [2]) {
+		  (IAPUuncached.RAM) [0xff] = ((IAPUuncached.RAM) [0xff] + 1) & 0xf;
+		  (APUPack.APU.Timer) [2] -= (APUPack.APU.TimerTarget) [2];
+#ifdef SPC700_SHUTDOWN
+		  (IAPUuncached.WaitCounter)++;
+		  (IAPU_APUExecuting)= TRUE;
+#endif		
+		}
+	}*/
+#else
+	if (CPU.V_Counter & 1) {		
+		apu_event2[(apu_event2_cpt2)&0xFFFF]=cpu_glob_cycles * os9x_apu_ratio / 256;  
+  	(apu_event2_cpt2)++;
+		/*if ((APUPack.APU.TimerEnabled) [0]) {
+		  (APUPack.APU.Timer) [0]++;
+		  if ((APUPack.APU.Timer) [0] >= (APUPack.APU.TimerTarget) [0]) {
+				(IAPUuncached.RAM) [0xfd] = ((IAPUuncached.RAM) [0xfd] + 1) & 0xf;
+				(APUPack.APU.Timer) [0] = 0;
+#ifdef SPC700_SHUTDOWN		
+				(IAPUuncached.WaitCounter)++;
+				(IAPU_APUExecuting)= TRUE;
+#endif		    
+		  }
+		}
+		if ((APUPack.APU.TimerEnabled) [1]) {
+		  (APUPack.APU.Timer) [1]++;
+		  if ((APUPack.APU.Timer) [1] >= (APUPack.APU.TimerTarget) [1]) {
+				(IAPUuncached.RAM) [0xfe] = ((IAPUuncached.RAM) [0xfe] + 1) & 0xf;
+				(APUPack.APU.Timer) [1] = 0;
+#ifdef SPC700_SHUTDOWN		
+				(IAPUuncached.WaitCounter)++;
+				(IAPU_APUExecuting) = TRUE;
+#endif		    
+		  }
+		}*/		
+	}	  
+#endif
+  if (CPU.V_Counter == FIRST_VISIBLE_LINE)
+    {
+      ROM_GLOBAL[0x4210] = 0;
+      CPU.Flags &= ~NMI_FLAG;
+      S9xStartScreenRefresh ();
+    }
+  if (CPU.V_Counter >= FIRST_VISIBLE_LINE &&
+      CPU.V_Counter < PPUPack.PPU.ScreenHeight + FIRST_VISIBLE_LINE)
+    {
+      RenderLine (CPU.V_Counter - FIRST_VISIBLE_LINE);
+      S9xReschedule ();                  
+  		//FINISH_PROFILE_FUNC (S9xDoHBlankProcessing); 
+  		return;
+    }
+
+  if (CPU.V_Counter == PPUPack.PPU.ScreenHeight + FIRST_VISIBLE_LINE)
+    {
+      // Start of V-blank
+      S9xEndScreenRefresh ();
+      //PPUPack.PPU.FirstSprite = 0;
+      IPPU.HDMA = 0;
+      // Bits 7 and 6 of $4212 are computed when read in S9xGetPPUPack.PPU.
+#ifdef DEBUGGER
+	  missing.dma_this_frame = 0;
+#endif
+	  IPPU.MaxBrightness = PPUPack.PPU.Brightness;
+      PPUPack.PPU.ForcedBlanking = (ROM_GLOBAL[0x2100] >> 7) & 1;
+      
+      if(!PPUPack.PPU.ForcedBlanking){
+				PPUPack.PPU.OAMAddr = PPUPack.PPU.SavedOAMAddr;			
+				uint8 tmp = 0;
+				if(PPUPack.PPU.OAMPriorityRotation)
+					tmp = (PPUPack.PPU.OAMAddr&0xFE)>>1;
+				if((PPUPack.PPU.OAMFlip&1) || PPUPack.PPU.FirstSprite!=tmp){
+					PPUPack.PPU.FirstSprite=tmp;
+					IPPU.OBJChanged=TRUE;
+				}			
+				PPUPack.PPU.OAMFlip = 0;
+			}
+
+      ROM_GLOBAL[0x4210] = 0x80;
+      if (ROM_GLOBAL[0x4200] & 0x80) {
+	  		CPU.NMIActive = TRUE;
+	  		CPU.Flags |= NMI_FLAG;
+	  		CPU.NMICycleCount = CPU.NMITriggerPoint;
+			}
+
+			S9xReschedule ();
+  		//FINISH_PROFILE_FUNC (S9xDoHBlankProcessing); 
+  		return;
+    }
+
+  if (CPU.V_Counter == PPUPack.PPU.ScreenHeight + 3)
+    S9xUpdateJoypads ();
+
+  
+  S9xReschedule ();
+  //FINISH_PROFILE_FUNC (S9xDoHBlankProcessing); 
+}
+
+void
+S9xDoHBlankProcessing_HTIMER_BEFORE_EVENT ()
+{
+	//START_PROFILE_FUNC (S9xDoHBlankProcessing);
+#ifdef CPU_SHUTDOWN
+  CPU.WaitCounter++;
+#endif
+  if (PPUPack.PPU.HTimerEnabled && (!PPUPack.PPU.VTimerEnabled || CPU.V_Counter == PPUPack.PPU.IRQVBeamPos)){
+    S9xSetIRQ (PPU_H_BEAM_IRQ_SOURCE);
+  }
+  S9xReschedule ();
+  //FINISH_PROFILE_FUNC (S9xDoHBlankProcessing); 
+}
+
+void
+S9xDoHBlankProcessing_HTIMER_AFTER_EVENT ()
+{
+	//START_PROFILE_FUNC (S9xDoHBlankProcessing);
+#ifdef CPU_SHUTDOWN
+  CPU.WaitCounter++;
+#endif
+  if (PPUPack.PPU.HTimerEnabled && (!PPUPack.PPU.VTimerEnabled || CPU.V_Counter == PPUPack.PPU.IRQVBeamPos)) {
+    S9xSetIRQ (PPU_H_BEAM_IRQ_SOURCE);
+  }
+  S9xReschedule ();
+  //FINISH_PROFILE_FUNC (S9xDoHBlankProcessing); 
 }

@@ -251,6 +251,7 @@ int save_rom_settings(int game_crc32,const char *name){
 	fwrite(&os9x_fpslimit,1,4,f);
 	fwrite(&os9x_SA1_exec,1,4,f);
 	fwrite(&os9x_autofskip_MaxSkipFrames,1,4,f);
+	fwrite(&os9x_applyhacks,1,4,f);
 
 	fclose(f);
 	return 0;
@@ -332,6 +333,7 @@ else {fclose(f);check_settings();return -3;}
 	READ_SETTING(os9x_fpslimit)
 	if (fread(&l,1,4,f)==4) os9x_SA1_exec=l; 
 	if (fread(&l,1,4,f)==4) os9x_autofskip_MaxSkipFrames=l;
+	if (fread(&l,1,4,f)==4) os9x_applyhacks=l; 
 	fclose(f);
 	
 	check_settings();
