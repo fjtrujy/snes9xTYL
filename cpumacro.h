@@ -354,6 +354,39 @@ STATIC inline void DEC8 (long OpAddress)
     SetZN8 (Work8);
 }
 
+//-------------------------------------------------------
+// DEC (Wake SA1 if required)
+//-------------------------------------------------------
+
+STATIC inline void  DEC16WakeSA1 (long OpAddress)
+{
+#ifdef VAR_CYCLES
+    CPU.Cycles += ONE_CYCLE;
+#endif
+#ifdef CPU_SHUTDOWN
+    CPU.WaitAddress = NULL;
+#endif
+
+    uint16 Work16 = S9xGetWord (OpAddress) - 1;
+    CpuSetByteWakeSA1 (Work16>>8, OpAddress+1);
+	CpuSetByteWakeSA1 (Work16&0xFF, OpAddress);
+	SetZN16 (Work16);
+}
+
+STATIC inline void  DEC8WakeSA1 (long OpAddress)
+{
+#ifdef VAR_CYCLES
+    CPU.Cycles += ONE_CYCLE;
+#endif
+#ifdef CPU_SHUTDOWN
+    CPU.WaitAddress = NULL;
+#endif
+
+    uint8 Work8 = S9xGetByte (OpAddress) - 1;
+    CpuSetByteWakeSA1 (Work8, OpAddress);
+    SetZN8 (Work8);
+}
+
 STATIC inline void EOR16 (long OpAddress)
 {
     Registers.A.W ^= S9xGetWord (OpAddress);
@@ -417,6 +450,39 @@ STATIC inline void INC8 (long OpAddress)
 
     uint8 Work8 = S9xGetByte (OpAddress) + 1;
     S9xSetByte (Work8, OpAddress);
+    SetZN8 (Work8);
+}
+
+//-------------------------------------------------------
+// INC (Wake SA1 if required)
+//-------------------------------------------------------
+
+STATIC inline void  INC16WakeSA1 (long OpAddress)
+{
+#ifdef VAR_CYCLES
+    CPU.Cycles += ONE_CYCLE;
+#endif
+#ifdef CPU_SHUTDOWN
+    CPU.WaitAddress = NULL;
+#endif
+
+    uint16 Work16 = S9xGetWord (OpAddress) + 1;
+	CpuSetByteWakeSA1 (Work16>>8, OpAddress+1);
+	CpuSetByteWakeSA1 (Work16&0xFF, OpAddress);
+    SetZN16 (Work16);
+}
+
+STATIC inline void  INC8WakeSA1 (long OpAddress)
+{
+#ifdef VAR_CYCLES
+    CPU.Cycles += ONE_CYCLE;
+#endif
+#ifdef CPU_SHUTDOWN
+    CPU.WaitAddress = NULL;
+#endif
+
+    uint8 Work8 = S9xGetByte (OpAddress) + 1;
+    CpuSetByteWakeSA1 (Work8, OpAddress);
     SetZN8 (Work8);
 }
 
@@ -744,6 +810,20 @@ STATIC inline void STA8 (long OpAddress)
     S9xSetByte (Registers.AL, OpAddress);
 }
 
+//-------------------------------------------------------
+// STA (Wake SA1 if required)
+//-------------------------------------------------------
+
+STATIC inline void  STA16WakeSA1 (long addr)
+{
+    CpuSetWordWakeSA1 (Registers.A.W, addr);
+}
+
+STATIC inline void  STA8WakeSA1 (long addr)
+{
+    CpuSetByteWakeSA1 (Registers.AL, addr);
+}
+
 STATIC inline void STX16 (long OpAddress)
 {
     S9xSetWord (Registers.X.W, OpAddress);
@@ -752,6 +832,20 @@ STATIC inline void STX16 (long OpAddress)
 STATIC inline void STX8 (long OpAddress)
 {
     S9xSetByte (Registers.XL, OpAddress);
+}
+
+//-------------------------------------------------------
+// STX (Wake SA1 if required)
+//-------------------------------------------------------
+
+STATIC inline void  STX16WakeSA1 (long addr)
+{
+    CpuSetWordWakeSA1 (Registers.X.W, addr);
+}
+
+STATIC inline void  STX8WakeSA1 (long addr)
+{
+    CpuSetByteWakeSA1 (Registers.XL, addr);
 }
 
 STATIC inline void STY16 (long OpAddress)
@@ -764,6 +858,20 @@ STATIC inline void STY8 (long OpAddress)
     S9xSetByte (Registers.YL, OpAddress);
 }
 
+//-------------------------------------------------------
+// STY (Wake SA1 if required)
+//-------------------------------------------------------
+
+STATIC inline void  STY16WakeSA1 (long addr)
+{
+    CpuSetWordWakeSA1 (Registers.Y.W, addr);
+}
+
+STATIC inline void  STY8WakeSA1 (long addr)
+{
+    CpuSetByteWakeSA1 (Registers.YL, addr);
+}
+
 STATIC inline void STZ16 (long OpAddress)
 {
     S9xSetWord (0, OpAddress);
@@ -772,6 +880,20 @@ STATIC inline void STZ16 (long OpAddress)
 STATIC inline void STZ8 (long OpAddress)
 {
     S9xSetByte (0, OpAddress);
+}
+
+//-------------------------------------------------------
+// STZ (Wake SA1 if required)
+//-------------------------------------------------------
+
+STATIC inline void  STZ16WakeSA1 (long addr)
+{
+    CpuSetWordWakeSA1 (0, addr);
+}
+
+STATIC inline void  STZ8WakeSA1 (long addr)
+{
+    CpuSetByteWakeSA1 (0, addr);
 }
 
 STATIC inline void TSB16 (long OpAddress)
@@ -796,6 +918,34 @@ STATIC inline void TSB8 (long OpAddress)
     S9xSetByte (Work8, OpAddress);
 }
 
+//-------------------------------------------------------
+// TSB (Wake SA1 if required)
+//-------------------------------------------------------
+
+STATIC inline void  TSB16WakeSA1 (long OpAddress)
+{
+#ifdef VAR_CYCLES
+    CPU.Cycles += ONE_CYCLE;
+#endif
+    uint16 Work16 = S9xGetWord (OpAddress);
+    ICPU._Zero = (Work16 & Registers.A.W) != 0;
+    Work16 |= Registers.A.W;
+	CpuSetByteWakeSA1 (Work16>>8, OpAddress+1);
+	CpuSetByteWakeSA1 (Work16&0xFF, OpAddress);
+}
+
+
+STATIC inline void  TSB8WakeSA1 (long OpAddress)
+{
+#ifdef VAR_CYCLES
+    CPU.Cycles += ONE_CYCLE;
+#endif
+    uint8 Work8 = S9xGetByte (OpAddress);
+    ICPU._Zero = Work8 & Registers.AL;
+    Work8 |= Registers.AL;
+    CpuSetByteWakeSA1 (Work8, OpAddress);
+}
+
 STATIC inline void TRB16 (long OpAddress)
 {
 #ifdef VAR_CYCLES
@@ -818,308 +968,31 @@ STATIC inline void TRB8 (long OpAddress)
     S9xSetByte (Work8, OpAddress);
 }
 
+//-------------------------------------------------------
+// TRB (Wake SA1 if required)
+//-------------------------------------------------------
 
-
-
-
-/*
-
-STATIC inline void ADC8D0 (long OpAddress)
+STATIC inline void  TRB16WakeSA1 (long OpAddress)
 {
-    uint8 Work8 = S9xGetByte (OpAddress);
-    
-    {
-	uint16 Ans16 = Registers.AL + Work8 + CheckCarry();
-
-	ICPU._Carry = Ans16 >= 0x100;
-
-	if (~(Registers.AL ^ Work8) & 
-	     (Work8 ^ (uint8) Ans16) & 0x80)
-	    SetOverflow();
-	else
-	    ClearOverflow();
-	Registers.AL = (uint8) Ans16;
-	SetZN8 (Registers.AL);
-
-    }
-}
-
-STATIC inline void ADC8D1 (long OpAddress)
-{
-    uint8 Work8 = S9xGetByte (OpAddress);
-    
-    {
-	uint8 A1 = (Registers.A.W) & 0xF;
-	uint8 A2 = (Registers.A.W >> 4) & 0xF;
-	uint8 W1 = Work8 & 0xF;
-	uint8 W2 = (Work8 >> 4) & 0xF;
-
-	A1 += W1 + CheckCarry();
-	if (A1 > 9)
-	{
-	    A1 -= 10;
-	    A2++;
-	}
-
-	A2 += W2;
-	if (A2 > 9)
-	{
-	    A2 -= 10;
-	    SetCarry ();
-	}
-	else
-	{
-	    ClearCarry ();
-	}
-
-	uint8 Ans8 = (A2 << 4) | A1;
-	if (~(Registers.AL ^ Work8) &
-	    (Work8 ^ Ans8) & 0x80)
-	    SetOverflow();
-	else
-	    ClearOverflow();
-	Registers.AL = Ans8;
-	SetZN8 (Registers.AL);
-    }
-}
-
-STATIC inline void ADC16D0 (long OpAddress)
-{
+#ifdef VAR_CYCLES
+    CPU.Cycles += ONE_CYCLE;
+#endif
     uint16 Work16 = S9xGetWord (OpAddress);
-
-     {
-	uint32 Ans32 = Registers.A.W + Work16 + CheckCarry();
-
-	ICPU._Carry = Ans32 >= 0x10000;
-
-	if (~(Registers.A.W ^ Work16) &
-	    (Work16 ^ (uint16) Ans32) & 0x8000)
-	    SetOverflow();
-	else
-	    ClearOverflow();
-	Registers.A.W = (uint16) Ans32;
-	SetZN16 (Registers.A.W);
-    }
+    ICPU._Zero = (Work16 & Registers.A.W) != 0;
+    Work16 &= ~Registers.A.W;
+	CpuSetByteWakeSA1 (Work16>>8, OpAddress+1);
+	CpuSetByteWakeSA1 (Work16&0xFF, OpAddress);
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-STATIC inline void ADC16D1 (long OpAddress)
+STATIC inline void  TRB8WakeSA1 (long OpAddress)
 {
-    uint16 Work16 = S9xGetWord (OpAddress);
-
-    {
-	uint8 A1 = (Registers.A.W) & 0xF;
-	uint8 A2 = (Registers.A.W >> 4) & 0xF;
-	uint8 A3 = (Registers.A.W >> 8) & 0xF;
-	uint8 A4 = (Registers.A.W >> 12) & 0xF;
-	uint8 W1 = Work16 & 0xF;
-	uint8 W2 = (Work16 >> 4) & 0xF;
-	uint8 W3 = (Work16 >> 8) & 0xF;
-	uint8 W4 = (Work16 >> 12) & 0xF;
-
-	A1 += W1 + CheckCarry ();
-	if (A1 > 9)
-	{
-	    A1 -= 10;
-	    A2++;
-	}
-
-	A2 += W2;
-	if (A2 > 9)
-	{
-	    A2 -= 10;
-	    A3++;
-	}
-
-	A3 += W3;
-	if (A3 > 9)
-	{
-	    A3 -= 10;
-	    A4++;
-	}
-
-	A4 += W4;
-	if (A4 > 9)
-	{
-	    A4 -= 10;
-	    SetCarry ();
-	}
-	else
-	{
-	    ClearCarry ();
-	}
-
-	uint16 Ans16 = (A4 << 12) | (A3 << 8) | (A2 << 4) | (A1);
-	if (~(Registers.A.W ^ Work16) &
-	    (Work16 ^ Ans16) & 0x8000)
-	    SetOverflow();
-	else
-	    ClearOverflow();
-	Registers.A.W = Ans16;
-	SetZN16 (Registers.A.W);
-    }
-
-}
-
-STATIC inline void SBC16D0 (long OpAddress)
-{
-    uint16 Work16 = S9xGetWord (OpAddress);
-
-    {
-
-	long s9xInt32 = (long) Registers.A.W - (long) Work16 + (long) CheckCarry() - 1;
-
-	ICPU._Carry = s9xInt32 >= 0;
-
-	if ((Registers.A.W ^ Work16) &
-	    (Registers.A.W ^ (uint16) s9xInt32) & 0x8000)
-	    SetOverflow();
-	else
-	    ClearOverflow ();
-	Registers.A.W = (uint16) s9xInt32;
-	SetZN16 (Registers.A.W);
-    }
-}
-
-STATIC inline void SBC8D0 (long OpAddress)
-{
+#ifdef VAR_CYCLES
+    CPU.Cycles += ONE_CYCLE;
+#endif
     uint8 Work8 = S9xGetByte (OpAddress);
-    {
-	short s9xInt16 = (short) Registers.AL - (short) Work8 + (short) CheckCarry() - 1;
-
-	ICPU._Carry = s9xInt16 >= 0;
-	if ((Registers.AL ^ Work8) &
-	    (Registers.AL ^ (uint8) s9xInt16) & 0x80)
-	    SetOverflow ();
-	else
-	    ClearOverflow ();
-	Registers.AL = (uint8) s9xInt16;
-	SetZN8 (Registers.AL);
-    }
+    ICPU._Zero = Work8 & Registers.AL;
+    Work8 &= ~Registers.AL;
+    CpuSetByteWakeSA1 (Work8, OpAddress);
 }
-
-STATIC inline void SBC16D1 (long OpAddress)
-{
-    uint16 Work16 = S9xGetWord (OpAddress);
-
-    {
-	uint8 A1 = (Registers.A.W) & 0xF;
-	uint8 A2 = (Registers.A.W >> 4) & 0xF;
-	uint8 A3 = (Registers.A.W >> 8) & 0xF;
-	uint8 A4 = (Registers.A.W >> 12) & 0xF;
-	uint8 W1 = Work16 & 0xF;
-	uint8 W2 = (Work16 >> 4) & 0xF;
-	uint8 W3 = (Work16 >> 8) & 0xF;
-	uint8 W4 = (Work16 >> 12) & 0xF;
-
-	A1 -= W1 + !CheckCarry ();
-	A2 -= W2;
-	A3 -= W3;
-	A4 -= W4;
-	if (A1 > 9)
-	{
-	    A1 += 10;
-	    A2--;
-	}
-	if (A2 > 9)
-	{
-	    A2 += 10;
-	    A3--;
-	}
-	if (A3 > 9)
-	{
-	    A3 += 10;
-	    A4--;
-	}
-	if (A4 > 9)
-	{
-	    A4 += 10;
-	    ClearCarry ();
-	}
-	else
-	{
-	    SetCarry ();
-	}
-
-	uint16 Ans16 = (A4 << 12) | (A3 << 8) | (A2 << 4) | (A1);
-	if ((Registers.A.W ^ Work16) &
-	    (Registers.A.W ^ Ans16) & 0x8000)
-	    SetOverflow();
-	else
-	    ClearOverflow();
-	Registers.A.W = Ans16;
-	SetZN16 (Registers.A.W);
-    }
-
-}
-
-STATIC inline void SBC8D1 (long OpAddress)
-{
-    uint8 Work8 = S9xGetByte (OpAddress);
-    {
-	uint8 A1 = (Registers.A.W) & 0xF;
-	uint8 A2 = (Registers.A.W >> 4) & 0xF;
-	uint8 W1 = Work8 & 0xF;
-	uint8 W2 = (Work8 >> 4) & 0xF;
-
-	A1 -= W1 + !CheckCarry ();
-	A2 -= W2;
-	if (A1 > 9)
-	{
-	    A1 += 10;
-	    A2--;
-	}
-	if (A2 > 9)
-	{
-	    A2 += 10;
-	    ClearCarry ();
-	}
-	else
-	{
-	    SetCarry ();
-	}
-
-	uint8 Ans8 = (A2 << 4) | A1;
-	if ((Registers.AL ^ Work8) &
-	    (Registers.AL ^ Ans8) & 0x80)
-	    SetOverflow ();
-	else
-	    ClearOverflow ();
-	Registers.AL = Ans8;
-	SetZN8 (Registers.AL);
-    }
-
-}
-
-
-
-
-
-*/
-
-
-
-
-
-
-
-
-
 
 #endif

@@ -153,7 +153,7 @@ void S9xSA1Init ();
 void S9xFixSA1AfterSnapshotLoad ();
 void S9xSA1ExecuteDuringSleep ();
 
-INLINE uint8 __attribute__((always_inline)) S9xSA1GetByteFast (uint32 address)
+INLINE uint8 S9xSA1GetByteFast (uint32 address)
 {
     uint8 *GetAddress = SA1.Map [(address >> MEMMAP_SHIFT) & MEMMAP_MASK];
     if (GetAddress >= (uint8 *) CMemory::MAP_LAST)
@@ -162,7 +162,7 @@ INLINE uint8 __attribute__((always_inline)) S9xSA1GetByteFast (uint32 address)
         return S9xSA1GetByteSlow(address, (int)GetAddress);
 }
 
-INLINE void __attribute__((always_inline)) S9xSA1SetByteFast (uint8 byte, uint32 address)
+INLINE void S9xSA1SetByteFast (uint8 byte, uint32 address)
 {
     uint8 *Setaddress = SA1.WriteMap [(address >> MEMMAP_SHIFT) & MEMMAP_MASK];
 
@@ -175,12 +175,12 @@ INLINE void __attribute__((always_inline)) S9xSA1SetByteFast (uint8 byte, uint32
     S9xSA1SetByteSlow (byte, address, (int)Setaddress);
 }
 
-inline uint16 __attribute__((always_inline)) S9xSA1GetWordFast (uint32 address)
+inline uint16 S9xSA1GetWordFast (uint32 address)
 {
     return (S9xSA1GetByteFast (address) | (S9xSA1GetByteFast (address + 1) << 8));
 }
 
-inline void __attribute__((always_inline)) S9xSA1SetWordFast (uint16 Word, uint32 address)
+inline void  S9xSA1SetWordFast (uint16 Word, uint32 address)
 {
     S9xSA1SetByteFast ((uint8) Word, address);
     S9xSA1SetByteFast ((uint8) (Word >> 8), address + 1);

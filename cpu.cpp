@@ -122,7 +122,7 @@ void S9xResetCPU ()
 #ifndef VAR_CYCLES
     ICPU.Speed = S9xE1M1X1;
 #endif
-    ICPU.S9xOpcodes = S9xOpcodesM1X1;
+    ICPU.S9xOpcodes = S9xOpcodesE1;
     ICPU.CPUExecuting = TRUE;
 
     S9xUnpackStatus();

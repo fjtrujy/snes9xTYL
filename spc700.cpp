@@ -232,7 +232,7 @@ if (Settings.Shutdown && (IAPU.PC == IAPU.WaitAddress1 || IAPU.PC == IAPU.WaitAd
 #define APUSetZN16(w)\
     IAPU._Zero = ((w) != 0) | ((w) >> 8);
 
-void WARN (char *s)
+void WARN (const char *s)
 {
     char buffer[100];
 
@@ -244,7 +244,7 @@ void WARN (char *s)
     S9xMessage (S9X_ERROR, S9X_APU_STOPPED, String);
 }
 
-void STOP (char *s)
+void STOP (const char *s)
 {
     WARN(s);
     APUPack.APU.TimerEnabled[0] = APUPack.APU.TimerEnabled[1] = APUPack.APU.TimerEnabled[2] = FALSE;

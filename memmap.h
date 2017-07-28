@@ -120,7 +120,15 @@ public:
 	bool8 AllASCII (uint8 *b, int size);
 	int  ScoreHiROM (bool8 skip_header);
 	int  ScoreLoROM (bool8 skip_header);
+	
+	//Speed hacks based on snes9x 3DS
+	uint8 GetByte (uint32 Address);
+	bool SpeedHackAdd(int address, int cyclesPerSkip, int16 originalByte1, int16 originalByte2 = -1, int16 originalByte3 = -1, int16 originalByte4 = -1);
+    bool SpeedHackSA1Add(int address, int16 originalByte1, int16 originalByte2 = -1, int16 originalByte3 = -1, int16 originalByte4 = -1);
+	void ApplySpeedHackPatches();
+	
 	void ApplyROMFixes ();
+	
 	void CheckForIPSPatch (const char *rom_filename, bool8 header,
 				uint32 &rom_size,const char *ips_ext);
 

@@ -935,6 +935,56 @@ static void OpDEM0 (void)
     DEC16 (OpAddress);
 }
 
+// Wake SA1 Variants
+
+static void OpC6M1_WS (void)
+{
+    long OpAddress = Direct ();
+    DEC8WakeSA1 (OpAddress);
+}
+
+static void OpC6M0_WS (void)
+{
+    long OpAddress = Direct ();
+    DEC16WakeSA1 (OpAddress);
+}
+
+static void OpD6M1_WS (void)
+{
+    long OpAddress = DirectIndexedX ();
+    DEC8WakeSA1 (OpAddress);
+}
+
+static void OpD6M0_WS (void)
+{
+    long OpAddress = DirectIndexedX ();
+    DEC16WakeSA1 (OpAddress);
+}
+
+static void OpCEM1_WS (void)
+{
+    long OpAddress = Absolute ();
+    DEC8WakeSA1 (OpAddress);
+}
+
+static void OpCEM0_WS (void)
+{
+    long OpAddress = Absolute ();
+    DEC16WakeSA1 (OpAddress);
+}
+
+static void OpDEM1_WS (void)
+{
+    long OpAddress = AbsoluteIndexedX ();
+    DEC8WakeSA1 (OpAddress);
+}
+
+static void OpDEM0_WS (void)
+{
+    long OpAddress = AbsoluteIndexedX ();
+    DEC16WakeSA1 (OpAddress);
+}
+
 /**********************************************************************************************/
 
 /* EOR *************************************************************************************** */
@@ -1188,6 +1238,56 @@ static void OpFEM0 (void)
 {
     long OpAddress = AbsoluteIndexedX();
     INC16 (OpAddress);
+}
+
+// Wake SA1 Variants
+
+static void OpE6M1_WS (void)
+{
+    long OpAddress = Direct ();
+    INC8WakeSA1 (OpAddress);
+}
+
+static void OpE6M0_WS (void)
+{
+    long OpAddress = Direct ();
+    INC16WakeSA1 (OpAddress);
+}
+
+static void OpF6M1_WS (void)
+{
+    long OpAddress = DirectIndexedX ();
+    INC8WakeSA1 (OpAddress);
+}
+
+static void OpF6M0_WS (void)
+{
+    long OpAddress = DirectIndexedX ();
+    INC16WakeSA1 (OpAddress);
+}
+
+static void OpEEM1_WS (void)
+{
+    long OpAddress = Absolute ();
+    INC8WakeSA1 (OpAddress);
+}
+
+static void OpEEM0_WS (void)
+{
+    long OpAddress = Absolute ();
+    INC16WakeSA1 (OpAddress);
+}
+
+static void OpFEM1_WS (void)
+{
+    long OpAddress = AbsoluteIndexedX ();
+    INC8WakeSA1 (OpAddress);
+}
+
+static void OpFEM0_WS (void)
+{
+    long OpAddress = AbsoluteIndexedX ();
+    INC16WakeSA1 (OpAddress);
 }
 
 /**********************************************************************************************/
@@ -2266,6 +2366,185 @@ static void Op93M0 (void)
     long OpAddress = StackRelativeIndirectIndexed();
     STA16 (OpAddress);
 }
+
+// Wake SA1 Variants
+
+static void Op85M1_WS (void)
+{
+    long addr = Direct ();
+    STA8WakeSA1 (addr);
+}
+
+static void Op85M0_WS (void)
+{
+    long addr = Direct ();
+    STA16WakeSA1 (addr);
+}
+
+static void Op95M1_WS (void)
+{
+    long addr = DirectIndexedX ();
+    STA8WakeSA1 (addr);
+}
+
+static void Op95M0_WS (void)
+{
+    long addr = DirectIndexedX ();
+    STA16WakeSA1 (addr);
+}
+
+static void Op92M1_WS (void)
+{
+    long addr = DirectIndirect ();
+    STA8WakeSA1 (addr);
+}
+
+static void Op92M0_WS (void)
+{
+    long addr = DirectIndirect ();
+    STA16WakeSA1 (addr);
+}
+
+static void Op81M1_WS (void)
+{
+    long addr = DirectIndexedIndirect ();
+    STA8WakeSA1 (addr);
+#ifdef noVAR_CYCLES
+    if (CheckIndex ())
+	CPU_Cycles += ONE_CYCLE;
+#endif
+}
+
+static void Op81M0_WS (void)
+{
+    long addr = DirectIndexedIndirect ();
+    STA16WakeSA1 (addr);
+#ifdef noVAR_CYCLES
+    if (CheckIndex ())
+	CPU_Cycles += ONE_CYCLE;
+#endif
+}
+
+static void Op91M1_WS (void)
+{
+    long addr = DirectIndirectIndexed ();
+    STA8WakeSA1 (addr);
+}
+
+static void Op91M0_WS (void)
+{
+    long addr = DirectIndirectIndexed ();
+    STA16WakeSA1 (addr);
+}
+
+static void Op87M1_WS (void)
+{
+    long addr = DirectIndirectLong ();
+    STA8WakeSA1 (addr);
+}
+
+static void Op87M0_WS (void)
+{
+    long addr = DirectIndirectLong ();
+    STA16WakeSA1 (addr);
+}
+
+static void Op97M1_WS (void)
+{
+    long addr = DirectIndirectIndexedLong ();
+    STA8WakeSA1 (addr);
+}
+
+static void Op97M0_WS (void)
+{
+    long addr = DirectIndirectIndexedLong ();
+    STA16WakeSA1 (addr);
+}
+
+static void Op8DM1_WS (void)
+{
+    long addr = Absolute ();
+    STA8WakeSA1 (addr);
+}
+
+static void Op8DM0_WS (void)
+{
+    long addr = Absolute ();
+    STA16WakeSA1 (addr);
+}
+
+static void Op9DM1_WS (void)
+{
+    long addr = AbsoluteIndexedX ();
+    STA8WakeSA1 (addr);
+}
+
+static void Op9DM0_WS (void)
+{
+    long addr = AbsoluteIndexedX ();
+    STA16WakeSA1 (addr);
+}
+
+static void Op99M1_WS (void)
+{
+    long addr = AbsoluteIndexedY ();
+    STA8WakeSA1 (addr);
+}
+
+static void Op99M0_WS (void)
+{
+    long addr = AbsoluteIndexedY ();
+    STA16WakeSA1 (addr);
+}
+
+static void Op8FM1_WS (void)
+{
+    long addr = AbsoluteLong ();
+    STA8WakeSA1 (addr);
+}
+
+static void Op8FM0_WS (void)
+{
+    long addr = AbsoluteLong ();
+    STA16WakeSA1 (addr);
+}
+
+static void Op9FM1_WS (void)
+{
+    long addr = AbsoluteLongIndexedX ();
+    STA8WakeSA1 (addr);
+}
+
+static void Op9FM0_WS (void)
+{
+    long addr = AbsoluteLongIndexedX ();
+    STA16WakeSA1 (addr);
+}
+
+static void Op83M1_WS (void)
+{
+    long addr = StackRelative ();
+    STA8WakeSA1 (addr);
+}
+
+static void Op83M0_WS (void)
+{
+    long addr = StackRelative ();
+    STA16WakeSA1 (addr);
+}
+
+static void Op93M1_WS (void)
+{
+    long addr = StackRelativeIndirectIndexed ();
+    STA8WakeSA1 (addr);
+}
+
+static void Op93M0_WS (void)
+{
+    long addr = StackRelativeIndirectIndexed ();
+    STA16WakeSA1 (addr);
+}
+
 /**********************************************************************************************/
 
 /* STX *************************************************************************************** */
@@ -2304,6 +2583,45 @@ static void Op8EX0 (void)
     long OpAddress = Absolute();
     STX16 (OpAddress);
 }
+
+// Wake SA1 Variants
+
+static void Op86X1_WS (void)
+{
+    long addr = Direct ();
+    STX8WakeSA1 (addr);
+}
+
+static void Op86X0_WS (void)
+{
+    long addr = Direct ();
+    STX16WakeSA1 (addr);
+}
+
+static void Op96X1_WS (void)
+{
+    long addr = DirectIndexedY ();
+    STX8WakeSA1 (addr);
+}
+
+static void Op96X0_WS (void)
+{
+    long addr = DirectIndexedY ();
+    STX16WakeSA1 (addr);
+}
+
+static void Op8EX1_WS (void)
+{
+    long addr = Absolute ();
+    STX8WakeSA1 (addr);
+}
+
+static void Op8EX0_WS (void)
+{
+    long addr = Absolute ();
+    STX16WakeSA1 (addr);
+}
+
 /**********************************************************************************************/
 
 /* STY *************************************************************************************** */
@@ -2342,6 +2660,45 @@ static void Op8CX0 (void)
     long OpAddress = Absolute();
     STY16 (OpAddress);
 }
+
+// Wake SA1 Variants
+
+static void Op84X1_WS (void)
+{
+    long addr = Direct ();
+    STY8WakeSA1 (addr);
+}
+
+static void Op84X0_WS (void)
+{
+    long addr = Direct ();
+    STY16WakeSA1 (addr);
+}
+
+static void Op94X1_WS (void)
+{
+    long addr = DirectIndexedX ();
+    STY8WakeSA1 (addr);
+}
+
+static void Op94X0_WS (void)
+{
+    long addr = DirectIndexedX ();
+    STY16WakeSA1 (addr);
+}
+
+static void Op8CX1_WS (void)
+{
+    long addr = Absolute ();
+    STY8WakeSA1 (addr);
+}
+
+static void Op8CX0_WS (void)
+{
+    long addr = Absolute ();
+    STY16WakeSA1 (addr);
+}
+
 /**********************************************************************************************/
 
 /* STZ *************************************************************************************** */
@@ -2393,6 +2750,56 @@ static void Op9EM0 (void)
     STZ16 (OpAddress);
 }
 
+// Wake SA1 Variants
+
+static void Op64M1_WS (void)
+{
+    long addr = Direct ();
+    STZ8WakeSA1 (addr);
+}
+
+static void Op64M0_WS (void)
+{
+    long addr = Direct ();
+    STZ16WakeSA1 (addr);
+}
+
+static void Op74M1_WS (void)
+{
+    long addr = DirectIndexedX ();
+    STZ8WakeSA1 (addr);
+}
+
+static void Op74M0_WS (void)
+{
+    long addr = DirectIndexedX ();
+    STZ16WakeSA1 (addr);
+}
+
+static void Op9CM1_WS (void)
+{
+    long addr = Absolute ();
+    STZ8WakeSA1 (addr);
+}
+
+static void Op9CM0_WS (void)
+{
+    long addr = Absolute ();
+    STZ16WakeSA1 (addr);
+}
+
+static void Op9EM1_WS (void)
+{
+    long addr = AbsoluteIndexedX ();
+    STZ8WakeSA1 (addr);
+}
+
+static void Op9EM0_WS (void)
+{
+    long addr = AbsoluteIndexedX ();
+    STZ16WakeSA1 (addr);
+}
+
 /**********************************************************************************************/
 
 /* TRB *************************************************************************************** */
@@ -2419,6 +2826,33 @@ static void Op1CM0 (void)
     long OpAddress = Absolute();
     TRB16 (OpAddress);
 }
+
+// Wake SA1 Variants
+
+static void Op14M1_WS (void)
+{
+    long OpAddress = Direct ();
+    TRB8WakeSA1 (OpAddress);
+}
+
+static void Op14M0_WS (void)
+{
+    long OpAddress = Direct ();
+    TRB16WakeSA1 (OpAddress);
+}
+
+static void Op1CM1_WS (void)
+{
+    long OpAddress = Absolute ();
+    TRB8WakeSA1 (OpAddress);
+}
+
+static void Op1CM0_WS (void)
+{
+    long OpAddress = Absolute ();
+    TRB16WakeSA1 (OpAddress);
+}
+
 /**********************************************************************************************/
 
 /* TSB *************************************************************************************** */
@@ -2446,11 +2880,37 @@ static void Op0CM0 (void)
     TSB16 (OpAddress);
 }
 
+// Wake SA1 Variants
+
+static void Op04M1_WS (void)
+{
+    long OpAddress = Direct ();
+    TSB8WakeSA1 (OpAddress);
+}
+
+static void Op04M0_WS (void)
+{
+    long OpAddress = Direct ();
+    TSB16WakeSA1 (OpAddress);
+}
+
+static void Op0CM1_WS (void)
+{
+    long OpAddress = Absolute ();
+    TSB8WakeSA1 (OpAddress);
+}
+
+static void Op0CM0_WS (void)
+{
+    long OpAddress = Absolute ();
+    TSB16WakeSA1 (OpAddress);
+}
+
 /**********************************************************************************************/
 
 /* Branch Instructions *********************************************************************** */
 #ifndef SA1_OPCODES
-#define BranchCheck0()\
+#define BranchCheck()\
     if( CPU.BranchSkip)\
     {\
 	CPU.BranchSkip = FALSE;\
@@ -2458,29 +2918,8 @@ static void Op0CM0 (void)
 	        return;\
     }
 
-#define BranchCheck1()\
-    if( CPU.BranchSkip)\
-    {\
-	CPU.BranchSkip = FALSE;\
-	{\
-	    if( CPU.PC - CPU.PCBase > OpAddress)\
-	        return;\
-	}\
-    }
-
-#define BranchCheck2()\
-    if( CPU.BranchSkip)\
-    {\
-	CPU.BranchSkip = FALSE;\
-	{\
-	    if( CPU.PC - CPU.PCBase > OpAddress)\
-	        return;\
-	}\
-    }
 #else
-#define BranchCheck0()
-#define BranchCheck1()
-#define BranchCheck2()
+#define BranchCheck()
 #endif
 
 #ifdef CPU_SHUTDOWN
@@ -2551,7 +2990,7 @@ inline void CPUShutdown()
 static void Op90 (void)
 {
     long OpAddress = Relative();
-    BranchCheck0 ();
+    BranchCheck ();
     if (!CheckCarry ())
     {
 	CPU.PC = CPU.PCBase + OpAddress;
@@ -2570,7 +3009,7 @@ static void Op90 (void)
 static void OpB0 (void)
 {
     long OpAddress = Relative();
-    BranchCheck0 ();
+    BranchCheck ();
     if (CheckCarry ())
     {
 	CPU.PC = CPU.PCBase + OpAddress;
@@ -2589,7 +3028,7 @@ static void OpB0 (void)
 static void OpF0 (void)
 {
     long OpAddress = Relative();
-    BranchCheck2 ();
+    BranchCheck ();
     if (CheckZero ())
     {
 	CPU.PC = CPU.PCBase + OpAddress;
@@ -2608,7 +3047,7 @@ static void OpF0 (void)
 static void Op30 (void)
 {
     long OpAddress = Relative();
-    BranchCheck1 ();
+    BranchCheck ();
     if (CheckNegative ())
     {
 	CPU.PC = CPU.PCBase + OpAddress;
@@ -2627,7 +3066,7 @@ static void Op30 (void)
 static void OpD0 (void)
 {
     long OpAddress = Relative();
-    BranchCheck1 ();
+    BranchCheck ();
     if (!CheckZero ())
     {
 	CPU.PC = CPU.PCBase + OpAddress;
@@ -2647,7 +3086,7 @@ static void OpD0 (void)
 static void Op10 (void)
 {
     long OpAddress = Relative();
-    BranchCheck1 ();
+    BranchCheck ();
     if (!CheckNegative ())
     {
 	CPU.PC = CPU.PCBase + OpAddress;
@@ -2681,7 +3120,7 @@ static void Op80 (void)
 static void Op50 (void)
 {
     long OpAddress = Relative();
-    BranchCheck0 ();
+    BranchCheck ();
     if (!CheckOverflow ())
     {
 	CPU.PC = CPU.PCBase + OpAddress;
@@ -2700,7 +3139,7 @@ static void Op50 (void)
 static void Op70 (void)
 {
     long OpAddress = Relative();
-    BranchCheck0 ();
+    BranchCheck ();
     if (CheckOverflow ())
     {
 	CPU.PC = CPU.PCBase + OpAddress;
@@ -2876,16 +3315,46 @@ static void OpEA (void)
 /**********************************************************************************************/
 
 /* PUSH Instructions ************************************************************************* */
-#define PushW(w) \
-    S9xSetWord (w, Registers.S.W - 1);\
-    Registers.S.W -= 2;
 #define PushB(b)\
     S9xSetByte (b, Registers.S.W--);
 
+#define PushBE(b)\
+	S9xSetByte (b, Registers.S.W--);\
+	Registers.SH=0x01;
+
+
+#define PushW(w) \
+    S9xSetByte ((w)>>8, Registers.S.W);\
+	S9xSetByte ((w)&0xff, (Registers.S.W - 1)&0xFFFF);\
+    Registers.S.W -= 2;
+
+#define PushWE(w) \
+    S9xSetByte ((w)>>8, Registers.S.W--);\
+	Registers.SH=0x01;\
+	S9xSetByte ((w)&0xff, (Registers.S.W--)&0xFFFF);\
+    Registers.SH = 0x01;
+
+#define PushWENew(w) \
+    S9xSetByte ((w)>>8, Registers.S.W--);\
+	S9xSetByte ((w)&0xff, (Registers.S.W--)&0xFFFF);\
+    Registers.SH = 0x01;
+
+static void OpF4E1 (void)
+{
+    long OpAddress = Absolute ();
+    PushWENew ((unsigned short)OpAddress);
+}
+	
 static void OpF4 (void)
 {
     long OpAddress = Absolute();
     PushW ((unsigned short)OpAddress);
+}
+
+static void OpD4E1 (void)
+{
+    long OpAddress = DirectIndirect ();
+    PushWENew ((unsigned short)OpAddress);
 }
 
 static void OpD4 (void)
@@ -2894,10 +3363,24 @@ static void OpD4 (void)
     PushW ((unsigned short)OpAddress);
 }
 
+static void Op62E1 (void)
+{
+    long OpAddress = RelativeLong ();
+    PushWENew ((unsigned short)OpAddress);
+}
+
 static void Op62 (void)
 {
     long OpAddress = RelativeLong ();
     PushW ((unsigned short)OpAddress);
+}
+
+static void Op48E1 (void)
+{
+    PushBE (Registers.AL);
+#ifdef VAR_CYCLES
+    CPU.Cycles += ONE_CYCLE;
+#endif
 }
 
 static void Op48M1 (void)
@@ -2916,9 +3399,25 @@ static void Op48M0 (void)
 #endif
 }
 
+static void Op8BE1 (void)
+{
+    PushBE (Registers.DB);
+#ifdef VAR_CYCLES
+    CPU.Cycles += ONE_CYCLE;
+#endif
+}
+
 static void Op8B (void)
 {
     PushB (Registers.DB);
+#ifdef VAR_CYCLES
+    CPU.Cycles += ONE_CYCLE;
+#endif
+}
+
+static void Op0BE1 (void)
+{
+    PushWENew (Registers.D.W);
 #ifdef VAR_CYCLES
     CPU.Cycles += ONE_CYCLE;
 #endif
@@ -2932,9 +3431,26 @@ static void Op0B (void)
 #endif
 }
 
+static void Op4BE1 (void)
+{
+    PushBE (Registers.PB);
+#ifdef VAR_CYCLES
+    CPU.Cycles += ONE_CYCLE;
+#endif
+}
+
 static void Op4B (void)
 {
     PushB (Registers.PB);
+#ifdef VAR_CYCLES
+    CPU.Cycles += ONE_CYCLE;
+#endif
+}
+
+static void Op08E1 (void)
+{
+    S9xPackStatus ();
+    PushBE (Registers.PL);
 #ifdef VAR_CYCLES
     CPU.Cycles += ONE_CYCLE;
 #endif
@@ -2944,6 +3460,14 @@ static void Op08 (void)
 {
     S9xPackStatus ();
     PushB (Registers.PL);
+#ifdef VAR_CYCLES
+    CPU.Cycles += ONE_CYCLE;
+#endif
+}
+
+static void OpDAE1 (void)
+{
+    PushBE (Registers.XL);
 #ifdef VAR_CYCLES
     CPU.Cycles += ONE_CYCLE;
 #endif
@@ -2960,6 +3484,14 @@ static void OpDAX1 (void)
 static void OpDAX0 (void)
 {
     PushW (Registers.X.W);
+#ifdef VAR_CYCLES
+    CPU.Cycles += ONE_CYCLE;
+#endif
+}
+
+static void Op5AE1 (void)
+{
+    PushBE (Registers.YL);
 #ifdef VAR_CYCLES
     CPU.Cycles += ONE_CYCLE;
 #endif
@@ -2984,12 +3516,38 @@ static void Op5AX0 (void)
 
 /* PULL Instructions ************************************************************************* */
 #define PullW(w) \
-	w = S9xGetWord (Registers.S.W + 1); \
-	Registers.S.W += 2;
+	w = S9xGetByte (++Registers.S.W); \
+	w |= (S9xGetByte (++Registers.S.W)<<8);
 
 #define PullB(b)\
 	b = S9xGetByte (++Registers.S.W);
 
+#define PullBE(b)\
+	Registers.S.W++;\
+	Registers.SH=0x01;\
+	b = S9xGetByte (Registers.S.W);
+
+#define PullWE(w) \
+	Registers.S.W++;\
+	Registers.SH=0x01;\
+	w = S9xGetByte (Registers.S.W); \
+	Registers.S.W++; \
+	Registers.SH=0x01;\
+	w |= (S9xGetByte (Registers.S.W)<<8);
+
+#define PullWENew(w) \
+	PullW(w);\
+	Registers.SH=0x01;	
+
+static void Op68E1 (void)
+{
+#ifdef VAR_CYCLES
+    CPU.Cycles += TWO_CYCLES;
+#endif
+    PullBE (Registers.AL);
+    SetZN8 (Registers.AL);
+}
+	
 static void Op68M1 (void)
 {
 #ifdef VAR_CYCLES
@@ -3008,6 +3566,16 @@ static void Op68M0 (void)
     SetZN16 (Registers.A.W);
 }
 
+static void OpABE1 (void)
+{
+#ifdef VAR_CYCLES
+    CPU.Cycles += TWO_CYCLES;
+#endif
+    PullBE (Registers.DB);
+    SetZN8 (Registers.DB);
+    ICPU.ShiftedDB = Registers.DB << 16;
+}
+
 static void OpAB (void)
 {
 #ifdef VAR_CYCLES
@@ -3019,6 +3587,16 @@ static void OpAB (void)
 }
 
 /* PHP */
+
+static void Op2BE1 (void)
+{
+#ifdef VAR_CYCLES
+    CPU.Cycles += TWO_CYCLES;
+#endif
+    PullWENew (Registers.D.W);
+    SetZN16 (Registers.D.W);
+}
+
 static void Op2B (void)
 {
 #ifdef VAR_CYCLES
@@ -3029,6 +3607,22 @@ static void Op2B (void)
 }
 
 /* PLP */
+/*static void Op28E1 (void)
+{
+#ifdef VAR_CYCLES
+    CPU.Cycles += TWO_CYCLES;
+#endif
+    PullBE (Registers.PL);
+    S9xUnpackStatus ();
+
+    if (CheckIndex ())
+    {
+	Registers.XH = 0;
+	Registers.YH = 0;
+    }
+    S9xFixCycles();
+}*/
+
 static void Op28 (void)
 {
 #ifdef VAR_CYCLES
@@ -3043,7 +3637,15 @@ static void Op28 (void)
 	Registers.YH = 0;
     }
     S9xFixCycles();
-/*     CHECK_FOR_IRQ();*/
+}
+
+static void OpFAE1 (void)
+{
+#ifdef VAR_CYCLES
+    CPU.Cycles += TWO_CYCLES;
+#endif
+    PullBE (Registers.XL);
+    SetZN8 (Registers.XL);
 }
 
 static void OpFAX1 (void)
@@ -3062,6 +3664,15 @@ static void OpFAX0 (void)
 #endif
     PullW (Registers.X.W);
     SetZN16 (Registers.X.W);
+}
+
+static void Op7AE1 (void)
+{
+#ifdef VAR_CYCLES
+    CPU.Cycles += TWO_CYCLES;
+#endif
+    PullBE (Registers.YL);
+    SetZN8 (Registers.YL);
 }
 
 static void Op7AX1 (void)
@@ -3620,6 +4231,16 @@ static void Op7C (void)
 /**********************************************************************************************/
 
 /* JSL/RTL *********************************************************************************** */
+static void Op22E1 (void)
+{
+    long OpAddress = AbsoluteLong ();
+    PushB (Registers.PB);
+    PushWENew (CPU.PC - CPU.PCBase - 1);
+    Registers.PB = (uint8) (OpAddress >> 16);
+    ICPU.ShiftedPB = OpAddress & 0xff0000;
+    S9xSetPCBase (OpAddress);
+}
+
 static void Op22 (void)
 {
     long OpAddress = AbsoluteLong();
@@ -3628,6 +4249,17 @@ static void Op22 (void)
     Registers.PB = (uint8) (OpAddress >> 16);
     ICPU.ShiftedPB = OpAddress & 0xff0000;
     S9xSetPCBase (OpAddress);
+}
+
+static void Op6BE1 (void)
+{
+    PullWENew (Registers.PCw);
+    PullB (Registers.PB);
+    ICPU.ShiftedPB = Registers.PB << 16;
+    S9xSetPCBase (ICPU.ShiftedPB + ((Registers.PCw + 1) & 0xffff));
+#ifdef VAR_CYCLES
+    CPU.Cycles += TWO_CYCLES;
+#endif
 }
 
 static void Op6B (void)
@@ -3651,6 +4283,16 @@ static void Op20 (void)
     CPU.Cycles += ONE_CYCLE;
 #endif
     S9xSetPCBase (ICPU.ShiftedPB + (OpAddress & 0xffff));
+}
+
+static void OpFCE1 (void)
+{
+    long OpAddress = AbsoluteIndexedIndirect ();
+    PushWENew (CPU.PC - CPU.PCBase - 1);
+    S9xSetPCBase (ICPU.ShiftedPB + OpAddress);
+#ifdef VAR_CYCLES
+    CPU.Cycles += ONE_CYCLE;
+#endif
 }
 
 static void OpFC (void)
@@ -3882,10 +4524,37 @@ static void OpCB (void)
     }
     else
     {
-	CPU.WaitingForInterrupt = TRUE;
-	CPU.PC--;
+	//CPU.WaitingForInterrupt = TRUE;
+	//CPU.PC--;
 #ifdef CPU_SHUTDOWN
 #ifndef SA1_OPCODES
+	
+	// We are basically moving all the checks for CPU.WaitingForInterrupt
+    // in the S9xHandleFlags() method to here.
+    // 
+	if (((CPU.Flags & NMI_FLAG) && (CPU.NMICycleCount - 1 == 0)) ||
+		((CPU.Flags & IRQ_PENDING_FLAG) && (CPU.IRQCycleCount == 0)))
+	{
+		// Take no action, the PC must remain as it is 
+		// so that the next instruction is executed.
+	}
+	else
+	{
+		// Move the PC back to the WAI instruction
+		//
+		CPU.PC--;
+
+		bool skip = false;
+		if (!CPU.Flags)
+			skip = true;
+		else if ((CPU.Flags & IRQ_PENDING_FLAG) && (CPU.IRQCycleCount == 0) && CheckFlag (IRQ))
+			skip = true;
+		
+		if (skip)
+			if (CPU.Cycles < CPU.NextEvent)
+				CPU.Cycles = CPU.NextEvent;
+	}
+
 	if (Settings.Shutdown)
 	{
 				
@@ -3894,12 +4563,12 @@ static void OpCB (void)
 		  		cpu_glob_cycles += CPU.Cycles-old_cpu_cycles;
 		  		old_cpu_cycles=CPU.NextEvent;
 		  	}
-		  }
+		}
 	  CPU.Cycles = CPU.NextEvent;
 	   
 	  if ((IAPU_APUExecuting)) {
 			ICPU.CPUExecuting = FALSE;
-////			if (CPU.Cycles-old_cpu_cycles<0) msgBoxLines("5",60);
+//			if (CPU.Cycles-old_cpu_cycles<0) msgBoxLines("5",60);
 //			/*else */cpu_glob_cycles += CPU.Cycles-old_cpu_cycles;
 //			old_cpu_cycles=CPU.Cycles;
 //			apu_glob_cycles=cpu_glob_cycles;
@@ -3927,16 +4596,155 @@ static void OpCB (void)
     }
 }
 
-// STP
-static void OpDB (void)
-{
-    CPU.PC--;
-    CPU.Flags |= DEBUG_MODE_FLAG;
+// Speedhack for main CPU
+// Based on snes9x 3DS
+//
+static void CPUSpeedhack (void) {
+#ifndef SA1_OPCODES	
+	bool doSkip = false;
+	// If there's any pending NMI/IRQ don't speed hack
+	//
+	if (((CPU.Flags & NMI_FLAG) && (CPU.NMICycleCount - 1 == 0)) ||
+		((CPU.Flags & IRQ_PENDING_FLAG) && (CPU.IRQCycleCount == 0)))    
+		doSkip = false;
+	else
+	{
+		doSkip = false;
+		if (!CPU.Flags)
+			doSkip = true;
+		else if ((CPU.Flags & IRQ_PENDING_FLAG) && (CPU.IRQCycleCount == 0) && CheckFlag (IRQ))
+			doSkip = true;
+	}
+	
+	int foundHackIndex = -1;
+
+    // Search for the appropriate speed hack
+    //
+    uint8* prevCPUPC = (uint8 *)(CPU.PC - 1);
+	
+	// Make sure we check again SpeedHackCount.
+	//
+	for (int i = 0; i < SNESGameFixes.SpeedHackCount; i++)
+	{
+		if (SNESGameFixes.SpeedHackAddress[i] == prevCPUPC) 
+		{ 
+			foundHackIndex = i; 
+			break; 
+		}
+	}
+
+	// Some games actually use NOP. So we must ensure
+	// That this is a registered speed hack
+	//
+	if (foundHackIndex == -1)
+	{
+		// If we can't find the speed hack, then
+		// we will treat this like a NOP (as it was before)
+		//
+		doSkip = false;
+		return;
+	}
+	
+	/*if (Settings.SA1)
+		if (SA1.Executing)
+			doSkip = false;*/
+    
+	// Executes the original opcode that we replaced.
+	//
+	(*ICPU.S9xOpcodes [SNESGameFixes.SpeedHackOriginalOpcode[foundHackIndex]].S9xOpcode) (); 
+
+	// If we decide to skip, then we add cycles to the CPU.Cycles
+	// until just before the next event.
+	//
+	if (doSkip)
+	{	
+		int cyclesToSkip = SNESGameFixes.SpeedHackCycles[foundHackIndex];
+
+		if (cyclesToSkip == -1)
+			CPU.Cycles = CPU.NextEvent;
+		else
+		{
+			while (CPU.Cycles + cyclesToSkip < CPU.NextEvent)
+			{
+				CPU.Cycles = CPU.Cycles + cyclesToSkip;
+			}
+		}
+	}
+#endif
 }
 
-// Reserved S9xOpcode
-static void Op42 (void) {	
+// Speedhack for SA1 games
+// Based on snes9x 3DS
+//
+static void SA1Speedhack (void) {
+#ifdef SA1_OPCODES	
+	bool doSkip = false;
+	int foundHackIndex = -1;
+	
+    // Search for the appropriate speed hack
+    //
+    uint8* prevCPUPC = (uint8*)(CPU.PC - 1);
+	
+	// Make sure we check again SpeedHackCount.
+	//
+	doSkip = true;
+	for (int i = 0; i < SNESGameFixes.SpeedHackSA1Count; i++)
+	{
+		if (SNESGameFixes.SpeedHackSA1Address[i] == prevCPUPC) 
+		{ 
+			foundHackIndex = i; 
+			break; 
+		}
+	}
+
+	// Some games actually use NOP. So we must ensure
+	// That this is a registered speed hack
+	//
+	if (foundHackIndex == -1)
+	{
+		// If we can't find the speed hack, then
+		// we will treat this like a NOP (as it was before)
+		//
+		doSkip = false;
+		return;
+	}
+
+	// Executes the original opcode that we replaced.
+	//
+	(*ICPU.S9xOpcodes [SNESGameFixes.SpeedHackSA1OriginalOpcode[foundHackIndex]].S9xOpcode) (); 
+
+	if (doSkip)
+	{
+		if (SA1.WaitCounter == 0)
+			SA1.Executing = false;
+		else
+			SA1.WaitCounter--;
+	}
+#endif
+}
+
+// STP
+// Since snes9xTYL already uses opcode 0x42 to apply speedhacks from snesadvance.dat.
+// We use opcode 0xDB instead of 0x42 to apply harcoded speedhacks ported from snes9x 3DS.
+// With this change we avoid graphical glitches, crashes and black screens on several games.
+static void OpDB (void)
+{
+	if (Settings.SpeedHack)
+	{
+		CPUSpeedhack();
+		SA1Speedhack();
+	}
+	else
+	{
+	    CPU.PC--;
+		CPU.Flags |= DEBUG_MODE_FLAG;
+	}
+}
+
+// SNESAdvance speedhack
+static void Op42 (void) {
 #ifndef SA1_OPCODES	
+	
 	uint8 b;
 		
 	CPU.WaitAddress = NULL;
@@ -3955,19 +4763,8 @@ static void Op42 (void) {
 
 	if ((IAPU_APUExecuting)) {
 		ICPU.CPUExecuting = FALSE;
-////		if (CPU.Cycles-old_cpu_cycles<0) msgBoxLines("3",60);
-//		/*else */cpu_glob_cycles += CPU.Cycles-old_cpu_cycles;
-//		old_cpu_cycles=CPU.Cycles;
-//		apu_glob_cycles=cpu_glob_cycles;
-//		
-//		if (cpu_glob_cycles>=0x00700000) {		
-//					APU_EXECUTE2 ();
-//				}
 		
 		UPDATE_APU_COUNTER();
-		/*do	{
-		  	APU_EXECUTE1();		  	
-		} while ((Uncache_APU_Cycles) < CPU.NextEvent);		*/
 		
 		ICPU.CPUExecuting = TRUE;
 	}
@@ -3984,7 +4781,7 @@ static void Op42 (void) {
 		
 	switch (b&0xF0) {		
     case 0x10: //BPL
-    	BranchCheck1 ();
+    	BranchCheck ();
     	if (!CheckNegative ()) {
 				CPU.PC = CPU.PCBase + OpAddress;
 				#ifdef VAR_CYCLES
@@ -3998,7 +4795,7 @@ static void Op42 (void) {
     	}
     	return;
     case 0x30: //BMI
-    	BranchCheck1 ();
+    	BranchCheck ();
     	if (CheckNegative ()) {
 				CPU.PC = CPU.PCBase + OpAddress;
 				#ifdef VAR_CYCLES
@@ -4012,7 +4809,7 @@ static void Op42 (void) {
     	}
     	return;
     case 0x50: //BVC
-    	BranchCheck0 ();
+    	BranchCheck ();
     	if (!CheckOverflow ()) {
 				CPU.PC = CPU.PCBase + OpAddress;
 				#ifdef VAR_CYCLES
@@ -4026,7 +4823,7 @@ static void Op42 (void) {
     	}
     	return;
     case 0x70: //BVS
-      BranchCheck0 ();
+      BranchCheck ();
     	if (CheckOverflow ()) {
 				CPU.PC = CPU.PCBase + OpAddress;
 				#ifdef VAR_CYCLES
@@ -4052,7 +4849,7 @@ static void Op42 (void) {
     	CPUShutdown ();
     	return;
     case 0x90: //BCC
-      BranchCheck0 ();
+      BranchCheck ();
 	    if (!CheckCarry ()) {
 				CPU.PC = CPU.PCBase + OpAddress;
 				#ifdef VAR_CYCLES
@@ -4066,7 +4863,7 @@ static void Op42 (void) {
    		}
     	return;
     case 0xB0: //BCS
-      BranchCheck0 ();
+      BranchCheck ();
 		  if (CheckCarry ()) {
 				CPU.PC = CPU.PCBase + OpAddress;
 				#ifdef VAR_CYCLES
@@ -4080,7 +4877,7 @@ static void Op42 (void) {
     	}
     	return;
     case 0xD0: //BNE
-      BranchCheck1 ();
+      BranchCheck ();
     	if (!CheckZero ()) {
 				CPU.PC = CPU.PCBase + OpAddress;
 				#ifdef VAR_CYCLES
@@ -4094,7 +4891,7 @@ static void Op42 (void) {
     	}
     	return;
     case 0xF0: //BEQ
-    	BranchCheck2 ();
+    	BranchCheck ();
     	if (CheckZero ()) {
 				CPU.PC = CPU.PCBase + OpAddress;
 				#ifdef VAR_CYCLES
@@ -4108,7 +4905,7 @@ static void Op42 (void) {
 			}
     	return;
 	}
-#endif	
+#endif
 }
 
 /**********************************************************************************************/
@@ -4116,6 +4913,62 @@ static void Op42 (void) {
 /**********************************************************************************************/
 /* CPU-S9xOpcodes Definitions                                                                    */
 /**********************************************************************************************/
+struct SOpcodes __attribute__((aligned(64))) S9xOpcodesE1[256] =
+{
+    {Op00},	 {Op01M1},    {Op02},      {Op03M1},    {Op04M1},
+    {Op05M1},    {Op06M1},    {Op07M1},    {Op08E1},      {Op09M1},
+    {Op0AM1},    {Op0BE1},      {Op0CM1},    {Op0DM1},    {Op0EM1},
+    {Op0FM1},    {Op10},      {Op11M1},    {Op12M1},    {Op13M1},
+    {Op14M1},    {Op15M1},    {Op16M1},    {Op17M1},    {Op18},
+    {Op19M1},    {Op1AM1},    {Op1B},      {Op1CM1},    {Op1DM1},
+    {Op1EM1},    {Op1FM1},    {Op20},      {Op21M1},    {Op22E1},
+    {Op23M1},    {Op24M1},    {Op25M1},    {Op26M1},    {Op27M1},
+    {Op28},      {Op29M1},    {Op2AM1},    {Op2BE1},      {Op2CM1},
+    {Op2DM1},    {Op2EM1},    {Op2FM1},    {Op30},      {Op31M1},
+    {Op32M1},    {Op33M1},    {Op34M1},    {Op35M1},    {Op36M1},
+    {Op37M1},    {Op38},      {Op39M1},    {Op3AM1},    {Op3B},
+    {Op3CM1},    {Op3DM1},    {Op3EM1},    {Op3FM1},    {Op40},
+    {Op41M1},    {Op42},      {Op43M1},    {Op44X1},    {Op45M1},
+    {Op46M1},    {Op47M1},    {Op48E1},    {Op49M1},    {Op4AM1},
+    {Op4BE1},      {Op4C},      {Op4DM1},    {Op4EM1},    {Op4FM1},
+    {Op50},      {Op51M1},    {Op52M1},    {Op53M1},    {Op54X1},
+    {Op55M1},    {Op56M1},    {Op57M1},    {Op58},      {Op59M1},
+    {Op5AE1},    {Op5B},      {Op5C},      {Op5DM1},    {Op5EM1},
+    {Op5FM1},    {Op60},      {Op61M1},    {Op62E1},      {Op63M1},
+    {Op64M1},    {Op65M1},    {Op66M1},    {Op67M1},    {Op68E1},
+    {Op69M1},    {Op6AM1},    {Op6BE1},      {Op6C},      {Op6DM1},
+    {Op6EM1},    {Op6FM1},    {Op70},      {Op71M1},    {Op72M1},
+    {Op73M1},    {Op74M1},    {Op75M1},    {Op76M1},    {Op77M1},
+    {Op78},      {Op79M1},    {Op7AE1},    {Op7B},      {Op7C},
+    {Op7DM1},    {Op7EM1},    {Op7FM1},    {Op80},      {Op81M1},
+    {Op82},      {Op83M1},    {Op84X1},    {Op85M1},    {Op86X1},
+    {Op87M1},    {Op88X1},    {Op89M1},    {Op8AM1},    {Op8BE1},
+    {Op8CX1},    {Op8DM1},    {Op8EX1},    {Op8FM1},    {Op90},
+    {Op91M1},    {Op92M1},    {Op93M1},    {Op94X1},    {Op95M1},
+    {Op96X1},    {Op97M1},    {Op98M1},    {Op99M1},    {Op9A},
+    {Op9BX1},    {Op9CM1},    {Op9DM1},    {Op9EM1},    {Op9FM1},
+    {OpA0X1},    {OpA1M1},    {OpA2X1},    {OpA3M1},    {OpA4X1},
+    {OpA5M1},    {OpA6X1},    {OpA7M1},    {OpA8X1},    {OpA9M1},
+    {OpAAX1},    {OpABE1},      {OpACX1},    {OpADM1},    {OpAEX1},
+    {OpAFM1},    {OpB0},      {OpB1M1},    {OpB2M1},    {OpB3M1},
+    {OpB4X1},    {OpB5M1},    {OpB6X1},    {OpB7M1},    {OpB8},
+    {OpB9M1},    {OpBAX1},    {OpBBX1},    {OpBCX1},    {OpBDM1},
+    {OpBEX1},    {OpBFM1},    {OpC0X1},    {OpC1M1},    {OpC2},
+    {OpC3M1},    {OpC4X1},    {OpC5M1},    {OpC6M1},    {OpC7M1},
+    {OpC8X1},    {OpC9M1},    {OpCAX1},    {OpCB},      {OpCCX1},
+    {OpCDM1},    {OpCEM1},    {OpCFM1},    {OpD0},      {OpD1M1},
+    {OpD2M1},    {OpD3M1},    {OpD4E1},      {OpD5M1},    {OpD6M1},
+    {OpD7M1},    {OpD8},      {OpD9M1},    {OpDAE1},    {OpDB},
+    {OpDC},      {OpDDM1},    {OpDEM1},    {OpDFM1},    {OpE0X1},
+    {OpE1M1},    {OpE2},      {OpE3M1},    {OpE4X1},    {OpE5M1},
+    {OpE6M1},    {OpE7M1},    {OpE8X1},    {OpE9M1},    {OpEA},
+    {OpEB},      {OpECX1},    {OpEDM1},    {OpEEM1},    {OpEFM1},
+    {OpF0},      {OpF1M1},    {OpF2M1},    {OpF3M1},    {OpF4E1},
+    {OpF5M1},    {OpF6M1},    {OpF7M1},    {OpF8},      {OpF9M1},
+    {OpFAE1},    {OpFB},      {OpFCE1},      {OpFDM1},    {OpFEM1},
+    {OpFFM1}
+};
+
 struct SOpcodes __attribute__((aligned(64))) S9xOpcodesM1X1[256] =
 {
     {Op00},	 {Op01M1},    {Op02},      {Op03M1},    {Op04M1},
@@ -4340,1186 +5193,299 @@ struct SOpcodes __attribute__((aligned(64))) S9xOpcodesM0X1[256] =
     {OpFFM0}
 };
 
-/*
-// ADC *************************************************************************************** //
-static void Op69M1D0 (void)
-{
-    long OpAddress = Immediate8 ();
-    ADC8D0 (OpAddress);
-}
-
-static void Op69M0D0 (void)
-{
-    long OpAddress = Immediate16 ();
-    ADC16D0 (OpAddress);
-}
-
-static void Op65M1D0 (void)
-{
-    long OpAddress = Direct();
-    ADC8D0 (OpAddress);
-}
-
-static void Op65M0D0 (void)
-{
-    long OpAddress = Direct();
-    ADC16D0 (OpAddress);
-}
-
-static void Op75M1D0 (void)
-{
-    long OpAddress = DirectIndexedX();
-    ADC8D0 (OpAddress);
-}
-
-static void Op75M0D0 (void)
-{
-    long OpAddress = DirectIndexedX();
-    ADC16D0 (OpAddress);
-}
-
-static void Op72M1D0 (void)
-{
-    long OpAddress = DirectIndirect();
-    ADC8D0 (OpAddress);
-}
-
-static void Op72M0D0 (void)
-{
-    long OpAddress = DirectIndirect();
-    ADC16D0 (OpAddress);
-}
-
-static void Op61M1D0 (void)
-{
-    long OpAddress = DirectIndexedIndirect();
-    ADC8D0 (OpAddress);
-}
-
-static void Op61M0D0 (void)
-{
-    long OpAddress = DirectIndexedIndirect();
-    ADC16D0 (OpAddress);
-}
-
-static void Op71M1D0 (void)
-{
-    long OpAddress = DirectIndirectIndexed();
-    ADC8D0 (OpAddress);
-}
-
-static void Op71M0D0 (void)
-{
-    long OpAddress = DirectIndirectIndexed();
-    ADC16D0 (OpAddress);
-}
-
-static void Op67M1D0 (void)
-{
-    long OpAddress = DirectIndirectLong();
-    ADC8D0 (OpAddress);
-}
-
-static void Op67M0D0 (void)
-{
-    long OpAddress = DirectIndirectLong();
-    ADC16D0 (OpAddress);
-}
-
-static void Op77M1D0 (void)
-{
-    long OpAddress = DirectIndirectIndexedLong();
-    ADC8D0 (OpAddress);
-}
-
-static void Op77M0D0 (void)
-{
-    long OpAddress = DirectIndirectIndexedLong();
-    ADC16D0 (OpAddress);
-}
-
-static void Op6DM1D0 (void)
-{
-    long OpAddress = Absolute();
-    ADC8D0 (OpAddress);
-}
-
-static void Op6DM0D0 (void)
-{
-    long OpAddress = Absolute();
-    ADC16D0 (OpAddress);
-}
-
-static void Op7DM1D0 (void)
-{
-    long OpAddress = AbsoluteIndexedX();
-    ADC8D0 (OpAddress);
-}
-
-static void Op7DM0D0 (void)
-{
-    long OpAddress = AbsoluteIndexedX();
-    ADC16D0 (OpAddress);
-}
-
-static void Op79M1D0 (void)
-{
-    long OpAddress = AbsoluteIndexedY();
-    ADC8D0 (OpAddress);
-}
-
-static void Op79M0D0 (void)
-{
-    long OpAddress = AbsoluteIndexedY();
-    ADC16D0 (OpAddress);
-}
-
-static void Op6FM1D0 (void)
-{
-    long OpAddress = AbsoluteLong();
-    ADC8D0 (OpAddress);
-}
-
-static void Op6FM0D0 (void)
-{
-    long OpAddress = AbsoluteLong();
-    ADC16D0 (OpAddress);
-}
-
-static void Op7FM1D0 (void)
-{
-    long OpAddress = AbsoluteLongIndexedX();
-    ADC8D0 (OpAddress);
-}
-
-static void Op7FM0D0 (void)
-{
-    long OpAddress = AbsoluteLongIndexedX();
-    ADC16D0 (OpAddress);
-}
-
-static void Op63M1D0 (void)
-{
-    long OpAddress = StackRelative();
-    ADC8D0 (OpAddress);
-}
-
-static void Op63M0D0 (void)
-{
-    long OpAddress = StackRelative();
-    ADC16D0 (OpAddress);
-}
-
-static void Op73M1D0 (void)
-{
-    long OpAddress = StackRelativeIndirectIndexed();
-    ADC8D0 (OpAddress);
-}
-
-static void Op73M0D0 (void)
-{
-    long OpAddress = StackRelativeIndirectIndexed();
-    ADC16D0 (OpAddress);
-}
-
-// ADC *************************************************************************************** //
-static void Op69M1D1 (void)
-{
-    long OpAddress = Immediate8 ();
-    ADC8D1 (OpAddress);
-}
-
-static void Op69M0D1 (void)
-{
-    long OpAddress = Immediate16 ();
-    ADC16D1 (OpAddress);
-}
-
-static void Op65M1D1 (void)
-{
-    long OpAddress = Direct();
-    ADC8D1 (OpAddress);
-}
-
-static void Op65M0D1 (void)
-{
-    long OpAddress = Direct();
-    ADC16D1 (OpAddress);
-}
-
-static void Op75M1D1 (void)
-{
-    long OpAddress = DirectIndexedX();
-    ADC8D1 (OpAddress);
-}
-
-static void Op75M0D1 (void)
-{
-    long OpAddress = DirectIndexedX();
-    ADC16D1 (OpAddress);
-}
-
-static void Op72M1D1 (void)
-{
-    long OpAddress = DirectIndirect();
-    ADC8D1 (OpAddress);
-}
-
-static void Op72M0D1 (void)
-{
-    long OpAddress = DirectIndirect();
-    ADC16D1 (OpAddress);
-}
-
-static void Op61M1D1 (void)
-{
-    long OpAddress = DirectIndexedIndirect();
-    ADC8D1 (OpAddress);
-}
-
-static void Op61M0D1 (void)
-{
-    long OpAddress = DirectIndexedIndirect();
-    ADC16D1 (OpAddress);
-}
-
-static void Op71M1D1 (void)
-{
-    long OpAddress = DirectIndirectIndexed();
-    ADC8D1 (OpAddress);
-}
-
-static void Op71M0D1 (void)
-{
-    long OpAddress = DirectIndirectIndexed();
-    ADC16D1 (OpAddress);
-}
-
-static void Op67M1D1 (void)
-{
-    long OpAddress = DirectIndirectLong();
-    ADC8D1 (OpAddress);
-}
-
-static void Op67M0D1 (void)
-{
-    long OpAddress = DirectIndirectLong();
-    ADC16D1 (OpAddress);
-}
-
-static void Op77M1D1 (void)
-{
-    long OpAddress = DirectIndirectIndexedLong();
-    ADC8D1 (OpAddress);
-}
-
-static void Op77M0D1 (void)
-{
-    long OpAddress = DirectIndirectIndexedLong();
-    ADC16D1 (OpAddress);
-}
-
-static void Op6DM1D1 (void)
-{
-    long OpAddress = Absolute();
-    ADC8D1 (OpAddress);
-}
-
-static void Op6DM0D1 (void)
-{
-    long OpAddress = Absolute();
-    ADC16D1 (OpAddress);
-}
-
-static void Op7DM1D1 (void)
-{
-    long OpAddress = AbsoluteIndexedX();
-    ADC8D1 (OpAddress);
-}
-
-static void Op7DM0D1 (void)
-{
-    long OpAddress = AbsoluteIndexedX();
-    ADC16D1 (OpAddress);
-}
-
-static void Op79M1D1 (void)
-{
-    long OpAddress = AbsoluteIndexedY();
-    ADC8D1 (OpAddress);
-}
-
-static void Op79M0D1 (void)
-{
-    long OpAddress = AbsoluteIndexedY();
-    ADC16D1 (OpAddress);
-}
-
-static void Op6FM1D1 (void)
-{
-    long OpAddress = AbsoluteLong();
-    ADC8D1 (OpAddress);
-}
-
-static void Op6FM0D1 (void)
-{
-    long OpAddress = AbsoluteLong();
-    ADC16D1 (OpAddress);
-}
-
-static void Op7FM1D1 (void)
-{
-    long OpAddress = AbsoluteLongIndexedX();
-    ADC8D1 (OpAddress);
-}
-
-static void Op7FM0D1 (void)
-{
-    long OpAddress = AbsoluteLongIndexedX();
-    ADC16D1 (OpAddress);
-}
-
-static void Op63M1D1 (void)
-{
-    long OpAddress = StackRelative();
-    ADC8D1 (OpAddress);
-}
-
-static void Op63M0D1 (void)
-{
-    long OpAddress = StackRelative();
-    ADC16D1 (OpAddress);
-}
-
-static void Op73M1D1 (void)
-{
-    long OpAddress = StackRelativeIndirectIndexed();
-    ADC8D1 (OpAddress);
-}
-
-static void Op73M0D1 (void)
-{
-    long OpAddress = StackRelativeIndirectIndexed();
-    ADC16D1 (OpAddress);
-}
-
-
-// SBC *************************************************************************************** /
-static void OpE9M1D0 (void)
-{
-    long OpAddress = Immediate8 ();
-    SBC8D0 (OpAddress);
-}
-
-static void OpE9M0D0 (void)
-{
-    long OpAddress = Immediate16 ();
-    SBC16D0 (OpAddress);
-}
-
-static void OpE5M1D0 (void)
-{
-    long OpAddress = Direct();
-    SBC8D0 (OpAddress);
-}
-
-static void OpE5M0D0 (void)
-{
-    long OpAddress = Direct();
-    SBC16D0 (OpAddress);
-}
-
-static void OpF5M1D0 (void)
-{
-    long OpAddress = DirectIndexedX();
-    SBC8D0 (OpAddress);
-}
-
-static void OpF5M0D0 (void)
-{
-    long OpAddress = DirectIndexedX();
-    SBC16D0 (OpAddress);
-}
-
-static void OpF2M1D0 (void)
-{
-    long OpAddress = DirectIndirect();
-    SBC8D0 (OpAddress);
-}
-
-static void OpF2M0D0 (void)
-{
-    long OpAddress = DirectIndirect();
-    SBC16D0 (OpAddress);
-}
-
-static void OpE1M1D0 (void)
-{
-    long OpAddress = DirectIndexedIndirect();
-    SBC8D0 (OpAddress);
-}
-
-static void OpE1M0D0 (void)
-{
-    long OpAddress = DirectIndexedIndirect();
-    SBC16D0 (OpAddress);
-}
-
-static void OpF1M1D0 (void)
-{
-    long OpAddress = DirectIndirectIndexed();
-    SBC8D0 (OpAddress);
-}
-
-static void OpF1M0D0 (void)
-{
-    long OpAddress = DirectIndirectIndexed();
-    SBC16D0 (OpAddress);
-}
-
-static void OpE7M1D0 (void)
-{
-    long OpAddress = DirectIndirectLong();
-    SBC8D0 (OpAddress);
-}
-
-static void OpE7M0D0 (void)
-{
-    long OpAddress = DirectIndirectLong();
-    SBC16D0 (OpAddress);
-}
-
-static void OpF7M1D0 (void)
-{
-    long OpAddress = DirectIndirectIndexedLong();
-    SBC8D0 (OpAddress);
-}
-
-static void OpF7M0D0 (void)
-{
-    long OpAddress = DirectIndirectIndexedLong();
-    SBC16D0 (OpAddress);
-}
-
-static void OpEDM1D0 (void)
-{
-    long OpAddress = Absolute();
-    SBC8D0 (OpAddress);
-}
-
-static void OpEDM0D0 (void)
-{
-    long OpAddress = Absolute();
-    SBC16D0 (OpAddress);
-}
-
-static void OpFDM1D0 (void)
-{
-    long OpAddress = AbsoluteIndexedX();
-    SBC8D0 (OpAddress);
-}
-
-static void OpFDM0D0 (void)
-{
-    long OpAddress = AbsoluteIndexedX();
-    SBC16D0 (OpAddress);
-}
-
-static void OpF9M1D0 (void)
-{
-    long OpAddress = AbsoluteIndexedY();
-    SBC8D0 (OpAddress);
-}
-
-static void OpF9M0D0 (void)
-{
-    long OpAddress = AbsoluteIndexedY();
-    SBC16D0 (OpAddress);
-}
-
-static void OpEFM1D0 (void)
-{
-    long OpAddress = AbsoluteLong();
-    SBC8D0 (OpAddress);
-}
-
-static void OpEFM0D0 (void)
-{
-    long OpAddress = AbsoluteLong();
-    SBC16D0 (OpAddress);
-}
-
-static void OpFFM1D0 (void)
-{
-    long OpAddress = AbsoluteLongIndexedX();
-    SBC8D0 (OpAddress);
-}
-
-static void OpFFM0D0 (void)
-{
-    long OpAddress = AbsoluteLongIndexedX();
-    SBC16D0 (OpAddress);
-}
-
-static void OpE3M1D0 (void)
-{
-    long OpAddress = StackRelative();
-    SBC8D0 (OpAddress);
-}
-
-static void OpE3M0D0 (void)
-{
-    long OpAddress = StackRelative();
-    SBC16D0 (OpAddress);
-}
-
-static void OpF3M1D0 (void)
-{
-    long OpAddress = StackRelativeIndirectIndexed();
-    SBC8D0 (OpAddress);
-}
-
-static void OpF3M0D0 (void)
-{
-    long OpAddress = StackRelativeIndirectIndexed();
-    SBC16D0 (OpAddress);
-}
-
-// SBC *************************************************************************************** /
-static void OpE9M1D1 (void)
-{
-    long OpAddress = Immediate8 ();
-    SBC8D1 (OpAddress);
-}
-
-static void OpE9M0D1 (void)
-{
-    long OpAddress = Immediate16 ();
-    SBC16D1 (OpAddress);
-}
-
-static void OpE5M1D1 (void)
-{
-    long OpAddress = Direct();
-    SBC8D1 (OpAddress);
-}
-
-static void OpE5M0D1 (void)
-{
-    long OpAddress = Direct();
-    SBC16D1 (OpAddress);
-}
-
-static void OpF5M1D1 (void)
-{
-    long OpAddress = DirectIndexedX();
-    SBC8D1 (OpAddress);
-}
-
-static void OpF5M0D1 (void)
-{
-    long OpAddress = DirectIndexedX();
-    SBC16D1 (OpAddress);
-}
-
-static void OpF2M1D1 (void)
-{
-    long OpAddress = DirectIndirect();
-    SBC8D1 (OpAddress);
-}
-
-static void OpF2M0D1 (void)
-{
-    long OpAddress = DirectIndirect();
-    SBC16D1 (OpAddress);
-}
-
-static void OpE1M1D1 (void)
-{
-    long OpAddress = DirectIndexedIndirect();
-    SBC8D1 (OpAddress);
-}
-
-static void OpE1M0D1 (void)
-{
-    long OpAddress = DirectIndexedIndirect();
-    SBC16D1 (OpAddress);
-}
-
-static void OpF1M1D1 (void)
-{
-    long OpAddress = DirectIndirectIndexed();
-    SBC8D1 (OpAddress);
-}
-
-static void OpF1M0D1 (void)
-{
-    long OpAddress = DirectIndirectIndexed();
-    SBC16D1 (OpAddress);
-}
-
-static void OpE7M1D1 (void)
-{
-    long OpAddress = DirectIndirectLong();
-    SBC8D1 (OpAddress);
-}
-
-static void OpE7M0D1 (void)
-{
-    long OpAddress = DirectIndirectLong();
-    SBC16D1 (OpAddress);
-}
-
-static void OpF7M1D1 (void)
-{
-    long OpAddress = DirectIndirectIndexedLong();
-    SBC8D1 (OpAddress);
-}
-
-static void OpF7M0D1 (void)
-{
-    long OpAddress = DirectIndirectIndexedLong();
-    SBC16D1 (OpAddress);
-}
-
-static void OpEDM1D1 (void)
-{
-    long OpAddress = Absolute();
-    SBC8D1 (OpAddress);
-}
-
-static void OpEDM0D1 (void)
-{
-    long OpAddress = Absolute();
-    SBC16D1 (OpAddress);
-}
-
-static void OpFDM1D1 (void)
-{
-    long OpAddress = AbsoluteIndexedX();
-    SBC8D1 (OpAddress);
-}
-
-static void OpFDM0D1 (void)
-{
-    long OpAddress = AbsoluteIndexedX();
-    SBC16D1 (OpAddress);
-}
-
-static void OpF9M1D1 (void)
-{
-    long OpAddress = AbsoluteIndexedY();
-    SBC8D1 (OpAddress);
-}
-
-static void OpF9M0D1 (void)
-{
-    long OpAddress = AbsoluteIndexedY();
-    SBC16D1 (OpAddress);
-}
-
-static void OpEFM1D1 (void)
-{
-    long OpAddress = AbsoluteLong();
-    SBC8D1 (OpAddress);
-}
-
-static void OpEFM0D1 (void)
-{
-    long OpAddress = AbsoluteLong();
-    SBC16D1 (OpAddress);
-}
-
-static void OpFFM1D1 (void)
-{
-    long OpAddress = AbsoluteLongIndexedX();
-    SBC8D1 (OpAddress);
-}
-
-static void OpFFM0D1 (void)
-{
-    long OpAddress = AbsoluteLongIndexedX();
-    SBC16D1 (OpAddress);
-}
-
-static void OpE3M1D1 (void)
-{
-    long OpAddress = StackRelative();
-    SBC8D1 (OpAddress);
-}
-
-static void OpE3M0D1 (void)
-{
-    long OpAddress = StackRelative();
-    SBC16D1 (OpAddress);
-}
-
-static void OpF3M1D1 (void)
-{
-    long OpAddress = StackRelativeIndirectIndexed();
-    SBC8D1 (OpAddress);
-}
-
-static void OpF3M0D1 (void)
-{
-    long OpAddress = StackRelativeIndirectIndexed();
-    SBC16D1 (OpAddress);
-}
-
-
-
-//----------------------------------------------------------------------------------------------/
-//- CPU-S9xOpcodes Definitions no de                                                           -/
-//----------------------------------------------------------------------------------------------/
-struct SOpcodes __attribute__((aligned(64))) S9xOpcodesM1X1D0[256] =
-{
-    {Op00},	 {Op01M1},    {Op02},      {Op03M1},    {Op04M1},
-    {Op05M1},    {Op06M1},    {Op07M1},    {Op08},      {Op09M1},
-    {Op0AM1},    {Op0B},      {Op0CM1},    {Op0DM1},    {Op0EM1},
-    {Op0FM1},    {Op10},      {Op11M1},    {Op12M1},    {Op13M1},
-    {Op14M1},    {Op15M1},    {Op16M1},    {Op17M1},    {Op18},
-    {Op19M1},    {Op1AM1},    {Op1B},      {Op1CM1},    {Op1DM1},
-    {Op1EM1},    {Op1FM1},    {Op20},      {Op21M1},    {Op22},
-    {Op23M1},    {Op24M1},    {Op25M1},    {Op26M1},    {Op27M1},
-    {Op28},      {Op29M1},    {Op2AM1},    {Op2B},      {Op2CM1},
-    {Op2DM1},    {Op2EM1},    {Op2FM1},    {Op30},      {Op31M1},
-    {Op32M1},    {Op33M1},    {Op34M1},    {Op35M1},    {Op36M1},
-    {Op37M1},    {Op38},      {Op39M1},    {Op3AM1},    {Op3B},
-    {Op3CM1},    {Op3DM1},    {Op3EM1},    {Op3FM1},    {Op40},
-    {Op41M1},    {Op42},      {Op43M1},    {Op44X1},    {Op45M1},
-    {Op46M1},    {Op47M1},    {Op48M1},    {Op49M1},    {Op4AM1},
-    {Op4B},      {Op4C},      {Op4DM1},    {Op4EM1},    {Op4FM1},
-    {Op50},      {Op51M1},    {Op52M1},    {Op53M1},    {Op54X1},
-    {Op55M1},    {Op56M1},    {Op57M1},    {Op58},      {Op59M1},
-    {Op5AX1},    {Op5B},      {Op5C},      {Op5DM1},    {Op5EM1},
-    {Op5FM1},    {Op60},      {Op61M1D0},    {Op62},      {Op63M1D0},
-    {Op64M1},    {Op65M1D0},    {Op66M1},    {Op67M1D0},    {Op68M1},
-    {Op69M1D0},    {Op6AM1},    {Op6B},      {Op6C},      {Op6DM1D0},
-    {Op6EM1},    {Op6FM1D0},    {Op70},      {Op71M1D0},    {Op72M1D0},
-    {Op73M1D0},    {Op74M1},    {Op75M1D0},    {Op76M1},    {Op77M1D0},
-    {Op78},      {Op79M1D0},    {Op7AX1},    {Op7B},      {Op7C},
-    {Op7DM1D0},    {Op7EM1},    {Op7FM1D0},    {Op80},      {Op81M1},
-    {Op82},      {Op83M1},    {Op84X1},    {Op85M1},    {Op86X1},
-    {Op87M1},    {Op88X1},    {Op89M1},    {Op8AM1},    {Op8B},
-    {Op8CX1},    {Op8DM1},    {Op8EX1},    {Op8FM1},    {Op90},
-    {Op91M1},    {Op92M1},    {Op93M1},    {Op94X1},    {Op95M1},
-    {Op96X1},    {Op97M1},    {Op98M1},    {Op99M1},    {Op9A},
-    {Op9BX1},    {Op9CM1},    {Op9DM1},    {Op9EM1},    {Op9FM1},
-    {OpA0X1},    {OpA1M1},    {OpA2X1},    {OpA3M1},    {OpA4X1},
-    {OpA5M1},    {OpA6X1},    {OpA7M1},    {OpA8X1},    {OpA9M1},
-    {OpAAX1},    {OpAB},      {OpACX1},    {OpADM1},    {OpAEX1},
-    {OpAFM1},    {OpB0},      {OpB1M1},    {OpB2M1},    {OpB3M1},
-    {OpB4X1},    {OpB5M1},    {OpB6X1},    {OpB7M1},    {OpB8},
-    {OpB9M1},    {OpBAX1},    {OpBBX1},    {OpBCX1},    {OpBDM1},
-    {OpBEX1},    {OpBFM1},    {OpC0X1},    {OpC1M1},    {OpC2},
-    {OpC3M1},    {OpC4X1},    {OpC5M1},    {OpC6M1},    {OpC7M1},
-    {OpC8X1},    {OpC9M1},    {OpCAX1},    {OpCB},      {OpCCX1},
-    {OpCDM1},    {OpCEM1},    {OpCFM1},    {OpD0},      {OpD1M1},
-    {OpD2M1},    {OpD3M1},    {OpD4},      {OpD5M1},    {OpD6M1},
-    {OpD7M1},    {OpD8},      {OpD9M1},    {OpDAX1},    {OpDB},
-    {OpDC},      {OpDDM1},    {OpDEM1},    {OpDFM1},    {OpE0X1},
-    {OpE1M1D0},    {OpE2},      {OpE3M1D0},    {OpE4X1},    {OpE5M1D0},
-    {OpE6M1},    {OpE7M1D0},    {OpE8X1},    {OpE9M1D0},    {OpEA},
-    {OpEB},      {OpECX1},    {OpEDM1D0},    {OpEEM1},    {OpEFM1D0},
-    {OpF0},      {OpF1M1D0},    {OpF2M1D0},    {OpF3M1D0},    {OpF4},
-    {OpF5M1D0},    {OpF6M1},    {OpF7M1D0},    {OpF8},      {OpF9M1D0},
-    {OpFAX1},    {OpFB},      {OpFC},      {OpFDM1D0},    {OpFEM1},
-    {OpFFM1D0}
+// Wake SA1 opcodes
+
+struct SOpcodes __attribute__((aligned(64))) S9xOpcodesE1WakeSA1[256] =
+{
+    {Op00},        {Op01M1},      {Op02},        {Op03M1},      {Op04M1_WS},   
+    {Op05M1},      {Op06M1},      {Op07M1},      {Op08E1},      {Op09M1},      
+    {Op0AM1},      {Op0BE1},      {Op0CM1_WS},   {Op0DM1},      {Op0EM1},      
+    {Op0FM1},      {Op10},        {Op11M1},      {Op12M1},      {Op13M1},      
+    {Op14M1_WS},   {Op15M1},      {Op16M1},      {Op17M1},      {Op18},        
+    {Op19M1},      {Op1AM1},      {Op1B},        {Op1CM1_WS},   {Op1DM1},      
+    {Op1EM1},      {Op1FM1},      {Op20},        {Op21M1},      {Op22E1},      
+    {Op23M1},      {Op24M1},      {Op25M1},      {Op26M1},      {Op27M1},      
+    {Op28},        {Op29M1},      {Op2AM1},      {Op2BE1},      {Op2CM1},      
+    {Op2DM1},      {Op2EM1},      {Op2FM1},      {Op30},        {Op31M1},      
+    {Op32M1},      {Op33M1},      {Op34M1},      {Op35M1},      {Op36M1},      
+    {Op37M1},      {Op38},        {Op39M1},      {Op3AM1},      {Op3B},        
+    {Op3CM1},      {Op3DM1},      {Op3EM1},      {Op3FM1},      {Op40},        
+    {Op41M1},      {Op42},        {Op43M1},      {Op44X1},      {Op45M1},      
+    {Op46M1},      {Op47M1},      {Op48E1},      {Op49M1},      {Op4AM1},      
+    {Op4BE1},      {Op4C},        {Op4DM1},      {Op4EM1},      {Op4FM1},      
+    {Op50},        {Op51M1},      {Op52M1},      {Op53M1},      {Op54X1},      
+    {Op55M1},      {Op56M1},      {Op57M1},      {Op58},        {Op59M1},      
+    {Op5AE1},      {Op5B},        {Op5C},        {Op5DM1},      {Op5EM1},      
+    {Op5FM1},      {Op60},        {Op61M1},      {Op62E1},      {Op63M1},      
+    {Op64M1_WS},   {Op65M1},      {Op66M1},      {Op67M1},      {Op68E1},      
+    {Op69M1},      {Op6AM1},      {Op6BE1},      {Op6C},        {Op6DM1},      
+    {Op6EM1},      {Op6FM1},      {Op70},        {Op71M1},      {Op72M1},      
+    {Op73M1},      {Op74M1_WS},   {Op75M1},      {Op76M1},      {Op77M1},      
+    {Op78},        {Op79M1},      {Op7AE1},      {Op7B},        {Op7C},        
+    {Op7DM1},      {Op7EM1},      {Op7FM1},      {Op80},        {Op81M1_WS},   
+    {Op82},        {Op83M1_WS},   {Op84X1_WS},   {Op85M1_WS},   {Op86X1_WS},   
+    {Op87M1_WS},   {Op88X1},      {Op89M1},      {Op8AM1},      {Op8BE1},      
+    {Op8CX1_WS},   {Op8DM1_WS},   {Op8EX1_WS},   {Op8FM1_WS},   {Op90},        
+    {Op91M1_WS},   {Op92M1_WS},   {Op93M1_WS},   {Op94X1_WS},   {Op95M1_WS},   
+    {Op96X1_WS},   {Op97M1_WS},   {Op98M1},      {Op99M1_WS},   {Op9A},        
+    {Op9BX1},      {Op9CM1_WS},   {Op9DM1_WS},   {Op9EM1_WS},   {Op9FM1_WS},   
+    {OpA0X1},      {OpA1M1},      {OpA2X1},      {OpA3M1},      {OpA4X1},      
+    {OpA5M1},      {OpA6X1},      {OpA7M1},      {OpA8X1},      {OpA9M1},      
+    {OpAAX1},      {OpABE1},      {OpACX1},      {OpADM1},      {OpAEX1},      
+    {OpAFM1},      {OpB0},        {OpB1M1},      {OpB2M1},      {OpB3M1},      
+    {OpB4X1},      {OpB5M1},      {OpB6X1},      {OpB7M1},      {OpB8},        
+    {OpB9M1},      {OpBAX1},      {OpBBX1},      {OpBCX1},      {OpBDM1},      
+    {OpBEX1},      {OpBFM1},      {OpC0X1},      {OpC1M1},      {OpC2},        
+    {OpC3M1},      {OpC4X1},      {OpC5M1},      {OpC6M1_WS},   {OpC7M1},      
+    {OpC8X1},      {OpC9M1},      {OpCAX1},      {OpCB},        {OpCCX1},      
+    {OpCDM1},      {OpCEM1_WS},   {OpCFM1},      {OpD0},        {OpD1M1},      
+    {OpD2M1},      {OpD3M1},      {OpD4E1},      {OpD5M1},      {OpD6M1_WS},   
+    {OpD7M1},      {OpD8},        {OpD9M1},      {OpDAE1},      {OpDB},        
+    {OpDC},        {OpDDM1},      {OpDEM1_WS},   {OpDFM1},      {OpE0X1},      
+    {OpE1M1},      {OpE2},        {OpE3M1},      {OpE4X1},      {OpE5M1},      
+    {OpE6M1_WS},   {OpE7M1},      {OpE8X1},      {OpE9M1},      {OpEA},        
+    {OpEB},        {OpECX1},      {OpEDM1},      {OpEEM1_WS},   {OpEFM1},      
+    {OpF0},        {OpF1M1},      {OpF2M1},      {OpF3M1},      {OpF4E1},      
+    {OpF5M1},      {OpF6M1_WS},   {OpF7M1},      {OpF8},        {OpF9M1},      
+    {OpFAE1},      {OpFB},        {OpFCE1},      {OpFDM1},      {OpFEM1_WS},   
+    {OpFFM1}       
 };
 
-struct SOpcodes __attribute__((aligned(64))) S9xOpcodesM1X0D0[256] =
+struct SOpcodes __attribute__((aligned(64))) S9xOpcodesM1X1WakeSA1[256] =
 {
-    {Op00},	 {Op01M1},    {Op02},      {Op03M1},    {Op04M1},
-    {Op05M1},    {Op06M1},    {Op07M1},    {Op08},      {Op09M1},
-    {Op0AM1},    {Op0B},      {Op0CM1},    {Op0DM1},    {Op0EM1},
-    {Op0FM1},    {Op10},      {Op11M1},    {Op12M1},    {Op13M1},
-    {Op14M1},    {Op15M1},    {Op16M1},    {Op17M1},    {Op18},
-    {Op19M1},    {Op1AM1},    {Op1B},      {Op1CM1},    {Op1DM1},
-    {Op1EM1},    {Op1FM1},    {Op20},      {Op21M1},    {Op22},
-    {Op23M1},    {Op24M1},    {Op25M1},    {Op26M1},    {Op27M1},
-    {Op28},      {Op29M1},    {Op2AM1},    {Op2B},      {Op2CM1},
-    {Op2DM1},    {Op2EM1},    {Op2FM1},    {Op30},      {Op31M1},
-    {Op32M1},    {Op33M1},    {Op34M1},    {Op35M1},    {Op36M1},
-    {Op37M1},    {Op38},      {Op39M1},    {Op3AM1},    {Op3B},
-    {Op3CM1},    {Op3DM1},    {Op3EM1},    {Op3FM1},    {Op40},
-    {Op41M1},    {Op42},      {Op43M1},    {Op44X0},    {Op45M1},
-    {Op46M1},    {Op47M1},    {Op48M1},    {Op49M1},    {Op4AM1},
-    {Op4B},      {Op4C},      {Op4DM1},    {Op4EM1},    {Op4FM1},
-    {Op50},      {Op51M1},    {Op52M1},    {Op53M1},    {Op54X0},
-    {Op55M1},    {Op56M1},    {Op57M1},    {Op58},      {Op59M1},
-    {Op5AX0},    {Op5B},      {Op5C},      {Op5DM1},    {Op5EM1},
-    {Op5FM1},    {Op60},      {Op61M1D0},    {Op62},      {Op63M1D0},
-    {Op64M1},    {Op65M1D0},    {Op66M1},    {Op67M1D0},    {Op68M1},
-    {Op69M1D0},    {Op6AM1},    {Op6B},      {Op6C},      {Op6DM1D0},
-    {Op6EM1},    {Op6FM1D0},    {Op70},      {Op71M1D0},    {Op72M1D0},
-    {Op73M1D0},    {Op74M1},    {Op75M1D0},    {Op76M1},    {Op77M1D0},
-    {Op78},      {Op79M1D0},    {Op7AX0},    {Op7B},      {Op7C},
-    {Op7DM1D0},    {Op7EM1},    {Op7FM1D0},    {Op80},      {Op81M1},
-    {Op82},      {Op83M1},    {Op84X0},    {Op85M1},    {Op86X0},
-    {Op87M1},    {Op88X0},    {Op89M1},    {Op8AM1},    {Op8B},
-    {Op8CX0},    {Op8DM1},    {Op8EX0},    {Op8FM1},    {Op90},
-    {Op91M1},    {Op92M1},    {Op93M1},    {Op94X0},    {Op95M1},
-    {Op96X0},    {Op97M1},    {Op98M1},    {Op99M1},    {Op9A},
-    {Op9BX0},    {Op9CM1},    {Op9DM1},    {Op9EM1},    {Op9FM1},
-    {OpA0X0},    {OpA1M1},    {OpA2X0},    {OpA3M1},    {OpA4X0},
-    {OpA5M1},    {OpA6X0},    {OpA7M1},    {OpA8X0},    {OpA9M1},
-    {OpAAX0},    {OpAB},      {OpACX0},    {OpADM1},    {OpAEX0},
-    {OpAFM1},    {OpB0},      {OpB1M1},    {OpB2M1},    {OpB3M1},
-    {OpB4X0},    {OpB5M1},    {OpB6X0},    {OpB7M1},    {OpB8},
-    {OpB9M1},    {OpBAX0},    {OpBBX0},    {OpBCX0},    {OpBDM1},
-    {OpBEX0},    {OpBFM1},    {OpC0X0},    {OpC1M1},    {OpC2},
-    {OpC3M1},    {OpC4X0},    {OpC5M1},    {OpC6M1},    {OpC7M1},
-    {OpC8X0},    {OpC9M1},    {OpCAX0},    {OpCB},      {OpCCX0},
-    {OpCDM1},    {OpCEM1},    {OpCFM1},    {OpD0},      {OpD1M1},
-    {OpD2M1},    {OpD3M1},    {OpD4},      {OpD5M1},    {OpD6M1},
-    {OpD7M1},    {OpD8},      {OpD9M1},    {OpDAX0},    {OpDB},
-    {OpDC},      {OpDDM1},    {OpDEM1},    {OpDFM1},    {OpE0X0},
-    {OpE1M1D0},    {OpE2},      {OpE3M1D0},    {OpE4X0},    {OpE5M1D0},
-    {OpE6M1},    {OpE7M1D0},    {OpE8X0},    {OpE9M1D0},    {OpEA},
-    {OpEB},      {OpECX0},    {OpEDM1D0},    {OpEEM1},    {OpEFM1D0},
-    {OpF0},      {OpF1M1D0},    {OpF2M1D0},    {OpF3M1D0},    {OpF4},
-    {OpF5M1D0},    {OpF6M1},    {OpF7M1D0},    {OpF8},      {OpF9M1D0},
-    {OpFAX0},    {OpFB},      {OpFC},      {OpFDM1D0},    {OpFEM1},
-    {OpFFM1D0}
+    {Op00},        {Op01M1},      {Op02},        {Op03M1},      {Op04M1_WS},   
+    {Op05M1},      {Op06M1},      {Op07M1},      {Op08},        {Op09M1},      
+    {Op0AM1},      {Op0B},        {Op0CM1_WS},   {Op0DM1},      {Op0EM1},      
+    {Op0FM1},      {Op10},        {Op11M1},      {Op12M1},      {Op13M1},      
+    {Op14M1_WS},   {Op15M1},      {Op16M1},      {Op17M1},      {Op18},        
+    {Op19M1},      {Op1AM1},      {Op1B},        {Op1CM1_WS},   {Op1DM1},      
+    {Op1EM1},      {Op1FM1},      {Op20},        {Op21M1},      {Op22},        
+    {Op23M1},      {Op24M1},      {Op25M1},      {Op26M1},      {Op27M1},      
+    {Op28},        {Op29M1},      {Op2AM1},      {Op2B},        {Op2CM1},      
+    {Op2DM1},      {Op2EM1},      {Op2FM1},      {Op30},        {Op31M1},      
+    {Op32M1},      {Op33M1},      {Op34M1},      {Op35M1},      {Op36M1},      
+    {Op37M1},      {Op38},        {Op39M1},      {Op3AM1},      {Op3B},        
+    {Op3CM1},      {Op3DM1},      {Op3EM1},      {Op3FM1},      {Op40},        
+    {Op41M1},      {Op42},        {Op43M1},      {Op44X1},      {Op45M1},      
+    {Op46M1},      {Op47M1},      {Op48M1},      {Op49M1},      {Op4AM1},      
+    {Op4B},        {Op4C},        {Op4DM1},      {Op4EM1},      {Op4FM1},      
+    {Op50},        {Op51M1},      {Op52M1},      {Op53M1},      {Op54X1},      
+    {Op55M1},      {Op56M1},      {Op57M1},      {Op58},        {Op59M1},      
+    {Op5AX1},      {Op5B},        {Op5C},        {Op5DM1},      {Op5EM1},      
+    {Op5FM1},      {Op60},        {Op61M1},      {Op62},        {Op63M1},      
+    {Op64M1_WS},   {Op65M1},      {Op66M1},      {Op67M1},      {Op68M1},      
+    {Op69M1},      {Op6AM1},      {Op6B},        {Op6C},        {Op6DM1},      
+    {Op6EM1},      {Op6FM1},      {Op70},        {Op71M1},      {Op72M1},      
+    {Op73M1},      {Op74M1_WS},   {Op75M1},      {Op76M1},      {Op77M1},      
+    {Op78},        {Op79M1},      {Op7AX1},      {Op7B},        {Op7C},        
+    {Op7DM1},      {Op7EM1},      {Op7FM1},      {Op80},        {Op81M1_WS},   
+    {Op82},        {Op83M1_WS},   {Op84X1_WS},   {Op85M1_WS},   {Op86X1_WS},   
+    {Op87M1_WS},   {Op88X1},      {Op89M1},      {Op8AM1},      {Op8B},        
+    {Op8CX1_WS},   {Op8DM1_WS},   {Op8EX1_WS},   {Op8FM1_WS},   {Op90},        
+    {Op91M1_WS},   {Op92M1_WS},   {Op93M1_WS},   {Op94X1_WS},   {Op95M1_WS},   
+    {Op96X1_WS},   {Op97M1_WS},   {Op98M1},      {Op99M1_WS},   {Op9A},        
+    {Op9BX1},      {Op9CM1_WS},   {Op9DM1_WS},   {Op9EM1_WS},   {Op9FM1_WS},   
+    {OpA0X1},      {OpA1M1},      {OpA2X1},      {OpA3M1},      {OpA4X1},      
+    {OpA5M1},      {OpA6X1},      {OpA7M1},      {OpA8X1},      {OpA9M1},      
+    {OpAAX1},      {OpAB},        {OpACX1},      {OpADM1},      {OpAEX1},      
+    {OpAFM1},      {OpB0},        {OpB1M1},      {OpB2M1},      {OpB3M1},      
+    {OpB4X1},      {OpB5M1},      {OpB6X1},      {OpB7M1},      {OpB8},        
+    {OpB9M1},      {OpBAX1},      {OpBBX1},      {OpBCX1},      {OpBDM1},      
+    {OpBEX1},      {OpBFM1},      {OpC0X1},      {OpC1M1},      {OpC2},        
+    {OpC3M1},      {OpC4X1},      {OpC5M1},      {OpC6M1_WS},   {OpC7M1},      
+    {OpC8X1},      {OpC9M1},      {OpCAX1},      {OpCB},        {OpCCX1},      
+    {OpCDM1},      {OpCEM1_WS},   {OpCFM1},      {OpD0},        {OpD1M1},      
+    {OpD2M1},      {OpD3M1},      {OpD4},        {OpD5M1},      {OpD6M1_WS},   
+    {OpD7M1},      {OpD8},        {OpD9M1},      {OpDAX1},      {OpDB},        
+    {OpDC},        {OpDDM1},      {OpDEM1_WS},   {OpDFM1},      {OpE0X1},      
+    {OpE1M1},      {OpE2},        {OpE3M1},      {OpE4X1},      {OpE5M1},      
+    {OpE6M1_WS},   {OpE7M1},      {OpE8X1},      {OpE9M1},      {OpEA},        
+    {OpEB},        {OpECX1},      {OpEDM1},      {OpEEM1_WS},   {OpEFM1},      
+    {OpF0},        {OpF1M1},      {OpF2M1},      {OpF3M1},      {OpF4},        
+    {OpF5M1},      {OpF6M1_WS},   {OpF7M1},      {OpF8},        {OpF9M1},      
+    {OpFAX1},      {OpFB},        {OpFC},        {OpFDM1},      {OpFEM1_WS},   
+    {OpFFM1}       
 };
 
-struct SOpcodes __attribute__((aligned(64))) S9xOpcodesM0X0D0[256] =
+struct SOpcodes __attribute__((aligned(64))) S9xOpcodesM1X0WakeSA1[256] =
 {
-    {Op00},	 {Op01M0},    {Op02},      {Op03M0},    {Op04M0},
-    {Op05M0},    {Op06M0},    {Op07M0},    {Op08},      {Op09M0},
-    {Op0AM0},    {Op0B},      {Op0CM0},    {Op0DM0},    {Op0EM0},
-    {Op0FM0},    {Op10},      {Op11M0},    {Op12M0},    {Op13M0},
-    {Op14M0},    {Op15M0},    {Op16M0},    {Op17M0},    {Op18},
-    {Op19M0},    {Op1AM0},    {Op1B},      {Op1CM0},    {Op1DM0},
-    {Op1EM0},    {Op1FM0},    {Op20},      {Op21M0},    {Op22},
-    {Op23M0},    {Op24M0},    {Op25M0},    {Op26M0},    {Op27M0},
-    {Op28},      {Op29M0},    {Op2AM0},    {Op2B},      {Op2CM0},
-    {Op2DM0},    {Op2EM0},    {Op2FM0},    {Op30},      {Op31M0},
-    {Op32M0},    {Op33M0},    {Op34M0},    {Op35M0},    {Op36M0},
-    {Op37M0},    {Op38},      {Op39M0},    {Op3AM0},    {Op3B},
-    {Op3CM0},    {Op3DM0},    {Op3EM0},    {Op3FM0},    {Op40},
-    {Op41M0},    {Op42},      {Op43M0},    {Op44X0},    {Op45M0},
-    {Op46M0},    {Op47M0},    {Op48M0},    {Op49M0},    {Op4AM0},
-    {Op4B},      {Op4C},      {Op4DM0},    {Op4EM0},    {Op4FM0},
-    {Op50},      {Op51M0},    {Op52M0},    {Op53M0},    {Op54X0},
-    {Op55M0},    {Op56M0},    {Op57M0},    {Op58},      {Op59M0},
-    {Op5AX0},    {Op5B},      {Op5C},      {Op5DM0},    {Op5EM0},
-    {Op5FM0},    {Op60},      {Op61M0D0},    {Op62},      {Op63M0D0},
-    {Op64M0},    {Op65M0D0},    {Op66M0},    {Op67M0D0},    {Op68M0},
-    {Op69M0D0},    {Op6AM0},    {Op6B},      {Op6C},      {Op6DM0D0},
-    {Op6EM0},    {Op6FM0D0},    {Op70},      {Op71M0D0},    {Op72M0D0},
-    {Op73M0D0},    {Op74M0},    {Op75M0D0},    {Op76M0},    {Op77M0D0},
-    {Op78},      {Op79M0D0},    {Op7AX0},    {Op7B},      {Op7C},
-    {Op7DM0D0},    {Op7EM0},    {Op7FM0D0},    {Op80},      {Op81M0},
-    {Op82},      {Op83M0},    {Op84X0},    {Op85M0},    {Op86X0},
-    {Op87M0},    {Op88X0},    {Op89M0},    {Op8AM0},    {Op8B},
-    {Op8CX0},    {Op8DM0},    {Op8EX0},    {Op8FM0},    {Op90},
-    {Op91M0},    {Op92M0},    {Op93M0},    {Op94X0},    {Op95M0},
-    {Op96X0},    {Op97M0},    {Op98M0},    {Op99M0},    {Op9A},
-    {Op9BX0},    {Op9CM0},    {Op9DM0},    {Op9EM0},    {Op9FM0},
-    {OpA0X0},    {OpA1M0},    {OpA2X0},    {OpA3M0},    {OpA4X0},
-    {OpA5M0},    {OpA6X0},    {OpA7M0},    {OpA8X0},    {OpA9M0},
-    {OpAAX0},    {OpAB},      {OpACX0},    {OpADM0},    {OpAEX0},
-    {OpAFM0},    {OpB0},      {OpB1M0},    {OpB2M0},    {OpB3M0},
-    {OpB4X0},    {OpB5M0},    {OpB6X0},    {OpB7M0},    {OpB8},
-    {OpB9M0},    {OpBAX0},    {OpBBX0},    {OpBCX0},    {OpBDM0},
-    {OpBEX0},    {OpBFM0},    {OpC0X0},    {OpC1M0},    {OpC2},
-    {OpC3M0},    {OpC4X0},    {OpC5M0},    {OpC6M0},    {OpC7M0},
-    {OpC8X0},    {OpC9M0},    {OpCAX0},    {OpCB},      {OpCCX0},
-    {OpCDM0},    {OpCEM0},    {OpCFM0},    {OpD0},      {OpD1M0},
-    {OpD2M0},    {OpD3M0},    {OpD4},      {OpD5M0},    {OpD6M0},
-    {OpD7M0},    {OpD8},      {OpD9M0},    {OpDAX0},    {OpDB},
-    {OpDC},      {OpDDM0},    {OpDEM0},    {OpDFM0},    {OpE0X0},
-    {OpE1M0D0},    {OpE2},      {OpE3M0D0},    {OpE4X0},    {OpE5M0D0},
-    {OpE6M0},    {OpE7M0D0},    {OpE8X0},    {OpE9M0D0},    {OpEA},
-    {OpEB},      {OpECX0},    {OpEDM0D0},    {OpEEM0},    {OpEFM0D0},
-    {OpF0},      {OpF1M0D0},    {OpF2M0D0},    {OpF3M0D0},    {OpF4},
-    {OpF5M0D0},    {OpF6M0},    {OpF7M0D0},    {OpF8},      {OpF9M0D0},
-    {OpFAX0},    {OpFB},      {OpFC},      {OpFDM0D0},    {OpFEM0},
-    {OpFFM0D0}
+    {Op00},        {Op01M1},      {Op02},        {Op03M1},      {Op04M1_WS},   
+    {Op05M1},      {Op06M1},      {Op07M1},      {Op08},        {Op09M1},      
+    {Op0AM1},      {Op0B},        {Op0CM1_WS},   {Op0DM1},      {Op0EM1},      
+    {Op0FM1},      {Op10},        {Op11M1},      {Op12M1},      {Op13M1},      
+    {Op14M1_WS},   {Op15M1},      {Op16M1},      {Op17M1},      {Op18},        
+    {Op19M1},      {Op1AM1},      {Op1B},        {Op1CM1_WS},   {Op1DM1},      
+    {Op1EM1},      {Op1FM1},      {Op20},        {Op21M1},      {Op22},        
+    {Op23M1},      {Op24M1},      {Op25M1},      {Op26M1},      {Op27M1},      
+    {Op28},        {Op29M1},      {Op2AM1},      {Op2B},        {Op2CM1},      
+    {Op2DM1},      {Op2EM1},      {Op2FM1},      {Op30},        {Op31M1},      
+    {Op32M1},      {Op33M1},      {Op34M1},      {Op35M1},      {Op36M1},      
+    {Op37M1},      {Op38},        {Op39M1},      {Op3AM1},      {Op3B},        
+    {Op3CM1},      {Op3DM1},      {Op3EM1},      {Op3FM1},      {Op40},        
+    {Op41M1},      {Op42},        {Op43M1},      {Op44X0},      {Op45M1},      
+    {Op46M1},      {Op47M1},      {Op48M1},      {Op49M1},      {Op4AM1},      
+    {Op4B},        {Op4C},        {Op4DM1},      {Op4EM1},      {Op4FM1},      
+    {Op50},        {Op51M1},      {Op52M1},      {Op53M1},      {Op54X0},      
+    {Op55M1},      {Op56M1},      {Op57M1},      {Op58},        {Op59M1},      
+    {Op5AX0},      {Op5B},        {Op5C},        {Op5DM1},      {Op5EM1},      
+    {Op5FM1},      {Op60},        {Op61M1},      {Op62},        {Op63M1},      
+    {Op64M1_WS},   {Op65M1},      {Op66M1},      {Op67M1},      {Op68M1},      
+    {Op69M1},      {Op6AM1},      {Op6B},        {Op6C},        {Op6DM1},      
+    {Op6EM1},      {Op6FM1},      {Op70},        {Op71M1},      {Op72M1},      
+    {Op73M1},      {Op74M1_WS},   {Op75M1},      {Op76M1},      {Op77M1},      
+    {Op78},        {Op79M1},      {Op7AX0},      {Op7B},        {Op7C},        
+    {Op7DM1},      {Op7EM1},      {Op7FM1},      {Op80},        {Op81M1_WS},   
+    {Op82},        {Op83M1_WS},   {Op84X0_WS},   {Op85M1_WS},   {Op86X0_WS},   
+    {Op87M1_WS},   {Op88X0},      {Op89M1},      {Op8AM1},      {Op8B},        
+    {Op8CX0_WS},   {Op8DM1_WS},   {Op8EX0_WS},   {Op8FM1_WS},   {Op90},        
+    {Op91M1_WS},   {Op92M1_WS},   {Op93M1_WS},   {Op94X0_WS},   {Op95M1_WS},   
+    {Op96X0_WS},   {Op97M1_WS},   {Op98M1},      {Op99M1_WS},   {Op9A},        
+    {Op9BX0},      {Op9CM1_WS},   {Op9DM1_WS},   {Op9EM1_WS},   {Op9FM1_WS},   
+    {OpA0X0},      {OpA1M1},      {OpA2X0},      {OpA3M1},      {OpA4X0},      
+    {OpA5M1},      {OpA6X0},      {OpA7M1},      {OpA8X0},      {OpA9M1},      
+    {OpAAX0},      {OpAB},        {OpACX0},      {OpADM1},      {OpAEX0},      
+    {OpAFM1},      {OpB0},        {OpB1M1},      {OpB2M1},      {OpB3M1},      
+    {OpB4X0},      {OpB5M1},      {OpB6X0},      {OpB7M1},      {OpB8},        
+    {OpB9M1},      {OpBAX0},      {OpBBX0},      {OpBCX0},      {OpBDM1},      
+    {OpBEX0},      {OpBFM1},      {OpC0X0},      {OpC1M1},      {OpC2},        
+    {OpC3M1},      {OpC4X0},      {OpC5M1},      {OpC6M1_WS},   {OpC7M1},      
+    {OpC8X0},      {OpC9M1},      {OpCAX0},      {OpCB},        {OpCCX0},      
+    {OpCDM1},      {OpCEM1_WS},   {OpCFM1},      {OpD0},        {OpD1M1},      
+    {OpD2M1},      {OpD3M1},      {OpD4},        {OpD5M1},      {OpD6M1_WS},   
+    {OpD7M1},      {OpD8},        {OpD9M1},      {OpDAX0},      {OpDB},        
+    {OpDC},        {OpDDM1},      {OpDEM1_WS},   {OpDFM1},      {OpE0X0},      
+    {OpE1M1},      {OpE2},        {OpE3M1},      {OpE4X0},      {OpE5M1},      
+    {OpE6M1_WS},   {OpE7M1},      {OpE8X0},      {OpE9M1},      {OpEA},        
+    {OpEB},        {OpECX0},      {OpEDM1},      {OpEEM1_WS},   {OpEFM1},      
+    {OpF0},        {OpF1M1},      {OpF2M1},      {OpF3M1},      {OpF4},        
+    {OpF5M1},      {OpF6M1_WS},   {OpF7M1},      {OpF8},        {OpF9M1},      
+    {OpFAX0},      {OpFB},        {OpFC},        {OpFDM1},      {OpFEM1_WS},   
+    {OpFFM1}       
 };
 
-struct SOpcodes __attribute__((aligned(64))) S9xOpcodesM0X1D0[256] =
+struct SOpcodes __attribute__((aligned(64))) S9xOpcodesM0X1WakeSA1[256] =
 {
-    {Op00},	 {Op01M0},    {Op02},      {Op03M0},    {Op04M0},
-    {Op05M0},    {Op06M0},    {Op07M0},    {Op08},      {Op09M0},
-    {Op0AM0},    {Op0B},      {Op0CM0},    {Op0DM0},    {Op0EM0},
-    {Op0FM0},    {Op10},      {Op11M0},    {Op12M0},    {Op13M0},
-    {Op14M0},    {Op15M0},    {Op16M0},    {Op17M0},    {Op18},
-    {Op19M0},    {Op1AM0},    {Op1B},      {Op1CM0},    {Op1DM0},
-    {Op1EM0},    {Op1FM0},    {Op20},      {Op21M0},    {Op22},
-    {Op23M0},    {Op24M0},    {Op25M0},    {Op26M0},    {Op27M0},
-    {Op28},      {Op29M0},    {Op2AM0},    {Op2B},      {Op2CM0},
-    {Op2DM0},    {Op2EM0},    {Op2FM0},    {Op30},      {Op31M0},
-    {Op32M0},    {Op33M0},    {Op34M0},    {Op35M0},    {Op36M0},
-    {Op37M0},    {Op38},      {Op39M0},    {Op3AM0},    {Op3B},
-    {Op3CM0},    {Op3DM0},    {Op3EM0},    {Op3FM0},    {Op40},
-    {Op41M0},    {Op42},      {Op43M0},    {Op44X1},    {Op45M0},
-    {Op46M0},    {Op47M0},    {Op48M0},    {Op49M0},    {Op4AM0},
-    {Op4B},      {Op4C},      {Op4DM0},    {Op4EM0},    {Op4FM0},
-    {Op50},      {Op51M0},    {Op52M0},    {Op53M0},    {Op54X1},
-    {Op55M0},    {Op56M0},    {Op57M0},    {Op58},      {Op59M0},
-    {Op5AX1},    {Op5B},      {Op5C},      {Op5DM0},    {Op5EM0},
-    {Op5FM0},    {Op60},      {Op61M0D0},    {Op62},      {Op63M0D0},
-    {Op64M0},    {Op65M0D0},    {Op66M0},    {Op67M0D0},    {Op68M0},
-    {Op69M0D0},    {Op6AM0},    {Op6B},      {Op6C},      {Op6DM0D0},
-    {Op6EM0},    {Op6FM0D0},    {Op70},      {Op71M0D0},    {Op72M0D0},
-    {Op73M0D0},    {Op74M0},    {Op75M0D0},    {Op76M0},    {Op77M0D0},
-    {Op78},      {Op79M0D0},    {Op7AX1},    {Op7B},      {Op7C},
-    {Op7DM0D0},    {Op7EM0},    {Op7FM0D0},    {Op80},      {Op81M0},
-    {Op82},      {Op83M0},    {Op84X1},    {Op85M0},    {Op86X1},
-    {Op87M0},    {Op88X1},    {Op89M0},    {Op8AM0},    {Op8B},
-    {Op8CX1},    {Op8DM0},    {Op8EX1},    {Op8FM0},    {Op90},
-    {Op91M0},    {Op92M0},    {Op93M0},    {Op94X1},    {Op95M0},
-    {Op96X1},    {Op97M0},    {Op98M0},    {Op99M0},    {Op9A},
-    {Op9BX1},    {Op9CM0},    {Op9DM0},    {Op9EM0},    {Op9FM0},
-    {OpA0X1},    {OpA1M0},    {OpA2X1},    {OpA3M0},    {OpA4X1},
-    {OpA5M0},    {OpA6X1},    {OpA7M0},    {OpA8X1},    {OpA9M0},
-    {OpAAX1},    {OpAB},      {OpACX1},    {OpADM0},    {OpAEX1},
-    {OpAFM0},    {OpB0},      {OpB1M0},    {OpB2M0},    {OpB3M0},
-    {OpB4X1},    {OpB5M0},    {OpB6X1},    {OpB7M0},    {OpB8},
-    {OpB9M0},    {OpBAX1},    {OpBBX1},    {OpBCX1},    {OpBDM0},
-    {OpBEX1},    {OpBFM0},    {OpC0X1},    {OpC1M0},    {OpC2},
-    {OpC3M0},    {OpC4X1},    {OpC5M0},    {OpC6M0},    {OpC7M0},
-    {OpC8X1},    {OpC9M0},    {OpCAX1},    {OpCB},      {OpCCX1},
-    {OpCDM0},    {OpCEM0},    {OpCFM0},    {OpD0},      {OpD1M0},
-    {OpD2M0},    {OpD3M0},    {OpD4},      {OpD5M0},    {OpD6M0},
-    {OpD7M0},    {OpD8},      {OpD9M0},    {OpDAX1},    {OpDB},
-    {OpDC},      {OpDDM0},    {OpDEM0},    {OpDFM0},    {OpE0X1},
-    {OpE1M0D0},    {OpE2},      {OpE3M0D0},    {OpE4X1},    {OpE5M0D0},
-    {OpE6M0},    {OpE7M0D0},    {OpE8X1},    {OpE9M0D0},    {OpEA},
-    {OpEB},      {OpECX1},    {OpEDM0D0},    {OpEEM0},    {OpEFM0D0},
-    {OpF0},      {OpF1M0D0},    {OpF2M0D0},    {OpF3M0D0},    {OpF4},
-    {OpF5M0D0},    {OpF6M0},    {OpF7M0D0},    {OpF8},      {OpF9M0D0},
-    {OpFAX1},    {OpFB},      {OpFC},      {OpFDM0D0},    {OpFEM0},
-    {OpFFM0D0}
+    {Op00},        {Op01M0},      {Op02},        {Op03M0},      {Op04M0_WS},   
+    {Op05M0},      {Op06M0},      {Op07M0},      {Op08},        {Op09M0},      
+    {Op0AM0},      {Op0B},        {Op0CM0_WS},   {Op0DM0},      {Op0EM0},      
+    {Op0FM0},      {Op10},        {Op11M0},      {Op12M0},      {Op13M0},      
+    {Op14M0_WS},   {Op15M0},      {Op16M0},      {Op17M0},      {Op18},        
+    {Op19M0},      {Op1AM0},      {Op1B},        {Op1CM0_WS},   {Op1DM0},      
+    {Op1EM0},      {Op1FM0},      {Op20},        {Op21M0},      {Op22},        
+    {Op23M0},      {Op24M0},      {Op25M0},      {Op26M0},      {Op27M0},      
+    {Op28},        {Op29M0},      {Op2AM0},      {Op2B},        {Op2CM0},      
+    {Op2DM0},      {Op2EM0},      {Op2FM0},      {Op30},        {Op31M0},      
+    {Op32M0},      {Op33M0},      {Op34M0},      {Op35M0},      {Op36M0},      
+    {Op37M0},      {Op38},        {Op39M0},      {Op3AM0},      {Op3B},        
+    {Op3CM0},      {Op3DM0},      {Op3EM0},      {Op3FM0},      {Op40},        
+    {Op41M0},      {Op42},        {Op43M0},      {Op44X1},      {Op45M0},      
+    {Op46M0},      {Op47M0},      {Op48M0},      {Op49M0},      {Op4AM0},      
+    {Op4B},        {Op4C},        {Op4DM0},      {Op4EM0},      {Op4FM0},      
+    {Op50},        {Op51M0},      {Op52M0},      {Op53M0},      {Op54X1},      
+    {Op55M0},      {Op56M0},      {Op57M0},      {Op58},        {Op59M0},      
+    {Op5AX1},      {Op5B},        {Op5C},        {Op5DM0},      {Op5EM0},      
+    {Op5FM0},      {Op60},        {Op61M0},      {Op62},        {Op63M0},      
+    {Op64M0_WS},   {Op65M0},      {Op66M0},      {Op67M0},      {Op68M0},      
+    {Op69M0},      {Op6AM0},      {Op6B},        {Op6C},        {Op6DM0},      
+    {Op6EM0},      {Op6FM0},      {Op70},        {Op71M0},      {Op72M0},      
+    {Op73M0},      {Op74M0_WS},   {Op75M0},      {Op76M0},      {Op77M0},      
+    {Op78},        {Op79M0},      {Op7AX1},      {Op7B},        {Op7C},        
+    {Op7DM0},      {Op7EM0},      {Op7FM0},      {Op80},        {Op81M0_WS},   
+    {Op82},        {Op83M0_WS},   {Op84X1_WS},   {Op85M0_WS},   {Op86X1_WS},   
+    {Op87M0_WS},   {Op88X1},      {Op89M0},      {Op8AM0},      {Op8B},        
+    {Op8CX1_WS},   {Op8DM0_WS},   {Op8EX1_WS},   {Op8FM0_WS},   {Op90},        
+    {Op91M0_WS},   {Op92M0_WS},   {Op93M0_WS},   {Op94X1_WS},   {Op95M0_WS},   
+    {Op96X1_WS},   {Op97M0_WS},   {Op98M0},      {Op99M0_WS},   {Op9A},        
+    {Op9BX1},      {Op9CM0_WS},   {Op9DM0_WS},   {Op9EM0_WS},   {Op9FM0_WS},   
+    {OpA0X1},      {OpA1M0},      {OpA2X1},      {OpA3M0},      {OpA4X1},      
+    {OpA5M0},      {OpA6X1},      {OpA7M0},      {OpA8X1},      {OpA9M0},      
+    {OpAAX1},      {OpAB},        {OpACX1},      {OpADM0},      {OpAEX1},      
+    {OpAFM0},      {OpB0},        {OpB1M0},      {OpB2M0},      {OpB3M0},      
+    {OpB4X1},      {OpB5M0},      {OpB6X1},      {OpB7M0},      {OpB8},        
+    {OpB9M0},      {OpBAX1},      {OpBBX1},      {OpBCX1},      {OpBDM0},      
+    {OpBEX1},      {OpBFM0},      {OpC0X1},      {OpC1M0},      {OpC2},        
+    {OpC3M0},      {OpC4X1},      {OpC5M0},      {OpC6M0_WS},   {OpC7M0},      
+    {OpC8X1},      {OpC9M0},      {OpCAX1},      {OpCB},        {OpCCX1},      
+    {OpCDM0},      {OpCEM0_WS},   {OpCFM0},      {OpD0},        {OpD1M0},      
+    {OpD2M0},      {OpD3M0},      {OpD4},        {OpD5M0},      {OpD6M0_WS},   
+    {OpD7M0},      {OpD8},        {OpD9M0},      {OpDAX1},      {OpDB},        
+    {OpDC},        {OpDDM0},      {OpDEM0_WS},   {OpDFM0},      {OpE0X1},      
+    {OpE1M0},      {OpE2},        {OpE3M0},      {OpE4X1},      {OpE5M0},      
+    {OpE6M0_WS},   {OpE7M0},      {OpE8X1},      {OpE9M0},      {OpEA},        
+    {OpEB},        {OpECX1},      {OpEDM0},      {OpEEM0_WS},   {OpEFM0},      
+    {OpF0},        {OpF1M0},      {OpF2M0},      {OpF3M0},      {OpF4},        
+    {OpF5M0},      {OpF6M0_WS},   {OpF7M0},      {OpF8},        {OpF9M0},      
+    {OpFAX1},      {OpFB},        {OpFC},        {OpFDM0},      {OpFEM0_WS},   
+    {OpFFM0}       
 };
 
-
-//----------------------------------------------------------------------------------------------/
-// CPU-S9xOpcodes Definitions   d                                                             //
-//----------------------------------------------------------------------------------------------/
-struct SOpcodes __attribute__((aligned(64))) S9xOpcodesM1X1D1[256] =
+struct SOpcodes __attribute__((aligned(64))) S9xOpcodesM0X0WakeSA1[256] =
 {
-    {Op00},	 {Op01M1},    {Op02},      {Op03M1},    {Op04M1},
-    {Op05M1},    {Op06M1},    {Op07M1},    {Op08},      {Op09M1},
-    {Op0AM1},    {Op0B},      {Op0CM1},    {Op0DM1},    {Op0EM1},
-    {Op0FM1},    {Op10},      {Op11M1},    {Op12M1},    {Op13M1},
-    {Op14M1},    {Op15M1},    {Op16M1},    {Op17M1},    {Op18},
-    {Op19M1},    {Op1AM1},    {Op1B},      {Op1CM1},    {Op1DM1},
-    {Op1EM1},    {Op1FM1},    {Op20},      {Op21M1},    {Op22},
-    {Op23M1},    {Op24M1},    {Op25M1},    {Op26M1},    {Op27M1},
-    {Op28},      {Op29M1},    {Op2AM1},    {Op2B},      {Op2CM1},
-    {Op2DM1},    {Op2EM1},    {Op2FM1},    {Op30},      {Op31M1},
-    {Op32M1},    {Op33M1},    {Op34M1},    {Op35M1},    {Op36M1},
-    {Op37M1},    {Op38},      {Op39M1},    {Op3AM1},    {Op3B},
-    {Op3CM1},    {Op3DM1},    {Op3EM1},    {Op3FM1},    {Op40},
-    {Op41M1},    {Op42},      {Op43M1},    {Op44X1},    {Op45M1},
-    {Op46M1},    {Op47M1},    {Op48M1},    {Op49M1},    {Op4AM1},
-    {Op4B},      {Op4C},      {Op4DM1},    {Op4EM1},    {Op4FM1},
-    {Op50},      {Op51M1},    {Op52M1},    {Op53M1},    {Op54X1},
-    {Op55M1},    {Op56M1},    {Op57M1},    {Op58},      {Op59M1},
-    {Op5AX1},    {Op5B},      {Op5C},      {Op5DM1},    {Op5EM1},
-    {Op5FM1},    {Op60},      {Op61M1D1},    {Op62},      {Op63M1D1},
-    {Op64M1},    {Op65M1D1},    {Op66M1},    {Op67M1D1},    {Op68M1},
-    {Op69M1D1},    {Op6AM1},    {Op6B},      {Op6C},      {Op6DM1D1},
-    {Op6EM1},    {Op6FM1D1},    {Op70},      {Op71M1D1},    {Op72M1D1},
-    {Op73M1D1},    {Op74M1},    {Op75M1D1},    {Op76M1},    {Op77M1D1},
-    {Op78},      {Op79M1D1},    {Op7AX1},    {Op7B},      {Op7C},
-    {Op7DM1D1},    {Op7EM1},    {Op7FM1D1},    {Op80},      {Op81M1},
-    {Op82},      {Op83M1},    {Op84X1},    {Op85M1},    {Op86X1},
-    {Op87M1},    {Op88X1},    {Op89M1},    {Op8AM1},    {Op8B},
-    {Op8CX1},    {Op8DM1},    {Op8EX1},    {Op8FM1},    {Op90},
-    {Op91M1},    {Op92M1},    {Op93M1},    {Op94X1},    {Op95M1},
-    {Op96X1},    {Op97M1},    {Op98M1},    {Op99M1},    {Op9A},
-    {Op9BX1},    {Op9CM1},    {Op9DM1},    {Op9EM1},    {Op9FM1},
-    {OpA0X1},    {OpA1M1},    {OpA2X1},    {OpA3M1},    {OpA4X1},
-    {OpA5M1},    {OpA6X1},    {OpA7M1},    {OpA8X1},    {OpA9M1},
-    {OpAAX1},    {OpAB},      {OpACX1},    {OpADM1},    {OpAEX1},
-    {OpAFM1},    {OpB0},      {OpB1M1},    {OpB2M1},    {OpB3M1},
-    {OpB4X1},    {OpB5M1},    {OpB6X1},    {OpB7M1},    {OpB8},
-    {OpB9M1},    {OpBAX1},    {OpBBX1},    {OpBCX1},    {OpBDM1},
-    {OpBEX1},    {OpBFM1},    {OpC0X1},    {OpC1M1},    {OpC2},
-    {OpC3M1},    {OpC4X1},    {OpC5M1},    {OpC6M1},    {OpC7M1},
-    {OpC8X1},    {OpC9M1},    {OpCAX1},    {OpCB},      {OpCCX1},
-    {OpCDM1},    {OpCEM1},    {OpCFM1},    {OpD0},      {OpD1M1},
-    {OpD2M1},    {OpD3M1},    {OpD4},      {OpD5M1},    {OpD6M1},
-    {OpD7M1},    {OpD8},      {OpD9M1},    {OpDAX1},    {OpDB},
-    {OpDC},      {OpDDM1},    {OpDEM1},    {OpDFM1},    {OpE0X1},
-    {OpE1M1D1},    {OpE2},      {OpE3M1D1},    {OpE4X1},    {OpE5M1D1},
-    {OpE6M1},    {OpE7M1D1},    {OpE8X1},    {OpE9M1D1},    {OpEA},
-    {OpEB},      {OpECX1},    {OpEDM1D1},    {OpEEM1},    {OpEFM1D1},
-    {OpF0},      {OpF1M1D1},    {OpF2M1D1},    {OpF3M1D1},    {OpF4},
-    {OpF5M1D1},    {OpF6M1},    {OpF7M1D1},    {OpF8},      {OpF9M1D1},
-    {OpFAX1},    {OpFB},      {OpFC},      {OpFDM1D1},    {OpFEM1},
-    {OpFFM1D1}
+    {Op00},        {Op01M0},      {Op02},        {Op03M0},      {Op04M0_WS},   
+    {Op05M0},      {Op06M0},      {Op07M0},      {Op08},        {Op09M0},      
+    {Op0AM0},      {Op0B},        {Op0CM0_WS},   {Op0DM0},      {Op0EM0},      
+    {Op0FM0},      {Op10},        {Op11M0},      {Op12M0},      {Op13M0},      
+    {Op14M0_WS},   {Op15M0},      {Op16M0},      {Op17M0},      {Op18},        
+    {Op19M0},      {Op1AM0},      {Op1B},        {Op1CM0_WS},   {Op1DM0},      
+    {Op1EM0},      {Op1FM0},      {Op20},        {Op21M0},      {Op22},        
+    {Op23M0},      {Op24M0},      {Op25M0},      {Op26M0},      {Op27M0},      
+    {Op28},        {Op29M0},      {Op2AM0},      {Op2B},        {Op2CM0},      
+    {Op2DM0},      {Op2EM0},      {Op2FM0},      {Op30},        {Op31M0},      
+    {Op32M0},      {Op33M0},      {Op34M0},      {Op35M0},      {Op36M0},      
+    {Op37M0},      {Op38},        {Op39M0},      {Op3AM0},      {Op3B},        
+    {Op3CM0},      {Op3DM0},      {Op3EM0},      {Op3FM0},      {Op40},        
+    {Op41M0},      {Op42},        {Op43M0},      {Op44X0},      {Op45M0},      
+    {Op46M0},      {Op47M0},      {Op48M0},      {Op49M0},      {Op4AM0},      
+    {Op4B},        {Op4C},        {Op4DM0},      {Op4EM0},      {Op4FM0},      
+    {Op50},        {Op51M0},      {Op52M0},      {Op53M0},      {Op54X0},      
+    {Op55M0},      {Op56M0},      {Op57M0},      {Op58},        {Op59M0},      
+    {Op5AX0},      {Op5B},        {Op5C},        {Op5DM0},      {Op5EM0},      
+    {Op5FM0},      {Op60},        {Op61M0},      {Op62},        {Op63M0},      
+    {Op64M0_WS},   {Op65M0},      {Op66M0},      {Op67M0},      {Op68M0},      
+    {Op69M0},      {Op6AM0},      {Op6B},        {Op6C},        {Op6DM0},      
+    {Op6EM0},      {Op6FM0},      {Op70},        {Op71M0},      {Op72M0},      
+    {Op73M0},      {Op74M0_WS},   {Op75M0},      {Op76M0},      {Op77M0},      
+    {Op78},        {Op79M0},      {Op7AX0},      {Op7B},        {Op7C},        
+    {Op7DM0},      {Op7EM0},      {Op7FM0},      {Op80},        {Op81M0_WS},   
+    {Op82},        {Op83M0_WS},   {Op84X0_WS},   {Op85M0_WS},   {Op86X0_WS},   
+    {Op87M0_WS},   {Op88X0},      {Op89M0},      {Op8AM0},      {Op8B},        
+    {Op8CX0_WS},   {Op8DM0_WS},   {Op8EX0_WS},   {Op8FM0_WS},   {Op90},        
+    {Op91M0_WS},   {Op92M0_WS},   {Op93M0_WS},   {Op94X0_WS},   {Op95M0_WS},   
+    {Op96X0_WS},   {Op97M0_WS},   {Op98M0},      {Op99M0_WS},   {Op9A},        
+    {Op9BX0},      {Op9CM0_WS},   {Op9DM0_WS},   {Op9EM0_WS},   {Op9FM0_WS},   
+    {OpA0X0},      {OpA1M0},      {OpA2X0},      {OpA3M0},      {OpA4X0},      
+    {OpA5M0},      {OpA6X0},      {OpA7M0},      {OpA8X0},      {OpA9M0},      
+    {OpAAX0},      {OpAB},        {OpACX0},      {OpADM0},      {OpAEX0},      
+    {OpAFM0},      {OpB0},        {OpB1M0},      {OpB2M0},      {OpB3M0},      
+    {OpB4X0},      {OpB5M0},      {OpB6X0},      {OpB7M0},      {OpB8},        
+    {OpB9M0},      {OpBAX0},      {OpBBX0},      {OpBCX0},      {OpBDM0},      
+    {OpBEX0},      {OpBFM0},      {OpC0X0},      {OpC1M0},      {OpC2},        
+    {OpC3M0},      {OpC4X0},      {OpC5M0},      {OpC6M0_WS},   {OpC7M0},      
+    {OpC8X0},      {OpC9M0},      {OpCAX0},      {OpCB},        {OpCCX0},      
+    {OpCDM0},      {OpCEM0_WS},   {OpCFM0},      {OpD0},        {OpD1M0},      
+    {OpD2M0},      {OpD3M0},      {OpD4},        {OpD5M0},      {OpD6M0_WS},   
+    {OpD7M0},      {OpD8},        {OpD9M0},      {OpDAX0},      {OpDB},        
+    {OpDC},        {OpDDM0},      {OpDEM0_WS},   {OpDFM0},      {OpE0X0},      
+    {OpE1M0},      {OpE2},        {OpE3M0},      {OpE4X0},      {OpE5M0},      
+    {OpE6M0_WS},   {OpE7M0},      {OpE8X0},      {OpE9M0},      {OpEA},        
+    {OpEB},        {OpECX0},      {OpEDM0},      {OpEEM0_WS},   {OpEFM0},      
+    {OpF0},        {OpF1M0},      {OpF2M0},      {OpF3M0},      {OpF4},        
+    {OpF5M0},      {OpF6M0_WS},   {OpF7M0},      {OpF8},        {OpF9M0},      
+    {OpFAX0},      {OpFB},        {OpFC},        {OpFDM0},      {OpFEM0_WS},   
+    {OpFFM0}       
 };
 
-struct SOpcodes __attribute__((aligned(64))) S9xOpcodesM1X0D1[256] =
+void S9xUseInstructionSet(int set)
 {
-    {Op00},	 {Op01M1},    {Op02},      {Op03M1},    {Op04M1},
-    {Op05M1},    {Op06M1},    {Op07M1},    {Op08},      {Op09M1},
-    {Op0AM1},    {Op0B},      {Op0CM1},    {Op0DM1},    {Op0EM1},
-    {Op0FM1},    {Op10},      {Op11M1},    {Op12M1},    {Op13M1},
-    {Op14M1},    {Op15M1},    {Op16M1},    {Op17M1},    {Op18},
-    {Op19M1},    {Op1AM1},    {Op1B},      {Op1CM1},    {Op1DM1},
-    {Op1EM1},    {Op1FM1},    {Op20},      {Op21M1},    {Op22},
-    {Op23M1},    {Op24M1},    {Op25M1},    {Op26M1},    {Op27M1},
-    {Op28},      {Op29M1},    {Op2AM1},    {Op2B},      {Op2CM1},
-    {Op2DM1},    {Op2EM1},    {Op2FM1},    {Op30},      {Op31M1},
-    {Op32M1},    {Op33M1},    {Op34M1},    {Op35M1},    {Op36M1},
-    {Op37M1},    {Op38},      {Op39M1},    {Op3AM1},    {Op3B},
-    {Op3CM1},    {Op3DM1},    {Op3EM1},    {Op3FM1},    {Op40},
-    {Op41M1},    {Op42},      {Op43M1},    {Op44X0},    {Op45M1},
-    {Op46M1},    {Op47M1},    {Op48M1},    {Op49M1},    {Op4AM1},
-    {Op4B},      {Op4C},      {Op4DM1},    {Op4EM1},    {Op4FM1},
-    {Op50},      {Op51M1},    {Op52M1},    {Op53M1},    {Op54X0},
-    {Op55M1},    {Op56M1},    {Op57M1},    {Op58},      {Op59M1},
-    {Op5AX0},    {Op5B},      {Op5C},      {Op5DM1},    {Op5EM1},
-    {Op5FM1},    {Op60},      {Op61M1D1},    {Op62},      {Op63M1D1},
-    {Op64M1},    {Op65M1D1},    {Op66M1},    {Op67M1D1},    {Op68M1},
-    {Op69M1D1},    {Op6AM1},    {Op6B},      {Op6C},      {Op6DM1D1},
-    {Op6EM1},    {Op6FM1D1},    {Op70},      {Op71M1D1},    {Op72M1D1},
-    {Op73M1D1},    {Op74M1},    {Op75M1D1},    {Op76M1},    {Op77M1D1},
-    {Op78},      {Op79M1D1},    {Op7AX0},    {Op7B},      {Op7C},
-    {Op7DM1D1},    {Op7EM1},    {Op7FM1D1},    {Op80},      {Op81M1},
-    {Op82},      {Op83M1},    {Op84X0},    {Op85M1},    {Op86X0},
-    {Op87M1},    {Op88X0},    {Op89M1},    {Op8AM1},    {Op8B},
-    {Op8CX0},    {Op8DM1},    {Op8EX0},    {Op8FM1},    {Op90},
-    {Op91M1},    {Op92M1},    {Op93M1},    {Op94X0},    {Op95M1},
-    {Op96X0},    {Op97M1},    {Op98M1},    {Op99M1},    {Op9A},
-    {Op9BX0},    {Op9CM1},    {Op9DM1},    {Op9EM1},    {Op9FM1},
-    {OpA0X0},    {OpA1M1},    {OpA2X0},    {OpA3M1},    {OpA4X0},
-    {OpA5M1},    {OpA6X0},    {OpA7M1},    {OpA8X0},    {OpA9M1},
-    {OpAAX0},    {OpAB},      {OpACX0},    {OpADM1},    {OpAEX0},
-    {OpAFM1},    {OpB0},      {OpB1M1},    {OpB2M1},    {OpB3M1},
-    {OpB4X0},    {OpB5M1},    {OpB6X0},    {OpB7M1},    {OpB8},
-    {OpB9M1},    {OpBAX0},    {OpBBX0},    {OpBCX0},    {OpBDM1},
-    {OpBEX0},    {OpBFM1},    {OpC0X0},    {OpC1M1},    {OpC2},
-    {OpC3M1},    {OpC4X0},    {OpC5M1},    {OpC6M1},    {OpC7M1},
-    {OpC8X0},    {OpC9M1},    {OpCAX0},    {OpCB},      {OpCCX0},
-    {OpCDM1},    {OpCEM1},    {OpCFM1},    {OpD0},      {OpD1M1},
-    {OpD2M1},    {OpD3M1},    {OpD4},      {OpD5M1},    {OpD6M1},
-    {OpD7M1},    {OpD8},      {OpD9M1},    {OpDAX0},    {OpDB},
-    {OpDC},      {OpDDM1},    {OpDEM1},    {OpDFM1},    {OpE0X0},
-    {OpE1M1D1},    {OpE2},      {OpE3M1D1},    {OpE4X0},    {OpE5M1D1},
-    {OpE6M1},    {OpE7M1D1},    {OpE8X0},    {OpE9M1D1},    {OpEA},
-    {OpEB},      {OpECX0},    {OpEDM1D1},    {OpEEM1},    {OpEFM1D1},
-    {OpF0},      {OpF1M1D1},    {OpF2M1D1},    {OpF3M1D1},    {OpF4},
-    {OpF5M1D1},    {OpF6M1},    {OpF7M1D1},    {OpF8},      {OpF9M1D1},
-    {OpFAX0},    {OpFB},      {OpFC},      {OpFDM1D1},    {OpFEM1},
-    {OpFFM1D1}
-};
-
-struct SOpcodes __attribute__((aligned(64))) S9xOpcodesM0X0D1[256] =
-{
-    {Op00},	 {Op01M0},    {Op02},      {Op03M0},    {Op04M0},
-    {Op05M0},    {Op06M0},    {Op07M0},    {Op08},      {Op09M0},
-    {Op0AM0},    {Op0B},      {Op0CM0},    {Op0DM0},    {Op0EM0},
-    {Op0FM0},    {Op10},      {Op11M0},    {Op12M0},    {Op13M0},
-    {Op14M0},    {Op15M0},    {Op16M0},    {Op17M0},    {Op18},
-    {Op19M0},    {Op1AM0},    {Op1B},      {Op1CM0},    {Op1DM0},
-    {Op1EM0},    {Op1FM0},    {Op20},      {Op21M0},    {Op22},
-    {Op23M0},    {Op24M0},    {Op25M0},    {Op26M0},    {Op27M0},
-    {Op28},      {Op29M0},    {Op2AM0},    {Op2B},      {Op2CM0},
-    {Op2DM0},    {Op2EM0},    {Op2FM0},    {Op30},      {Op31M0},
-    {Op32M0},    {Op33M0},    {Op34M0},    {Op35M0},    {Op36M0},
-    {Op37M0},    {Op38},      {Op39M0},    {Op3AM0},    {Op3B},
-    {Op3CM0},    {Op3DM0},    {Op3EM0},    {Op3FM0},    {Op40},
-    {Op41M0},    {Op42},      {Op43M0},    {Op44X0},    {Op45M0},
-    {Op46M0},    {Op47M0},    {Op48M0},    {Op49M0},    {Op4AM0},
-    {Op4B},      {Op4C},      {Op4DM0},    {Op4EM0},    {Op4FM0},
-    {Op50},      {Op51M0},    {Op52M0},    {Op53M0},    {Op54X0},
-    {Op55M0},    {Op56M0},    {Op57M0},    {Op58},      {Op59M0},
-    {Op5AX0},    {Op5B},      {Op5C},      {Op5DM0},    {Op5EM0},
-    {Op5FM0},    {Op60},      {Op61M0D1},    {Op62},      {Op63M0D1},
-    {Op64M0},    {Op65M0D1},    {Op66M0},    {Op67M0D1},    {Op68M0},
-    {Op69M0D1},    {Op6AM0},    {Op6B},      {Op6C},      {Op6DM0D1},
-    {Op6EM0},    {Op6FM0D1},    {Op70},      {Op71M0D1},    {Op72M0D1},
-    {Op73M0D1},    {Op74M0},    {Op75M0D1},    {Op76M0},    {Op77M0D1},
-    {Op78},      {Op79M0D1},    {Op7AX0},    {Op7B},      {Op7C},
-    {Op7DM0D1},    {Op7EM0},    {Op7FM0D1},    {Op80},      {Op81M0},
-    {Op82},      {Op83M0},    {Op84X0},    {Op85M0},    {Op86X0},
-    {Op87M0},    {Op88X0},    {Op89M0},    {Op8AM0},    {Op8B},
-    {Op8CX0},    {Op8DM0},    {Op8EX0},    {Op8FM0},    {Op90},
-    {Op91M0},    {Op92M0},    {Op93M0},    {Op94X0},    {Op95M0},
-    {Op96X0},    {Op97M0},    {Op98M0},    {Op99M0},    {Op9A},
-    {Op9BX0},    {Op9CM0},    {Op9DM0},    {Op9EM0},    {Op9FM0},
-    {OpA0X0},    {OpA1M0},    {OpA2X0},    {OpA3M0},    {OpA4X0},
-    {OpA5M0},    {OpA6X0},    {OpA7M0},    {OpA8X0},    {OpA9M0},
-    {OpAAX0},    {OpAB},      {OpACX0},    {OpADM0},    {OpAEX0},
-    {OpAFM0},    {OpB0},      {OpB1M0},    {OpB2M0},    {OpB3M0},
-    {OpB4X0},    {OpB5M0},    {OpB6X0},    {OpB7M0},    {OpB8},
-    {OpB9M0},    {OpBAX0},    {OpBBX0},    {OpBCX0},    {OpBDM0},
-    {OpBEX0},    {OpBFM0},    {OpC0X0},    {OpC1M0},    {OpC2},
-    {OpC3M0},    {OpC4X0},    {OpC5M0},    {OpC6M0},    {OpC7M0},
-    {OpC8X0},    {OpC9M0},    {OpCAX0},    {OpCB},      {OpCCX0},
-    {OpCDM0},    {OpCEM0},    {OpCFM0},    {OpD0},      {OpD1M0},
-    {OpD2M0},    {OpD3M0},    {OpD4},      {OpD5M0},    {OpD6M0},
-    {OpD7M0},    {OpD8},      {OpD9M0},    {OpDAX0},    {OpDB},
-    {OpDC},      {OpDDM0},    {OpDEM0},    {OpDFM0},    {OpE0X0},
-    {OpE1M0D1},    {OpE2},      {OpE3M0D1},    {OpE4X0},    {OpE5M0D1},
-    {OpE6M0},    {OpE7M0D1},    {OpE8X0},    {OpE9M0D1},    {OpEA},
-    {OpEB},      {OpECX0},    {OpEDM0D1},    {OpEEM0},    {OpEFM0D1},
-    {OpF0},      {OpF1M0D1},    {OpF2M0D1},    {OpF3M0D1},    {OpF4},
-    {OpF5M0D1},    {OpF6M0},    {OpF7M0D1},    {OpF8},      {OpF9M0D1},
-    {OpFAX0},    {OpFB},      {OpFC},      {OpFDM0D1},    {OpFEM0},
-    {OpFFM0D1}
-};
-
-struct SOpcodes __attribute__((aligned(64))) S9xOpcodesM0X1D1[256] =
-{
-    {Op00},	 {Op01M0},    {Op02},      {Op03M0},    {Op04M0},
-    {Op05M0},    {Op06M0},    {Op07M0},    {Op08},      {Op09M0},
-    {Op0AM0},    {Op0B},      {Op0CM0},    {Op0DM0},    {Op0EM0},
-    {Op0FM0},    {Op10},      {Op11M0},    {Op12M0},    {Op13M0},
-    {Op14M0},    {Op15M0},    {Op16M0},    {Op17M0},    {Op18},
-    {Op19M0},    {Op1AM0},    {Op1B},      {Op1CM0},    {Op1DM0},
-    {Op1EM0},    {Op1FM0},    {Op20},      {Op21M0},    {Op22},
-    {Op23M0},    {Op24M0},    {Op25M0},    {Op26M0},    {Op27M0},
-    {Op28},      {Op29M0},    {Op2AM0},    {Op2B},      {Op2CM0},
-    {Op2DM0},    {Op2EM0},    {Op2FM0},    {Op30},      {Op31M0},
-    {Op32M0},    {Op33M0},    {Op34M0},    {Op35M0},    {Op36M0},
-    {Op37M0},    {Op38},      {Op39M0},    {Op3AM0},    {Op3B},
-    {Op3CM0},    {Op3DM0},    {Op3EM0},    {Op3FM0},    {Op40},
-    {Op41M0},    {Op42},      {Op43M0},    {Op44X1},    {Op45M0},
-    {Op46M0},    {Op47M0},    {Op48M0},    {Op49M0},    {Op4AM0},
-    {Op4B},      {Op4C},      {Op4DM0},    {Op4EM0},    {Op4FM0},
-    {Op50},      {Op51M0},    {Op52M0},    {Op53M0},    {Op54X1},
-    {Op55M0},    {Op56M0},    {Op57M0},    {Op58},      {Op59M0},
-    {Op5AX1},    {Op5B},      {Op5C},      {Op5DM0},    {Op5EM0},
-    {Op5FM0},    {Op60},      {Op61M0D1},    {Op62},      {Op63M0D1},
-    {Op64M0},    {Op65M0D1},    {Op66M0},    {Op67M0D1},    {Op68M0},
-    {Op69M0D1},    {Op6AM0},    {Op6B},      {Op6C},      {Op6DM0D1},
-    {Op6EM0},    {Op6FM0D1},    {Op70},      {Op71M0D1},    {Op72M0D1},
-    {Op73M0D1},    {Op74M0},    {Op75M0D1},    {Op76M0},    {Op77M0D1},
-    {Op78},      {Op79M0D1},    {Op7AX1},    {Op7B},      {Op7C},
-    {Op7DM0D1},    {Op7EM0},    {Op7FM0D1},    {Op80},      {Op81M0},
-    {Op82},      {Op83M0},    {Op84X1},    {Op85M0},    {Op86X1},
-    {Op87M0},    {Op88X1},    {Op89M0},    {Op8AM0},    {Op8B},
-    {Op8CX1},    {Op8DM0},    {Op8EX1},    {Op8FM0},    {Op90},
-    {Op91M0},    {Op92M0},    {Op93M0},    {Op94X1},    {Op95M0},
-    {Op96X1},    {Op97M0},    {Op98M0},    {Op99M0},    {Op9A},
-    {Op9BX1},    {Op9CM0},    {Op9DM0},    {Op9EM0},    {Op9FM0},
-    {OpA0X1},    {OpA1M0},    {OpA2X1},    {OpA3M0},    {OpA4X1},
-    {OpA5M0},    {OpA6X1},    {OpA7M0},    {OpA8X1},    {OpA9M0},
-    {OpAAX1},    {OpAB},      {OpACX1},    {OpADM0},    {OpAEX1},
-    {OpAFM0},    {OpB0},      {OpB1M0},    {OpB2M0},    {OpB3M0},
-    {OpB4X1},    {OpB5M0},    {OpB6X1},    {OpB7M0},    {OpB8},
-    {OpB9M0},    {OpBAX1},    {OpBBX1},    {OpBCX1},    {OpBDM0},
-    {OpBEX1},    {OpBFM0},    {OpC0X1},    {OpC1M0},    {OpC2},
-    {OpC3M0},    {OpC4X1},    {OpC5M0},    {OpC6M0},    {OpC7M0},
-    {OpC8X1},    {OpC9M0},    {OpCAX1},    {OpCB},      {OpCCX1},
-    {OpCDM0},    {OpCEM0},    {OpCFM0},    {OpD0},      {OpD1M0},
-    {OpD2M0},    {OpD3M0},    {OpD4},      {OpD5M0},    {OpD6M0},
-    {OpD7M0},    {OpD8},      {OpD9M0},    {OpDAX1},    {OpDB},
-    {OpDC},      {OpDDM0},    {OpDEM0},    {OpDFM0},    {OpE0X1},
-    {OpE1M0D1},    {OpE2},      {OpE3M0D1},    {OpE4X1},    {OpE5M0D1},
-    {OpE6M0},    {OpE7M0D1},    {OpE8X1},    {OpE9M0D1},    {OpEA},
-    {OpEB},      {OpECX1},    {OpEDM0D1},    {OpEEM0},    {OpEFM0D1},
-    {OpF0},      {OpF1M0D1},    {OpF2M0D1},    {OpF3M0D1},    {OpF4},
-    {OpF5M0D1},    {OpF6M0},    {OpF7M0D1},    {OpF8},      {OpF9M0D1},
-    {OpFAX1},    {OpFB},      {OpFC},      {OpFDM0D1},    {OpFEM0},
-    {OpFFM0D1}
-};
-*/
+    if (set == 1)
+    {
+        for (int i = 0; i < 256; i++)
+        {
+            S9xOpcodesM1X1[i] = S9xOpcodesM1X1WakeSA1[i];
+            S9xOpcodesM0X1[i] = S9xOpcodesM0X1WakeSA1[i];
+            S9xOpcodesM1X0[i] = S9xOpcodesM1X0WakeSA1[i];
+            S9xOpcodesM0X0[i] = S9xOpcodesM0X0WakeSA1[i];
+            S9xOpcodesE1[i] = S9xOpcodesE1WakeSA1[i];
+        }
+    }
+}

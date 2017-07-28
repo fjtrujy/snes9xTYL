@@ -44,12 +44,15 @@
 #include "memmap.h"
 #include "65c816.h"
 
-//extern int cpu_glob_cycles;
-
 extern void (*S9x_Current_HBlank_Event)();
+extern void (*S9x_Current_Main_Loop_cpuexec)();
+
+extern void S9xMainLoop_SA1_APU();
+extern void S9xMainLoop_NoSA1_APU();
+extern void S9xMainLoop_SA1_NoAPU();
+extern void S9xMainLoop_NoSA1_NoAPU();
+
 #define  S9xDoHBlankProcessing() (*S9x_Current_HBlank_Event)();
-			
-			
 
 void S9xDoHBlankProcessing_HBLANK_START_EVENT();
 void S9xDoHBlankProcessing_HBLANK_END_EVENT();
@@ -60,7 +63,6 @@ void S9xDoHBlankProcessing_HTIMER_AFTER_EVENT();
     if (CPU.Cycles >= CPU.NextEvent) {\
 			S9xDoHBlankProcessing ();\
 		}
-	
 	
 struct SOpcodes {
 #ifdef __WIN32__
@@ -96,10 +98,13 @@ void S9xReset (void);
 void S9xClearIRQ (uint32);
 void S9xSetIRQ (uint32);
 
+extern struct SOpcodes S9xOpcodesE1 [256];
 extern struct SOpcodes S9xOpcodesM1X1 [256];
 extern struct SOpcodes S9xOpcodesM1X0 [256];
 extern struct SOpcodes S9xOpcodesM0X1 [256];
 extern struct SOpcodes S9xOpcodesM0X0 [256];
+
+void S9xUseInstructionSet(int set);
 
 #ifndef VAR_CYCLES
 extern uint8 S9xE1M1X1 [256];
@@ -141,7 +146,7 @@ STATIC inline void S9xFixCycles ()
 #ifndef VAR_CYCLES
 	ICPU.Speed = S9xE1M1X1;
 #endif
-	ICPU.S9xOpcodes = S9xOpcodesM1X1;
+	ICPU.S9xOpcodes = S9xOpcodesE1;
     }
     else
     if (CheckMemory ())

@@ -1920,10 +1920,10 @@ static void GeCallback(int id, void *arg)
 		else pgPrintBG(CMAX_X-5,33,0xffff,"     ");
 	}
 
-	if (os9x_lowbat) {
+	/*if (os9x_lowbat) {
 		if (!((s_TotalFrame>>7)&15)) pgPrintBG(0,33,0xffff,"Low Battery/Saving disactivated");
 		else pgPrintBGRev(0,33,0xffff,"                               ");
-	}
+	}*/
 
 	s_iFrameReal++;
 	sceKernelLibcGettimeofday( &now, 0 );
@@ -3486,6 +3486,31 @@ static int os9x_getfile() {
 ////////////////////////////////////////////////////////////////////////////////////////
 //
 ////////////////////////////////////////////////////////////////////////////////////////
+
+// Additional Settings
+//
+static void setup_Main_Loops()
+{
+	// This is a modification inspired on CATSFC.
+	// The emulator selects a Main Loop based on the chip used by game.
+	// This avoids the constant Settings.SA1 and Settings.APUEnabled checks on S9xMainLoop.
+	//
+	if (Settings.APUEnabled) {
+		if (Settings.SA1) 
+			S9x_Current_Main_Loop_cpuexec = S9xMainLoop_SA1_APU;
+		else 
+			S9x_Current_Main_Loop_cpuexec = S9xMainLoop_NoSA1_APU;			
+	} else {
+		if (Settings.SA1) 
+			S9x_Current_Main_Loop_cpuexec = S9xMainLoop_SA1_NoAPU;
+		else 
+			S9x_Current_Main_Loop_cpuexec = S9xMainLoop_NoSA1_NoAPU;
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////////////
+//
+////////////////////////////////////////////////////////////////////////////////////////
 static int init_snes_rom() {
 	///////////////////
 	//Settings
@@ -3622,7 +3647,6 @@ static int init_snes_rom() {
 			}
 		}
 
-
 		//net stuff, called here to have settings loaded and so server can broadcast them
 		if (os9x_netplay) {
 #ifdef USE_ADHOC
@@ -3645,9 +3669,7 @@ static int init_snes_rom() {
 						net_send_settings();
 					} else {
 						net_receive_settings();
-
 					}
-
 				}
 #endif
 		}
@@ -3664,9 +3686,6 @@ static int init_snes_rom() {
 		msgBoxLines(s9xTYL_msg[ERR_INIT_GFX], 60 * 2);
 		return -1;
 	}
-
-
-
 
 	if (os9x_apuenabled==2){
 		S9xSetSoundMute( false );
@@ -3692,7 +3711,9 @@ static int init_snes_rom() {
 	os9x_netsynclost=0;
 	os9x_oldframe=0;
 	os9x_updatepadcpt=0;
-
+	
+	setup_Main_Loops();
+	
 	return 0;
 }
 
@@ -3926,14 +3947,16 @@ static int user_main(SceSize args, void* argp) {
 
 		if ((in_emu==1) && ( !Settings.Paused ))
 		{
+			Memory.ApplySpeedHackPatches();
 			S9xMainLoop();
-			static int printed=false;
+		
+			/*static int printed=false;
 			extern uint32 g_nCount;
 			if(g_nCount>200 && printed==false)
 			{
 				printed=true;
 				debug_dump("PPU2100Dump");
-			}
+			}*/
 		}
 #ifdef ME_SOUND
 		else if (s9xStandBy == true)

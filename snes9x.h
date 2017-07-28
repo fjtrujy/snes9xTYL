@@ -215,7 +215,7 @@ struct SCPUState{
     bool8  _ARM_asm_padding1[3];	//93
     bool8	APU_APUExecuting;		//122
     bool8	_ARM_asm_padding2;		//123
-    
+	
     uint8*	Memory_Map;				//96
     uint8*	Memory_WriteMap;		//100
     uint8*	Memory_MemorySpeed;		//104
@@ -227,6 +227,11 @@ struct SCPUState{
     uint32	_PALMSOS_R10;    		//128
     uint16	Memory_SRAMMask;		//120//NOT USE
   									//132
+	
+	// Optimizations
+	uint8 **MemoryMap;
+    uint8 **MemoryWriteMap;
+    uint8 *MemorySpeed;
 };
 
 
@@ -371,6 +376,8 @@ struct SSettings{
     bool8  ApplyCheats;
     bool8  TurboMode;
 	bool8  sp;
+	bool8  SpeedHack;	//Check if a game has harcoded speedhacks
+	
     uint32 TurboSkipFrames;
     uint32 AutoMaxSkipFrames;
     
@@ -411,6 +418,28 @@ struct SSNESGameFixes
     uint8 SRAMInitialValue;
 	uint8 Uniracers;
 	bool8 EchoOnlyOutput;
+	
+	// Additional game hacks
+	// Based on snes9x 3DS by bubble2k16
+	int    IRQCycleCount;           // Set the IRQCycleCount whenever an IRQ is triggered. Hack for Power Rangers Fighting Edition.
+    
+    // Speed hacks on specific branch instructions.
+    // Based on snes9x 3DS by bubble2k16
+    // Main CPU
+    int     SpeedHackCount;
+    uint32  SpeedHackSNESAddress[8];        // SNES address up to 8 locations.
+    uint8*  SpeedHackAddress[8];            // Actual PSP address up to 8 locations.
+    int     SpeedHackOriginalBytes[8][4];   // Original bytes for comparison.
+    uint8   SpeedHackOriginalOpcode[8];     // Original opcode.
+    int     SpeedHackCycles[8];             // cycles to add
+
+    // SA1 CPU
+    int     SpeedHackSA1Count;
+    uint32  SpeedHackSA1SNESAddress[8];        	// SNES address up to 8 locations.
+    uint8*  SpeedHackSA1Address[8];            	// Actual PSP address up to 8 locations.
+	int     SpeedHackSA1OriginalBytes[8][4];   	// Original bytes for comparison.
+	uint8 	SpeedHackSA1OriginalOpcode[8]; 		// Original opcode.
+	
 };
 struct SICPU
 {

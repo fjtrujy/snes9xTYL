@@ -40,7 +40,6 @@
  */
 
 #include "snes9x.h"
-
 #include "memmap.h"
 #include "cpuops.h"
 #include "ppu.h"
@@ -54,234 +53,134 @@
 #include "fxemu.h"
 #include "sa1.h"
 
-extern char str_tmp[256];
 extern struct SSA1 SA1;
-
-#define FLAGS_NMI() \
-				if (--CPU.NMICycleCount == 0) {\
-		  		CPU.Flags &= ~NMI_FLAG;\
-		  		if (CPU.WaitingForInterrupt) {\
-		      	CPU.WaitingForInterrupt = FALSE;\
-		      	CPU.PC++;\
-		    	}\
-		  		S9xOpcode_NMI ();\
-				}
-#define FLAGS_IRQ() \
-				if (CPU.IRQCycleCount == 0) {\
-		  		if (CPU.WaitingForInterrupt) {\
-		      	CPU.WaitingForInterrupt = FALSE;\
-		      	CPU.PC++;\
-		    	}\
-		  		if (CPU.IRQActive && !Settings.DisableIRQ) {\
-		      	if (!CheckFlag (IRQ)) S9xOpcode_IRQ ();\
-		    	} else CPU.Flags &= ~IRQ_PENDING_FLAG;\
-				} else CPU.IRQCycleCount--;
-#define FLAGS_SCAN_KEYS_FLAG() return
 
 #ifdef DEBUGGER
 #define IRQ_ACTIVE	CPU.IRQActive && !Settings.DisableIRQ
 #else
 #define IRQ_ACTIVE	CPU.IRQActive
 #endif
-			
+
+// Doing the HBlank check before Adding MemSpeed seems to improve performance
+// Optimizations based on snes9x 3DS
+
+#define EXECUTE_ONE_OPCODE \
+	if (CPU.Cycles >= CPU.NextEvent) { \
+		(*S9x_Current_HBlank_Event)(); \
+	} \
+	CPU.Cycles += CPU.MemSpeed; \
+	(*ICPU.S9xOpcodes [*CPU.PC++].S9xOpcode) (); 
+
+#define EXECUTE_ONE_OPCODE_SA1 \
+	if (CPU.Cycles >= CPU.NextEvent) {\
+		(*S9x_Current_HBlank_Event)(); \
+	}\
+	CPU.Cycles += CPU.MemSpeed; \
+	(*ICPU.S9xOpcodes [*CPU.PC++].S9xOpcode) (); \
+	if (SA1.Executing) \
+	{ \
+		if (SA1.Flags & IRQ_PENDING_FLAG) S9xSA1CheckIRQ(); \
+		(*SA1.S9xOpcodes [*SA1.PC++].S9xOpcode) (); \
+		(*SA1.S9xOpcodes [*SA1.PC++].S9xOpcode) (); \
+		(*SA1.S9xOpcodes [*SA1.PC++].S9xOpcode) (); \
+	} 
+
+#define S9xHandleFlags() \
+{ \
+	if (CPU.Flags & NMI_FLAG){ \
+		if (--CPU.NMICycleCount == 0){ \
+			CPU.Flags &= ~NMI_FLAG; \
+			S9xOpcode_NMI (); \
+		} \
+	} \
+	if (CPU.Flags & IRQ_PENDING_FLAG){ \
+		if (CPU.IRQCycleCount == 0){ \
+			if (!CheckFlag (IRQ)) \
+				S9xOpcode_IRQ (); \
+		} \
+		else \
+			CPU.IRQCycleCount--; \
+	} \
+}
+
 void (*S9x_Current_HBlank_Event)();
+void (*S9x_Current_Main_Loop_cpuexec)();
 
 void S9xMainLoop_SA1_APU (void) {
 	for (;;) { 
 		UPDATE_APU_COUNTER();
-		
-    if (CPU.Flags) {
-	  	if (CPU.Flags & NMI_FLAG) {
-	      if (--CPU.NMICycleCount == 0) {
-		  		CPU.Flags &= ~NMI_FLAG;
-		  		if (CPU.WaitingForInterrupt) {
-		      	CPU.WaitingForInterrupt = FALSE;
-		      	CPU.PC++;
-		    	}
-		  		S9xOpcode_NMI ();
-				}
-	    }
-
-	  	if (CPU.Flags & IRQ_PENDING_FLAG) {
-	      if (CPU.IRQCycleCount == 0) {
-		  		if (CPU.WaitingForInterrupt) {
-		      	CPU.WaitingForInterrupt = FALSE;
-		      	CPU.PC++;
-		    	}
-		  		if (IRQ_ACTIVE) {
-		      	if (!CheckFlag (IRQ)) S9xOpcode_IRQ ();
-		    	} else CPU.Flags &= ~IRQ_PENDING_FLAG;
-				} else CPU.IRQCycleCount--;
-	    }
-	  	if (CPU.Flags & SCAN_KEYS_FLAG) break;
+	
+	#ifdef CPU_SHUTDOWN
+		CPU.PCAtOpcodeStart = CPU.PC;
+	#endif
+			
+		EXECUTE_ONE_OPCODE_SA1
+	
+		if (CPU.Flags) {
+			S9xHandleFlags();
+			if (CPU.Flags & SCAN_KEYS_FLAG) break;
 		}
-
-		#ifdef CPU_SHUTDOWN
-    CPU.PCAtOpcodeStart = CPU.PC;
-		#endif
-				
-    CPU.Cycles += CPU.MemSpeed;
-	extern int  os9x_SA1_exec;
-	for(int i=0;i<os9x_SA1_exec;i++)
-		(*ICPU.S9xOpcodes[*CPU.PC++].S9xOpcode) ();
-
-    //S9xUpdateAPUTimer ();
-
-    if (SA1.Executing) //S9xSA1MainLoop ();
-	{
-		if (SA1.Flags & IRQ_PENDING_FLAG) S9xSA1CheckIRQ(); \
-		(*SA1.S9xOpcodes [*SA1.PC++].S9xOpcode) (); \
-		(*SA1.S9xOpcodes [*SA1.PC++].S9xOpcode) (); \
-		(*SA1.S9xOpcodes [*SA1.PC++].S9xOpcode) (); \
 	}
-    DO_HBLANK_CHECK ();
-  }
 }
-
-
 
 void S9xMainLoop_NoSA1_APU (void) {
-	for (;;) {
+	for (;;) { 
 		UPDATE_APU_COUNTER();
-		
-    if (CPU.Flags) {
-	  	if (CPU.Flags & NMI_FLAG) {
-	      if (--CPU.NMICycleCount == 0) {
-		  		CPU.Flags &= ~NMI_FLAG;
-		  		if (CPU.WaitingForInterrupt) {
-		      	CPU.WaitingForInterrupt = FALSE;
-		      	CPU.PC++;
-		    	}
-		  		S9xOpcode_NMI ();
-				}
-	    }
-
-	  	if (CPU.Flags & IRQ_PENDING_FLAG) {
-	      if (CPU.IRQCycleCount == 0) {
-		  		if (CPU.WaitingForInterrupt) {
-		      	CPU.WaitingForInterrupt = FALSE;
-		      	CPU.PC++;
-		    	}
-		  		if (IRQ_ACTIVE) {
-		      	if (!CheckFlag (IRQ)) S9xOpcode_IRQ ();
-		    	} else CPU.Flags &= ~IRQ_PENDING_FLAG;
-				} else CPU.IRQCycleCount--;
-	    }
-	  	if (CPU.Flags & SCAN_KEYS_FLAG) break;
+	
+	#ifdef CPU_SHUTDOWN
+		CPU.PCAtOpcodeStart = CPU.PC;
+	#endif
+	
+		EXECUTE_ONE_OPCODE
+	
+		if (CPU.Flags) {
+			S9xHandleFlags();
+			if (CPU.Flags & SCAN_KEYS_FLAG) break;
 		}
-
-		#ifdef CPU_SHUTDOWN
-    CPU.PCAtOpcodeStart = CPU.PC;
-		#endif
-    CPU.Cycles += CPU.MemSpeed;
-	(*ICPU.S9xOpcodes[*CPU.PC++].S9xOpcode) ();
-
-    DO_HBLANK_CHECK ();
-  } 
-  
+	}
 }
 
-
 void S9xMainLoop_SA1_NoAPU (void) {
-	for (;;) {		
-    if (CPU.Flags) {
-	  	if (CPU.Flags & NMI_FLAG) {
-	      if (--CPU.NMICycleCount == 0) {
-		  		CPU.Flags &= ~NMI_FLAG;
-		  		if (CPU.WaitingForInterrupt) {
-		      	CPU.WaitingForInterrupt = FALSE;
-		      	CPU.PC++;
-		    	}
-		  		S9xOpcode_NMI ();
-				}
-	    }
-
-	  	if (CPU.Flags & IRQ_PENDING_FLAG) {
-	      if (CPU.IRQCycleCount == 0) {
-		  		if (CPU.WaitingForInterrupt) {
-		      	CPU.WaitingForInterrupt = FALSE;
-		      	CPU.PC++;
-		    	}
-		  		if (IRQ_ACTIVE) {
-		      	if (!CheckFlag (IRQ)) S9xOpcode_IRQ ();
-		    	} else CPU.Flags &= ~IRQ_PENDING_FLAG;
-				} else CPU.IRQCycleCount--;
-	    }
-	  	if (CPU.Flags & SCAN_KEYS_FLAG) break;
+	for (;;) { 
+	
+	#ifdef CPU_SHUTDOWN
+		CPU.PCAtOpcodeStart = CPU.PC;
+	#endif
+		
+		EXECUTE_ONE_OPCODE_SA1
+	
+		if (CPU.Flags) {
+			S9xHandleFlags();
+			if (CPU.Flags & SCAN_KEYS_FLAG) break;
 		}
-
-		#ifdef CPU_SHUTDOWN
-    CPU.PCAtOpcodeStart = CPU.PC;
-		#endif
-    CPU.Cycles += CPU.MemSpeed;
-	extern int  os9x_SA1_exec;
-	for(int i=0;i<os9x_SA1_exec;i++)
-    (*ICPU.S9xOpcodes[*CPU.PC++].S9xOpcode) ();
-    if (SA1.Executing) //S9xSA1MainLoop ();
-	{
-		if (SA1.Flags & IRQ_PENDING_FLAG) S9xSA1CheckIRQ(); \
-		(*SA1.S9xOpcodes [*SA1.PC++].S9xOpcode) (); \
-		(*SA1.S9xOpcodes [*SA1.PC++].S9xOpcode) (); \
-		(*SA1.S9xOpcodes [*SA1.PC++].S9xOpcode) (); \
 	}
-    DO_HBLANK_CHECK ();
-  }
 }
 
 void S9xMainLoop_NoSA1_NoAPU (void) {
-	for (;;) {
-    if (CPU.Flags) {
-	  	if (CPU.Flags & NMI_FLAG) {
-	      if (--CPU.NMICycleCount == 0) {
-		  		CPU.Flags &= ~NMI_FLAG;
-		  		if (CPU.WaitingForInterrupt) {
-		      	CPU.WaitingForInterrupt = FALSE;
-		      	CPU.PC++;
-		    	}
-		  		S9xOpcode_NMI ();
-				}
-	    }
-
-	  	if (CPU.Flags & IRQ_PENDING_FLAG) {
-	      if (CPU.IRQCycleCount == 0) {
-		  		if (CPU.WaitingForInterrupt) {
-		      	CPU.WaitingForInterrupt = FALSE;
-		      	CPU.PC++;
-		    	}
-		  		if (IRQ_ACTIVE) {
-		      	if (!CheckFlag (IRQ)) S9xOpcode_IRQ ();
-		    	} else CPU.Flags &= ~IRQ_PENDING_FLAG;
-				} else CPU.IRQCycleCount--;
-	    }
-	  	if (CPU.Flags & SCAN_KEYS_FLAG) break;
+	for (;;) { 
+	
+	#ifdef CPU_SHUTDOWN
+		CPU.PCAtOpcodeStart = CPU.PC;
+	#endif
+	
+		EXECUTE_ONE_OPCODE
+	
+		if (CPU.Flags) {
+			S9xHandleFlags();
+			if (CPU.Flags & SCAN_KEYS_FLAG) break;
 		}
-
-		#ifdef CPU_SHUTDOWN
-    CPU.PCAtOpcodeStart = CPU.PC;
-		#endif
-    CPU.Cycles += CPU.MemSpeed;
-
-    (*ICPU.S9xOpcodes[*CPU.PC++].S9xOpcode) ();
-      
-    DO_HBLANK_CHECK ();
-  }
-  return;
-  
+	}
 }
 
 void S9xMainLoop (void)
 {
 	START_PROFILE_FUNC (S9xMainLoop);
-	//Setting_SA1=Settings.SA1;
-	if (Settings.APUEnabled) {
-		if (Settings.SA1) S9xMainLoop_SA1_APU();
-		else {
-			S9xMainLoop_NoSA1_APU();
-		}				
-	} else {
-		if (Settings.SA1) S9xMainLoop_SA1_NoAPU();
-		else S9xMainLoop_NoSA1_NoAPU();
-	}
+	
+	// This is a modification inspired on CATSFC.
+	// The emulator executes the Main Loop selected on init_snes_rom
+	// This avoids the constant Settings.SA1 and Settings.APUEnabled checks on S9xMainLoop.
+	//
+	(*S9x_Current_Main_Loop_cpuexec)();
 	
 #ifndef ME_SOUND	
 	if (cpu_glob_cycles>=0x00000000) {		
@@ -313,15 +212,22 @@ S9xSetIRQ (uint32 source)
 {
   CPU.IRQActive |= source;
   CPU.Flags |= IRQ_PENDING_FLAG;
-  CPU.IRQCycleCount = 3;
-  if (CPU.WaitingForInterrupt)
+// For most games, IRQCycleCount should be set to 3.
+// But for Mighty Morphin Power Rangers Fighting Edition, we must set to 0.
+//
+  CPU.IRQCycleCount = SNESGameFixes.IRQCycleCount;
+ /* if (CPU.WaitingForInterrupt)
     {
-      // Force IRQ to trigger immediately after WAI - 
-      // Final Fantasy Mystic Quest crashes without this.
+    // Force IRQ to trigger immediately after WAI - 
+    // Final Fantasy Mystic Quest crashes without this.
       CPU.IRQCycleCount = 0;
+	  
+	//Since the order of execution in the MainLoop has been shifted, 
+	//we can't do a CPU.PC++ here. Otherwise FF Mystic Quest will crash.
+	//
       CPU.WaitingForInterrupt = FALSE;
       CPU.PC++;
-    }
+    }*/
 }
 
 void
@@ -349,11 +255,11 @@ S9xDoHBlankProcessing_HBLANK_END_EVENT () {
 #ifdef CPU_SHUTDOWN
   CPU.WaitCounter++;
 #endif
-  if (Settings.SuperFX) S9xSuperFXExec ();
+  //if (Settings.SuperFX) S9xSuperFXExec ();
 
 	static const int addr[] = { 0x2c, 0x2d, 0x2e, 0x2f, 0x30, 0x31 };
 
-	// Based on snes9x 3DS by bubble2k16
+	// Based on snes9x 3DS
 	// Optimization for a small number of PPU registers,
 	// we will trigger the FLUSH_REDRAW here instead of
 	// us doing it when the register values change. This is
@@ -368,7 +274,8 @@ S9xDoHBlankProcessing_HBLANK_END_EVENT () {
 	// at least one of the registers have changed from the
 	// value in the previous scanline.
 	//
-	for (uint i = 0; i < sizeof(addr) / sizeof(int); i++)
+	uint sizeAddr = sizeof(addr) / sizeof(int);
+	for (uint i = 0; i < sizeAddr; i++)
 	{
 		int a = addr[i];
 		if (IPPU.DeferredRegisterWrite[a] != 0xff00 &&
@@ -380,7 +287,7 @@ S9xDoHBlankProcessing_HBLANK_END_EVENT () {
 		}
 		IPPU.DeferredRegisterWrite[a] = 0xff00;
 	}
-
+	
 	cpu_glob_cycles += CPU.Cycles-old_cpu_cycles;		
 	CPU.Cycles -= Settings.H_Max;	
 	old_cpu_cycles=CPU.Cycles;

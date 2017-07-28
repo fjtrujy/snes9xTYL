@@ -339,6 +339,11 @@ bool8 CMemory::Init ()
     SDD1Data = NULL;
     SDD1Index = NULL;
 
+	// Optimizations: Save a copy of the memory map address in the CPU global variable
+	CPU.MemoryMap = Map;
+	CPU.MemoryWriteMap = this->WriteMap;
+	CPU.MemorySpeed = this->MemorySpeed;
+	
     return (TRUE);
 }
 
@@ -3040,6 +3045,129 @@ const char *CMemory::ROMID ()
     return (ROMId);
 }
 
+// Applies a speed hack at the given the PB:PC location.
+// It replaces the first byte with the STP (0xDB) opcode.
+// Code from snes9x 3DS
+bool CMemory::SpeedHackAdd(int address, int cyclesPerSkip, int16 originalByte1, int16 originalByte2, int16 originalByte3, int16 originalByte4)
+{
+	if (SNESGameFixes.SpeedHackCount >= 8)
+		return false;
+
+	// Get the actual location of the memory to patch
+	//
+    int block;
+    uint8 *GetAddress = Map [block = (address >> MEMMAP_SHIFT) & MEMMAP_MASK];
+	uint8 *finalAddress = 0;
+    if (GetAddress >= (uint8 *) CMemory::MAP_LAST)
+		finalAddress = GetAddress + (address & 0xffff);
+	if (finalAddress == 0)
+		return false;
+	
+	SNESGameFixes.SpeedHackOriginalBytes[SNESGameFixes.SpeedHackCount][0] = originalByte1;
+	SNESGameFixes.SpeedHackOriginalBytes[SNESGameFixes.SpeedHackCount][1] = originalByte2;
+	SNESGameFixes.SpeedHackOriginalBytes[SNESGameFixes.SpeedHackCount][2] = originalByte3;
+	SNESGameFixes.SpeedHackOriginalBytes[SNESGameFixes.SpeedHackCount][3] = originalByte4;
+	
+	SNESGameFixes.SpeedHackSNESAddress[SNESGameFixes.SpeedHackCount] = (uint32) address;
+	SNESGameFixes.SpeedHackAddress[SNESGameFixes.SpeedHackCount] = finalAddress;
+	SNESGameFixes.SpeedHackOriginalOpcode[SNESGameFixes.SpeedHackCount] = originalByte1;
+	SNESGameFixes.SpeedHackCycles[SNESGameFixes.SpeedHackCount] = cyclesPerSkip;
+	SNESGameFixes.SpeedHackCount++;
+
+	return true;
+}
+
+// Applies a speed hack at the given the PB:PC location.
+// It replaces the first byte with the STP (0xDB) opcode.
+// Code from snes9x 3DS
+bool CMemory::SpeedHackSA1Add(int address, int16 originalByte1, int16 originalByte2, int16 originalByte3, int16 originalByte4)
+{
+	if (SNESGameFixes.SpeedHackSA1Count >= 8)
+		return false;
+
+	// Get the actual location of the memory to patch
+	//
+    int block;
+    uint8 *GetAddress = SA1.Map [block = (address >> MEMMAP_SHIFT) & MEMMAP_MASK];
+	uint8 *finalAddress = 0;
+    if (GetAddress >= (uint8 *) CMemory::MAP_LAST)
+		finalAddress = GetAddress + (address & 0xffff);
+	if (finalAddress == 0)
+		return false;
+	
+	SNESGameFixes.SpeedHackSA1OriginalBytes[SNESGameFixes.SpeedHackSA1Count][0] = originalByte1;
+	SNESGameFixes.SpeedHackSA1OriginalBytes[SNESGameFixes.SpeedHackSA1Count][1] = originalByte2;
+	SNESGameFixes.SpeedHackSA1OriginalBytes[SNESGameFixes.SpeedHackSA1Count][2] = originalByte3;
+	SNESGameFixes.SpeedHackSA1OriginalBytes[SNESGameFixes.SpeedHackSA1Count][3] = originalByte4;
+	
+	SNESGameFixes.SpeedHackSA1SNESAddress[SNESGameFixes.SpeedHackSA1Count] = (uint32) address;
+	SNESGameFixes.SpeedHackSA1Address[SNESGameFixes.SpeedHackSA1Count] = finalAddress;
+	SNESGameFixes.SpeedHackSA1OriginalOpcode[SNESGameFixes.SpeedHackSA1Count] = originalByte1;
+	SNESGameFixes.SpeedHackSA1Count++;
+
+	return true;
+}
+
+// This fixes a critical bug because originally, ApplySpeedHackPatches
+// calls S9xGetByte, which increments the cycles counter unnecessarily!
+// Code based on snes9x 3DS
+uint8 CMemory::GetByte (uint32 Address)
+{
+    int block;
+    uint8 *GetAddress = CPU.MemoryMap [block = (Address >> MEMMAP_SHIFT) & MEMMAP_MASK];
+    
+    if (GetAddress >= (uint8 *) CMemory::MAP_LAST)
+		return (*(GetAddress + (Address & 0xffff)));
+	else
+		return S9xGetByteFromRegister(GetAddress, Address);
+}
+
+
+// Code based on snes9x 3DS
+void CMemory::ApplySpeedHackPatches()
+{
+	// Patch 
+	for (int n = 0; n < SNESGameFixes.SpeedHackCount; n++)
+	{
+		// First check that the original bytes matches.
+		//
+		bool allMatches = true;
+		for (int i = 0; i < 4 && SNESGameFixes.SpeedHackOriginalBytes[n][i] != -1; i++)
+		{
+			uint8 byte = GetByte(SNESGameFixes.SpeedHackSNESAddress[n] + i);
+			if (SNESGameFixes.SpeedHackOriginalBytes[n][i] != byte)
+			{
+				allMatches = false;
+				break;
+			}
+		}
+
+		if (allMatches){
+			*SNESGameFixes.SpeedHackAddress[n] = 0xDB;
+		}
+	}
+
+	for (int n = 0; n < SNESGameFixes.SpeedHackSA1Count; n++)
+	{
+		// First check that the original bytes matches.
+		//
+		bool allMatches = true;
+		for (int i = 0; i < 4 && SNESGameFixes.SpeedHackSA1OriginalBytes[n][i] != -1; i++)
+		{
+			uint8 byte = GetByte(SNESGameFixes.SpeedHackSA1SNESAddress[n] + i);
+			if (SNESGameFixes.SpeedHackSA1OriginalBytes[n][i] != byte)
+			{
+				allMatches = false;
+				break;
+			}
+		}
+
+		if (allMatches){
+			*SNESGameFixes.SpeedHackSA1Address[n] = 0xDB;
+		}
+	}
+}
+
 void CMemory::ApplyROMFixes ()
 {
     // Enable S-RTC (Real Time Clock) emulation for Dai Kaijyu Monogatari 2
@@ -3579,6 +3707,206 @@ if (ROM [adr] == ov) \
     	if (Settings.CyclesPercentage == 100) 
     		Settings.H_Max = (SNES_CYCLES_PER_SCANLINE * 120) / 100;
     }
+	
+	// Speed hacks
+	// Based on snes9x 3DS
+	
+	SNESGameFixes.SpeedHackCount = 0;
+	Settings.SpeedHack = false;
+	int instructionSet = 0;
+	
+	if (strcmp (ROMName, "YOSHI'S ISLAND") == 0)
+	{
+		SpeedHackAdd(0x0080F4, 54, 0x30, 0xfb, -1, -1);  // US + EUR version
+		Settings.SpeedHack = true;
+	}
+	if (strcmp (ROMName, "SUPER MARIO KART") == 0)
+	{
+		SpeedHackAdd(0x80805E, 46, 0xf0, 0xfc, -1, -1);  // US + EUR version
+		Settings.SpeedHack = true;
+	}
+	if (strcmp (ROMName, "F-ZERO") == 0)
+	{
+		SpeedHackAdd(0x00803C, 46, 0xf0, 0xfc, -1, -1);  // US + EUR version
+		Settings.SpeedHack = true;
+	}
+	if (strcmp (ROMName, "\xb4\xb0\xbd\xa6\xc8\xd7\xb4\x21") == 0)	// Ace o Nerae
+	{
+		SpeedHackAdd(0x80C458, -1, 0x10, 0xfb);  
+		Settings.SpeedHack = true;
+	}
+	if (strcmp (ROMName, "AXELAY") == 0)
+	{
+		SpeedHackAdd(0x00893D, -1, 0xf0, 0xdb, -1, -1);  // US + EUR version
+		Settings.SpeedHack = true;
+	}
+		
+	// SA1 Games Speed Hacks
+	// Based on snes9x 3DS
+	
+	if (strcmp (ROMName, "SUPER MARIO RPG") == 0)
+	{
+		SpeedHackAdd(0xC302FF, -1, 0xF0, 0xFC);  // US version
+		SpeedHackAdd(0x7FF7AF, -1, 0xF0, 0xFB);  // 
+		SpeedHackAdd(0xC202E9, -1, 0xD0, 0xFB);	 //
+		SpeedHackSA1Add(0xC08171, 0xF0, 0xFC);
+		instructionSet = 1;
+		Settings.SpeedHack = true;
+	}
+	if (strcmp (ROMName, "KIRBY'S DREAM LAND 3") == 0)
+	{
+		SpeedHackAdd(0x00949B, -1, 0xF0, 0xFB);  
+		SpeedHackSA1Add(0x0082D7, 0xF0, 0xFB);
+		//SpeedHackSA1Add(0x00A970, 0xF0, 0xFB);
+		instructionSet = 1;
+		Settings.SpeedHack = true;
+	}
+	if (strcmp (ROMName, "OSHABERI PARODIUS") == 0)
+	{
+		SpeedHackAdd(0x80814A, -1, 0x80, 0xF0);  
+		SpeedHackSA1Add(0x8084E8, 0x80, 0xFB);
+		instructionSet = 1;
+		Settings.SpeedHack = true;
+	}
+    // KIRBY SUPER DELUXE JAP 
+    if (strcmp (ROMId, "AKFJ") == 0)
+    {
+		SpeedHackAdd(0x008A59, -1, 0x80, 0xF0);  
+		SpeedHackSA1Add(0x008C96, 0x30, 0x09);
+		instructionSet = 1;
+		Settings.SpeedHack = true;
+    }
+    // KIRBY SUPER DELUXE US 
+    if (strcmp (ROMId, "AKFE") == 0)
+    {
+		SpeedHackAdd(0x008A59, -1, 0xF0, 0xFB);  
+		SpeedHackSA1Add(0x008CBB, 0x30, 0x09);
+		instructionSet = 1;
+		Settings.SpeedHack = true;
+    }
+	// MARVELOUS 
+    if (strcmp (ROMId, "AVRJ") == 0)
+    {
+		SpeedHackAdd(0x009941, -1, 0xF0, 0xFB);  
+		SpeedHackSA1Add(0x0085F4, 0xf0, 0xfc);
+		instructionSet = 1;
+		Settings.SpeedHack = true;
+    }
+	// SUPER ROBOT TAISEN - MASOUKISHIN 
+    if (strcmp (ROMId, "ALXJ") == 0)
+    {
+		SpeedHackAdd(0x00F0AF, -1, 0x70, 0xFC);
+		SpeedHackSA1Add(0x00EC9F, 0xf0, 0xfb);
+		SA1.WaitByteAddress1 = ROM_GLOBAL + 0x003072;
+		instructionSet = 1;
+		Settings.SpeedHack = true;
+    }
+    // PANIC BOMBER WORLD 
+    if (strcmp (ROMId, "APBJ") == 0)
+    {
+		SpeedHackAdd(0x0082AA, -1, 0xF0, 0xFC);
+		SpeedHackSA1Add(0x00857A, 0xCB);
+		SA1.WaitAddress = SA1.Map [0x00857a >> MEMMAP_SHIFT] + 0x857a;
+		Settings.SpeedHack = true;
+    }
+    // Dragon Ballz HD 
+    if (strcmp (ROMId, "AZIJ") == 0)
+    {
+		SpeedHackAdd(0x008031, -1, 0xD0, 0xFB); 
+		SpeedHackSA1Add(0x0080BF, 0x4C, 0x83, 0x80);
+		instructionSet = 1;
+		Settings.SpeedHack = true;
+    }
+    // SFC SDGUNDAMGNEXT 
+    if (strcmp (ROMId, "ZX3J") == 0)
+    {
+		SpeedHackSA1Add(0x01AE76, 0xD0, 0xFC);
+		instructionSet = 1;
+		Settings.SpeedHack = true;
+    }
+    // POWER RANGERS 4 
+    if (strcmp (ROMId, "A4RE") == 0)
+    {
+		SpeedHackAdd(0x0082B0, -1, 0xF0, 0xFC);
+		SpeedHackSA1Add(0x00989F, 0x80, 0xF8);
+		instructionSet = 1;
+		Settings.SpeedHack = true;
+    }
+    // DAISENRYAKU EXPERTWW2 
+    if (strcmp (ROMId, "AEVJ") == 0)
+    {
+		SpeedHackSA1Add(0x0ED18F, 0xF0, 0xFC);
+		instructionSet = 1;
+		Settings.SpeedHack = true;
+    }
+    // AUGUSTA3 MASTERS NEW 
+    if (strcmp (ROMId, "AO3J") == 0)
+    {
+		SpeedHackAdd(0x00CFAF, -1, 0xF0, 0xFA);
+		SpeedHackSA1Add(0x00DDDE, 0xF0, 0xFB);
+		instructionSet = 1;
+		Settings.SpeedHack = true;
+    }
+    // Bass Fishing 
+    if (strcmp (ROMId, "ZBPJ") == 0)
+    {
+		SpeedHackSA1Add(0x0093F4, 0xF0, 0xFB);
+		instructionSet = 1;
+		Settings.SpeedHack = true;
+    }
+    // J96 DREAM STADIUM 
+    if (strcmp (ROMId, "AJ6J") == 0)
+    {
+		SpeedHackSA1Add(0xC0F74A, 0x80, 0xFE);
+		Settings.SpeedHack = true;
+    }
+    // Jumpin' Derby 
+    if (strcmp (ROMId, "AJUJ") == 0)
+    {
+		SpeedHackSA1Add(0x00d926, 0x80, 0xFE);
+		Settings.SpeedHack = true;
+    }
+    // SHINING SCORPION 
+    if (strcmp (ROMId, "A4WJ") == 0)
+    {
+		//SpeedHackAdd(0xC00185, -1, 0xF0, 0xFC);
+		SpeedHackSA1Add(0xC048C0, 0x80, 0xFC);
+		Settings.SpeedHack = true;
+    }
+    // PEBBLE BEACH NEW 
+    if (strcmp (ROMId, "AONJ") == 0)
+    {
+		SpeedHackSA1Add(0x00DF36, 0xF0, 0xFB);
+		instructionSet = 1;
+		Settings.SpeedHack = true;
+    }
+    // PGA EUROPEAN TOUR 
+    if (strcmp (ROMId, "AEPE") == 0)
+    {
+		SpeedHackSA1Add(0x003704, 0xF0, 0xFA);
+		instructionSet = 1;
+		Settings.SpeedHack = true;
+    }
+    // PGA TOUR 96 
+    if (strcmp (ROMId, "A3GE") == 0)
+    {
+		SpeedHackSA1Add(0x003704, 0xF0, 0xFA);
+		instructionSet = 1;
+		Settings.SpeedHack = true;
+    }
+    // SD F1 GRAND PRIX 
+    if (strcmp (ROMId, "AGFJ") == 0)
+    {
+		SpeedHackSA1Add(0x0181BC, 0x80, 0xFE);
+		Settings.SpeedHack = true;
+    }
+	
+	ApplySpeedHackPatches();
+
+	// Use the
+	//  0 - Default instruction set,
+	//  1 - The one that allows waking the SA1 from non-executing state.
+	S9xUseInstructionSet(instructionSet);
 }
 
 #define IPS_EOF 0x00454F46l
@@ -4060,16 +4388,6 @@ void InitNewMap()
 		SetWordMap[i].MemorySpeed=SLOW_ONE_CYCLE*2;
 		break;
     }
-
-
-
-
-
-
-
-
-
-
 	}
 #endif
 }

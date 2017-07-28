@@ -2871,7 +2871,19 @@ void S9xResetPPU ()
     }
 #endif
     for (c = 0; c < 0x8000; c += 0x100)
-	memset (&ROM_GLOBAL [c], c >> 8, 0x100);
+	{
+		if ( !Settings.SuperFX )
+		{
+			memset (&ROM_GLOBAL [c], c >> 8, 0x100);
+		}
+		else if ( (unsigned)c < 0x3000 || (unsigned)c >= 0x3300 )
+		{
+			/* Don't overwrite SFX pvRegisters at 0x3000-0x32FF,
+			 * they were set in FxReset.
+			 */
+			memset (&ROM_GLOBAL [c], c >> 8, 0x100);
+		}
+	}
 
     ZeroMemory (&ROM_GLOBAL [0x2100], 0x100);
     ZeroMemory (&ROM_GLOBAL [0x4200], 0x100);

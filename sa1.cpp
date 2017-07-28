@@ -96,6 +96,7 @@ void S9xSA1Reset ()
 
     S9xSA1UnpackStatus();
     S9xSA1FixCycles ();
+	SA1.WaitCounter = 3;
     SA1.Executing = TRUE;
     SA1.BWRAM = SRAM;
     ROM_GLOBAL [0x2225] = 0;
@@ -615,6 +616,7 @@ void S9xSetSA1 (uint8 byte, uint32 address)
 		SA1.Flags |= IRQ_PENDING_FLAG;
 		SA1.IRQActive |= SNES_IRQ_SOURCE;
 		SA1.Executing = !SA1.Waiting && SA1.S9xOpcodes;
+		if (SA1.Executing) SA1.WaitCounter = 3;
 	    }
 	}
 	if (byte & 0x10)
@@ -687,21 +689,24 @@ void S9xSetSA1 (uint8 byte, uint32 address)
 	{
 	    SA1.Flags |= IRQ_PENDING_FLAG;
 	    SA1.IRQActive |= SNES_IRQ_SOURCE;
-//	    SA1.Executing = !SA1.Waiting;
+		SA1.Executing = !SA1.Waiting;
+		if (SA1.Executing) SA1.WaitCounter = 3;
 	}
 	if (((byte ^ ROM_GLOBAL [0x220a]) & 0x40) &&
 	    (ROM_GLOBAL [0x2301] & byte & 0x40))
 	{
 	    SA1.Flags |= IRQ_PENDING_FLAG;
 	    SA1.IRQActive |= TIMER_IRQ_SOURCE;
-//	    SA1.Executing = !SA1.Waiting;
+		SA1.Executing = !SA1.Waiting;
+		if (SA1.Executing) SA1.WaitCounter = 3;
 	}
 	if (((byte ^ ROM_GLOBAL [0x220a]) & 0x20) &&
 	    (ROM_GLOBAL [0x2301] & byte & 0x20))
 	{
 	    SA1.Flags |= IRQ_PENDING_FLAG;
 	    SA1.IRQActive |= DMA_IRQ_SOURCE;
-//	    SA1.Executing = !SA1.Waiting;
+	    SA1.Executing = !SA1.Waiting;
+		if (SA1.Executing) SA1.WaitCounter = 3;
 	}
 	if (((byte ^ ROM_GLOBAL [0x220a]) & 0x10) &&
 	    (ROM_GLOBAL [0x2301] & byte & 0x10))
