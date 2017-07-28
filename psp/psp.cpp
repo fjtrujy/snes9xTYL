@@ -141,7 +141,7 @@ PSP_MAIN_THREAD_STACK_SIZE_KB(256); /* smaller stack for kernel thread */
 //28000x
 //PSP_HEAP_SIZE_MAX();
 #ifdef FAT_SUPPORT
-PSP_HEAP_SIZE_KB(-512);
+PSP_HEAP_SIZE_KB(-256);
 #else
 PSP_HEAP_SIZE_KB(12000);
 #endif
@@ -375,7 +375,7 @@ volatile me_sound_t __attribute__((aligned(64))) me_sound_data;
 volatile struct me_struct *me_data;
 
 int devkit_version;
-bool8 s9xStandBy = false; 
+bool8 s9xStandBy = false;
 
 #endif
 
@@ -413,7 +413,7 @@ static void ErrorExit(const char *msg)
 ////////////////////////////////////////////////////////////////////////////////////////
 static void update_pad(){
 	SceCtrlData	ctl;
-	
+
 	//sceCtrlReadBufferPositive( &ctl, 1 );
 	sceCtrlPeekBufferPositive( &ctl, 1 );
 
@@ -494,7 +494,7 @@ static void update_pad(){
 	if (os9x_padvalue & PSP_CTRL_LTRIGGER) os9x_snespad|=os9x_inputs[PSP_TL];
 	if (os9x_padvalue & PSP_CTRL_RTRIGGER) os9x_snespad|=os9x_inputs[PSP_TR];
 	//if (os9x_padvalue & PSP_CTRL_NOTE) os9x_snespad|=os9x_inputs[PSP_NOTE];
-	
+
 
 	os9x_specialaction=os9x_snespad&0xFFFF0000;
 	os9x_snespad&=0xFFFF;
@@ -2550,7 +2550,7 @@ static int power_callback(int unknown, int pwrflags, void *common)
 				s9xStandBy = true;
 				Settings.Paused = true;
 			}
-		}	
+		}
     }
 	else if (pwrflags & PSP_POWER_CB_RESUMING)
 	{
@@ -2561,7 +2561,7 @@ static int power_callback(int unknown, int pwrflags, void *common)
 		{
 			after_pause();
 		}
-    } 
+    }
     sceDisplayWaitVblankStart();
 
 	return 0;
@@ -2639,23 +2639,23 @@ int main(int argc,char **argv) {
 		ErrorExit(" Error loading/mediaengine");
  		return 0;
     }
-	
+
 	me_data = (volatile struct me_struct*)malloc_64( sizeof( struct me_struct ) );  // [Shoey]
 	if(!me_data)
 	{
 		ErrorExit(" malloc fail ME\n" );
 		return 0;
 	}
-	
+
     me_data = (volatile struct me_struct*)(((int) me_data) | 0x40000000 );          // [Shoey]
     if( InitME( me_data, devkit_version ) )
     {
 		ErrorExit(" Error Initializing ME\n" );
 		return 0;
     }
-	
+
 	SetupCallbacks();
-	
+
 #endif
 #ifdef HOME_HOOK
 //#ifndef ME_SOUND
@@ -3496,14 +3496,14 @@ static void setup_Main_Loops()
 	// This avoids the constant Settings.SA1 and Settings.APUEnabled checks on S9xMainLoop.
 	//
 	if (Settings.APUEnabled) {
-		if (Settings.SA1) 
+		if (Settings.SA1)
 			S9x_Current_Main_Loop_cpuexec = S9xMainLoop_SA1_APU;
-		else 
-			S9x_Current_Main_Loop_cpuexec = S9xMainLoop_NoSA1_APU;			
+		else
+			S9x_Current_Main_Loop_cpuexec = S9xMainLoop_NoSA1_APU;
 	} else {
-		if (Settings.SA1) 
+		if (Settings.SA1)
 			S9x_Current_Main_Loop_cpuexec = S9xMainLoop_SA1_NoAPU;
-		else 
+		else
 			S9x_Current_Main_Loop_cpuexec = S9xMainLoop_NoSA1_NoAPU;
 	}
 }
@@ -3711,9 +3711,9 @@ static int init_snes_rom() {
 	os9x_netsynclost=0;
 	os9x_oldframe=0;
 	os9x_updatepadcpt=0;
-	
+
 	setup_Main_Loops();
-	
+
 	return 0;
 }
 
@@ -3949,7 +3949,7 @@ static int user_main(SceSize args, void* argp) {
 		{
 			Memory.ApplySpeedHackPatches();
 			S9xMainLoop();
-		
+
 			/*static int printed=false;
 			extern uint32 g_nCount;
 			if(g_nCount>200 && printed==false)
@@ -3977,7 +3977,7 @@ static int user_main(SceSize args, void* argp) {
 			*os9x_paused_ptr=0;
 		}
 #endif
-		
+
 #ifdef HOME_HOOK
     if( readHomeButton() > 0 )
     {
@@ -3997,8 +3997,9 @@ static int user_main(SceSize args, void* argp) {
 			in_emu=0;
 		}
 	}
-	
+#ifdef ME_SOUND
 	KillME(me_data, devkit_version);
+#endif
 	low_level_deinit();
 
 	if (bg_img) image_free(bg_img);
