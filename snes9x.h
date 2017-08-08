@@ -397,6 +397,7 @@ struct SSettings{
     uint8  APURAMInitialValue;
 	uint8  sp2[3];
 
+	bool8  ForceInterleaveGD24;
     
 #ifdef __WIN32__
     int    SoundDriver;

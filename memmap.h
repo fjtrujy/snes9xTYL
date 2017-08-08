@@ -104,7 +104,9 @@ public:
 	void MapExtraRAM ();
 //	char *Safe (const char *);
 	void DeInterleavedRom(bool8 Tales);
-
+	
+	void ResetSpeedMap();
+	void JumboLoROMMap (bool8);
 	void LoROMMap ();
 	void LoROM24MBSMap ();
 	void SRAM512KLoROMMap ();
@@ -118,8 +120,8 @@ public:
 	void BSHiROMMap ();
 	void SPC7110HiROMMap ();
 	bool8 AllASCII (uint8 *b, int size);
-	int  ScoreHiROM (bool8 skip_header);
-	int  ScoreLoROM (bool8 skip_header);
+	int  ScoreHiROM (bool8 skip_header, int32 offset=0);
+    int  ScoreLoROM (bool8 skip_header, int32 offset=0);
 	
 	//Speed hacks based on snes9x 3DS
 	uint8 GetByte (uint32 Address);
@@ -148,10 +150,11 @@ public:
 	void CMemory::Map_Initialize (void);
 	void CMemory::ParseSNESHeader (uint8 *RomHeader);
 	int CMemory::LoadROMMore_151(int TotalFileSize,int &retry_count);
-	uint8 ExtendedFormat;
-	enum { NOPE, YEAH, BIGFIRST, SMALLFIRST };
 	void BS_151();
 #endif
+	uint8 ROMRegion;
+	uint8 ExtendedFormat;
+	enum { NOPE, YEAH, BIGFIRST, SMALLFIRST };
 
 	enum {
 		MAP_PPU, MAP_CPU, MAP_DSP, MAP_LOROM_SRAM, MAP_HIROM_SRAM,
