@@ -180,9 +180,9 @@ void S9xSetPPU (uint8 Byte, uint16 Address)
 		//i++;
 		//if(i==20)i=0;
 
-		INFO_FLUSH_REDRAW("2100");
+//		INFO_FLUSH_REDRAW("2100");
 	    FLUSH_REDRAW ();
-		INC_DEBUG_COUNT(0);
+//		INC_DEBUG_COUNT(0);
 	    if (PPUPack.PPU.Brightness != (Byte & 0xF))
 	    {
 			IPPU.ColorsChanged = TRUE;
@@ -204,9 +204,9 @@ void S9xSetPPU (uint8 Byte, uint16 Address)
 	// Sprite (OBJ) tile address
 	if (Byte != ROM_GLOBAL [0x2101])
 	{
-		INFO_FLUSH_REDRAW("2101");
+		//INFO_FLUSH_REDRAW("2101");
 	    FLUSH_REDRAW ();
-		INC_DEBUG_COUNT(1);
+		//INC_DEBUG_COUNT(1);
 	    PPUPack.PPU.OBJNameBase   = (Byte & 3) << 14;
 	    PPUPack.PPU.OBJNameSelect = ((Byte >> 3) & 3) << 13;
 	    PPUPack.PPU.OBJSizeSelect = (Byte >> 5) & 7;
@@ -261,15 +261,16 @@ void S9xSetPPU (uint8 Byte, uint16 Address)
 	// priority
 	if (Byte != ROM_GLOBAL [0x2105])
 	{
-		INFO_FLUSH_REDRAW("2105");
+		//INFO_FLUSH_REDRAW("2105");
 	    FLUSH_REDRAW ();
-		INC_DEBUG_COUNT(2);
-	    PPUPack.PPU.BG3Priority  = (Byte >> 3) & 1;
+		//INC_DEBUG_COUNT(2);
+	    //PPUPack.PPU.BG3Priority  = (Byte >> 3) & 1;
 	    PPUPack.PPU.BG[0].BGSize = (Byte >> 4) & 1;
 	    PPUPack.PPU.BG[1].BGSize = (Byte >> 5) & 1;
 	    PPUPack.PPU.BG[2].BGSize = (Byte >> 6) & 1;
 	    PPUPack.PPU.BG[3].BGSize = (Byte >> 7) & 1;
 	    PPUPack.PPU.BGMode = Byte & 7;
+		PPUPack.PPU.BG3Priority  = ((Byte & 0x0f) == 0x09);
 #ifdef DEBUGGER
 	    missing.modes[PPUPack.PPU.BGMode] = 1;
 #endif
@@ -280,9 +281,9 @@ void S9xSetPPU (uint8 Byte, uint16 Address)
 	// Mosaic pixel size and enable
 	if (Byte != ROM_GLOBAL [0x2106])
 	{
-		INFO_FLUSH_REDRAW("2106");
+		//INFO_FLUSH_REDRAW("2106");
 	    FLUSH_REDRAW ();
-		INC_DEBUG_COUNT(3);
+		//INC_DEBUG_COUNT(3);
 #ifdef DEBUGGER
 	    if ((Byte & 0xf0) && (Byte & 0x0f))
 		missing.mosaic = 1;
@@ -297,9 +298,9 @@ void S9xSetPPU (uint8 Byte, uint16 Address)
     case 0x2107:		// [BG0SC]
 	if (Byte != ROM_GLOBAL [0x2107])
 	{
-		INFO_FLUSH_REDRAW("2107");
+		//INFO_FLUSH_REDRAW("2107");
 	    FLUSH_REDRAW ();
-		INC_DEBUG_COUNT(4);
+		//INC_DEBUG_COUNT(4);
 	    PPUPack.PPU.BG[0].SCSize = Byte & 3;
 	    PPUPack.PPU.BG[0].SCBase = (Byte & 0x7c) << 8;
 	}
@@ -308,9 +309,9 @@ void S9xSetPPU (uint8 Byte, uint16 Address)
     case 0x2108:		// [BG1SC]
 	if (Byte != ROM_GLOBAL [0x2108])
 	{
-		INFO_FLUSH_REDRAW("2108");
+		//INFO_FLUSH_REDRAW("2108");
 	    FLUSH_REDRAW ();
-		INC_DEBUG_COUNT(5);
+		//INC_DEBUG_COUNT(5);
 	    PPUPack.PPU.BG[1].SCSize = Byte & 3;
 	    PPUPack.PPU.BG[1].SCBase = (Byte & 0x7c) << 8;
 	}
@@ -319,9 +320,9 @@ void S9xSetPPU (uint8 Byte, uint16 Address)
     case 0x2109:		// [BG2SC]
 	if (Byte != ROM_GLOBAL [0x2109])
 	{
-		INFO_FLUSH_REDRAW("2109");
+		//INFO_FLUSH_REDRAW("2109");
 	    FLUSH_REDRAW ();
-		INC_DEBUG_COUNT(6);
+		//INC_DEBUG_COUNT(6);
 	    PPUPack.PPU.BG[2].SCSize = Byte & 3;
 	    PPUPack.PPU.BG[2].SCBase = (Byte & 0x7c) << 8;
 	}
@@ -330,9 +331,9 @@ void S9xSetPPU (uint8 Byte, uint16 Address)
     case 0x210A:		// [BG3SC]
 	if (Byte != ROM_GLOBAL [0x210a])
 	{
-		INFO_FLUSH_REDRAW("210A");
+		//INFO_FLUSH_REDRAW("210A");
 	    FLUSH_REDRAW ();
-		INC_DEBUG_COUNT(7);
+		//INC_DEBUG_COUNT(7);
 	    PPUPack.PPU.BG[3].SCSize = Byte & 3;
 	    PPUPack.PPU.BG[3].SCBase = (Byte & 0x7c) << 8;
 	}
@@ -341,9 +342,9 @@ void S9xSetPPU (uint8 Byte, uint16 Address)
     case 0x210B:		// [BG01NBA]
 	if (Byte != ROM_GLOBAL [0x210b])
 	{
-		INFO_FLUSH_REDRAW("210B");
+		//INFO_FLUSH_REDRAW("210B");
 	    FLUSH_REDRAW ();
-		INC_DEBUG_COUNT(8);
+		//INC_DEBUG_COUNT(8);
 	    PPUPack.PPU.BG[0].NameBase    = (Byte & 7) << 12;
 	    PPUPack.PPU.BG[1].NameBase    = ((Byte >> 4) & 7) << 12;
 	}
@@ -352,9 +353,9 @@ void S9xSetPPU (uint8 Byte, uint16 Address)
     case 0x210C:		// [BG23NBA]
 	if (Byte != ROM_GLOBAL [0x210c])
 	{
-		INFO_FLUSH_REDRAW("210C");
+		//INFO_FLUSH_REDRAW("210C");
 	    FLUSH_REDRAW ();
-		INC_DEBUG_COUNT(9);
+		//INC_DEBUG_COUNT(9);
 	    PPUPack.PPU.BG[2].NameBase    = (Byte & 7) << 12;
 	    PPUPack.PPU.BG[3].NameBase    = ((Byte >> 4) & 7) << 12;
 	}
@@ -460,9 +461,9 @@ void S9xSetPPU (uint8 Byte, uint16 Address)
 	// Mode 7 outside rotation area display mode and flipping
 	if (Byte != ROM_GLOBAL [0x211a])
 	{
-		INFO_FLUSH_REDRAW("211A");
+		//INFO_FLUSH_REDRAW("211A");
 	    FLUSH_REDRAW ();
-		INC_DEBUG_COUNT(10);
+		//INC_DEBUG_COUNT(10);
 	    PPUPack.PPU.Mode7Repeat = Byte >> 6;
 	    PPUPack.PPU.Mode7VFlip = (Byte & 2) >> 1;
 	    PPUPack.PPU.Mode7HFlip = Byte & 1;
@@ -510,10 +511,10 @@ void S9xSetPPU (uint8 Byte, uint16 Address)
 	// Window 1 and 2 enable for backgrounds 1 and 2
 	if (Byte != ROM_GLOBAL [0x2123])
 	{
-		if (os9x_hack&PPU_IGNORE_WINDOW) return;
-		INFO_FLUSH_REDRAW("2123");
+		//if (os9x_hack&PPU_IGNORE_WINDOW) return;
+		//INFO_FLUSH_REDRAW("2123");
 	    FLUSH_REDRAW ();
-		INC_DEBUG_COUNT(11);
+		//INC_DEBUG_COUNT(11);
 	    PPUPack.PPU.ClipWindow1Enable [0] = !!(Byte & 0x02);
 	    PPUPack.PPU.ClipWindow1Enable [1] = !!(Byte & 0x20);
 	    PPUPack.PPU.ClipWindow2Enable [0] = !!(Byte & 0x08);
@@ -539,10 +540,10 @@ void S9xSetPPU (uint8 Byte, uint16 Address)
 	// Window 1 and 2 enable for backgrounds 3 and 4
 	if (Byte != ROM_GLOBAL [0x2124])
 	{
-		if (os9x_hack&PPU_IGNORE_WINDOW) return;
-		INFO_FLUSH_REDRAW("2124");
+		//if (os9x_hack&PPU_IGNORE_WINDOW) return;
+		//INFO_FLUSH_REDRAW("2124");
 	    FLUSH_REDRAW ();
-		INC_DEBUG_COUNT(12);
+		//INC_DEBUG_COUNT(12);
 	    PPUPack.PPU.ClipWindow1Enable [2] = !!(Byte & 0x02);
 	    PPUPack.PPU.ClipWindow1Enable [3] = !!(Byte & 0x20);
 	    PPUPack.PPU.ClipWindow2Enable [2] = !!(Byte & 0x08);
@@ -568,10 +569,10 @@ void S9xSetPPU (uint8 Byte, uint16 Address)
 	// Window 1 and 2 enable for objects and colour window
 	if (Byte != ROM_GLOBAL [0x2125])
 	{
-		if (os9x_hack&PPU_IGNORE_WINDOW) return;
-		INFO_FLUSH_REDRAW("2125");
+		//if (os9x_hack&PPU_IGNORE_WINDOW) return;
+		//INFO_FLUSH_REDRAW("2125");
 	    FLUSH_REDRAW ();
-		INC_DEBUG_COUNT(13);
+		//INC_DEBUG_COUNT(13);
 	    PPUPack.PPU.ClipWindow1Enable [4] = !!(Byte & 0x02);
 	    PPUPack.PPU.ClipWindow1Enable [5] = !!(Byte & 0x20);
 	    PPUPack.PPU.ClipWindow2Enable [4] = !!(Byte & 0x08);
@@ -605,10 +606,10 @@ void S9xSetPPU (uint8 Byte, uint16 Address)
 		}
 		else
 		{
-			if (os9x_hack&PPU_IGNORE_WINDOW) return;
-			INFO_FLUSH_REDRAW("2126");
+			//if (os9x_hack&PPU_IGNORE_WINDOW) return;
+			//INFO_FLUSH_REDRAW("2126");
 			FLUSH_REDRAW ();
-			INC_DEBUG_COUNT(14);
+			//INC_DEBUG_COUNT(14);
 			PPUPack.PPU.Window1Left = Byte;
 			PPUPack.PPU.RecomputeClipWindows = TRUE;
 		}
@@ -625,10 +626,10 @@ void S9xSetPPU (uint8 Byte, uint16 Address)
 		}
 		else
 		{
-			if (os9x_hack&PPU_IGNORE_WINDOW) return;
-			INFO_FLUSH_REDRAW("2127");
+			//if (os9x_hack&PPU_IGNORE_WINDOW) return;
+			//INFO_FLUSH_REDRAW("2127");
 			FLUSH_REDRAW ();
-			INC_DEBUG_COUNT(15);
+			//INC_DEBUG_COUNT(15);
 			PPUPack.PPU.Window1Right = Byte;
 			PPUPack.PPU.RecomputeClipWindows = TRUE;
 		}
@@ -645,10 +646,10 @@ void S9xSetPPU (uint8 Byte, uint16 Address)
 		}
 		else
 		{
-			if (os9x_hack&PPU_IGNORE_WINDOW) return;
-			INFO_FLUSH_REDRAW("2128");
+			//if (os9x_hack&PPU_IGNORE_WINDOW) return;
+			//INFO_FLUSH_REDRAW("2128");
 			FLUSH_REDRAW ();
-			INC_DEBUG_COUNT(16);
+			//INC_DEBUG_COUNT(16);
 			PPUPack.PPU.Window2Left = Byte;
 			PPUPack.PPU.RecomputeClipWindows = TRUE;
 		}
@@ -665,10 +666,10 @@ void S9xSetPPU (uint8 Byte, uint16 Address)
 		}
 		else
 		{
-			if (os9x_hack&PPU_IGNORE_WINDOW) return;
-			INFO_FLUSH_REDRAW("2129");
+			//if (os9x_hack&PPU_IGNORE_WINDOW) return;
+			//INFO_FLUSH_REDRAW("2129");
 			FLUSH_REDRAW ();
-			INC_DEBUG_COUNT(17);
+			//INC_DEBUG_COUNT(17);
 			PPUPack.PPU.Window2Right = Byte;
 			PPUPack.PPU.RecomputeClipWindows = TRUE;
 		}
@@ -678,10 +679,10 @@ void S9xSetPPU (uint8 Byte, uint16 Address)
 	// Windows 1 & 2 overlap logic for backgrounds 1 - 4
 	if (Byte != ROM_GLOBAL [0x212a])
 	{
-		if (os9x_hack&PPU_IGNORE_WINDOW) return;
-		INFO_FLUSH_REDRAW("212A");
+		//if (os9x_hack&PPU_IGNORE_WINDOW) return;
+		//INFO_FLUSH_REDRAW("212A");
 	    FLUSH_REDRAW ();
-		INC_DEBUG_COUNT(18);
+		//INC_DEBUG_COUNT(18);
 	    PPUPack.PPU.ClipWindowOverlapLogic [0] = (Byte & 0x03);
 	    PPUPack.PPU.ClipWindowOverlapLogic [1] = (Byte & 0x0c) >> 2;
 	    PPUPack.PPU.ClipWindowOverlapLogic [2] = (Byte & 0x30) >> 4;
@@ -693,10 +694,10 @@ void S9xSetPPU (uint8 Byte, uint16 Address)
 	// Windows 1 & 2 overlap logic for objects and colour window
 	if (Byte != ROM_GLOBAL [0x212b])
 	{
-		if (os9x_hack&PPU_IGNORE_WINDOW) return;
-		INFO_FLUSH_REDRAW("212B");
+		//if (os9x_hack&PPU_IGNORE_WINDOW) return;
+		//INFO_FLUSH_REDRAW("212B");
 	    FLUSH_REDRAW ();
-		INC_DEBUG_COUNT(19);
+		//INC_DEBUG_COUNT(19);
 	    PPUPack.PPU.ClipWindowOverlapLogic [4] = Byte & 0x03;
 	    PPUPack.PPU.ClipWindowOverlapLogic [5] = (Byte & 0x0c) >> 2;
 	    PPUPack.PPU.RecomputeClipWindows = TRUE;
@@ -831,10 +832,10 @@ void S9xSetPPU (uint8 Byte, uint16 Address)
     case 0x2132:
 	if (Byte != ROM_GLOBAL [0x2132])
 	{
-		INC_DEBUG_COUNT(44);
+		//INC_DEBUG_COUNT(44);
 		if(os9x_softrendering>=2 && !(os9x_hack&OLD_PSP_ACCEL) && (PPUPack.PPU.BGMode!=7))	
 		{
-			INC_DEBUG_COUNT(45);
+			//INC_DEBUG_COUNT(45);
 			FixColorsLog_BeforeUpdate();
 			if (Byte & 0x80)
 			PPUPack.PPU.FixedColourBlue = Byte & 0x1f;
@@ -851,17 +852,38 @@ void S9xSetPPU (uint8 Byte, uint16 Address)
 			if (Byte & 0x80) {
 	    		//PPUPack.PPU.FixedColourBlue = Byte & 0x1f;
 	    		new_fixedcol=(Byte & 0x1f);
-	    		if (new_fixedcol!=PPUPack.PPU.FixedColourBlue) {if (!(os9x_hack&PPU_IGNORE_FIXEDCOLCHANGES)) {INFO_FLUSH_REDRAW("2132");FLUSH_REDRAW();}PPUPack.PPU.FixedColourBlue=new_fixedcol;}
+	    		if (new_fixedcol!=PPUPack.PPU.FixedColourBlue)
+				{
+					//if (!(os9x_hack&PPU_IGNORE_FIXEDCOLCHANGES)){
+					//INFO_FLUSH_REDRAW("2132");
+					FLUSH_REDRAW();
+					//}
+					PPUPack.PPU.FixedColourBlue=new_fixedcol;
+				}
 			}
 			if (Byte & 0x40) {
 	    		//PPUPack.PPU.FixedColourGreen = Byte & 0x1f;
 	    		new_fixedcol=(Byte & 0x1f);
-	    		if (new_fixedcol!=PPUPack.PPU.FixedColourGreen) {if (!(os9x_hack&PPU_IGNORE_FIXEDCOLCHANGES)) {INFO_FLUSH_REDRAW("2132");FLUSH_REDRAW();}PPUPack.PPU.FixedColourGreen=new_fixedcol;}
+	    		if (new_fixedcol!=PPUPack.PPU.FixedColourGreen)
+				{
+					//if (!(os9x_hack&PPU_IGNORE_FIXEDCOLCHANGES)){
+					//INFO_FLUSH_REDRAW("2132");
+					FLUSH_REDRAW();
+					//}
+					PPUPack.PPU.FixedColourGreen=new_fixedcol;
+				}
 			}
 			if (Byte & 0x20) {
 	    		//PPUPack.PPU.FixedColourRed = Byte & 0x1f;
 	    		new_fixedcol=(Byte & 0x1f);
-	    		if (new_fixedcol!=PPUPack.PPU.FixedColourRed) {if (!(os9x_hack&PPU_IGNORE_FIXEDCOLCHANGES)) {INFO_FLUSH_REDRAW("2132");FLUSH_REDRAW();}PPUPack.PPU.FixedColourRed=new_fixedcol;}
+	    		if (new_fixedcol!=PPUPack.PPU.FixedColourRed)
+				{
+					//if (!(os9x_hack&PPU_IGNORE_FIXEDCOLCHANGES)){
+					//INFO_FLUSH_REDRAW("2132");
+					FLUSH_REDRAW();
+					//}
+					PPUPack.PPU.FixedColourRed=new_fixedcol;
+				}
 			}
 		}
 		//else if((os9x_hack&PPU_IGNORE_FIXEDCOLCHANGES))
@@ -962,7 +984,7 @@ void S9xSetPPU (uint8 Byte, uint16 Address)
     case 0x2178: case 0x2179: case 0x217a: case 0x217b:
     case 0x217c: case 0x217d: case 0x217e: case 0x217f:
     	
-    if (os9x_hack&APU_FIX) {
+    /*if (os9x_hack&APU_FIX) {
     	switch (Address&3) {
     		case 0: //0x2140
     			APUI00a=Byte;
@@ -980,7 +1002,7 @@ void S9xSetPPU (uint8 Byte, uint16 Address)
     			APUI03b=0;
     			break;
     	}
-    }
+    }*/
     	
 #ifdef SPCTOOL
 	_SPCInPB (Address & 3, Byte);
@@ -1437,7 +1459,7 @@ uint8 S9xGetPPU (uint16 Address)
 		return ((Uncache_APU_OutPorts) [Address & 3]);
 	    }
 	    
-	    if (os9x_hack&APU_FIX) {
+	    /*if (os9x_hack&APU_FIX) {
 			switch (Address&3) {
 				case 0:			//0x2140
 					switch (APUI00b) {
@@ -1605,7 +1627,7 @@ uint8 S9xGetPPU (uint16 Address)
 		    return ((r >> 3) & 0xff);}
 	    }
 	    
-	    return (ROM_GLOBAL[Address]);
+	    return (ROM_GLOBAL[Address]);*/
 #endif // SPCTOOL
 
 	case 0x2180:

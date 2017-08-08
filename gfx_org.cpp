@@ -1952,20 +1952,20 @@ void RenderScreen (uint8 *Screen, bool8 sub, bool8 force_no_add, uint8 D)
     if (!sub)
     {
 	GPUPack.GFX.pCurrentClip = &IPPU.Clip [0];
-	BG0 = ON_MAIN (0) &&  os9x_BG0;
-	BG1 = ON_MAIN (1) &&  os9x_BG1;
-	BG2 = ON_MAIN (2) &&  os9x_BG2;
-	BG3 = ON_MAIN (3) &&  os9x_BG3;
-	OB  = ON_MAIN (4) &&  os9x_OBJ;
+	BG0 = ON_MAIN (0);// &&  os9x_BG0;
+	BG1 = ON_MAIN (1);// &&  os9x_BG1;
+	BG2 = ON_MAIN (2);// &&  os9x_BG2;
+	BG3 = ON_MAIN (3);// &&  os9x_BG3;
+	OB  = ON_MAIN (4);// &&  os9x_OBJ;
     }
     else
     {
 	GPUPack.GFX.pCurrentClip = &IPPU.Clip [1];
-	BG0 = ON_SUB (0) &&  os9x_BG0;
-	BG1 = ON_SUB (1) &&  os9x_BG1;
-	BG2 = ON_SUB (2) &&  os9x_BG2;
-	BG3 = ON_SUB (3) &&  os9x_BG3;
-	OB  = ON_SUB (4) &&  os9x_OBJ;
+	BG0 = ON_SUB (0);// &&  os9x_BG0;
+	BG1 = ON_SUB (1);// &&  os9x_BG1;
+	BG2 = ON_SUB (2);// &&  os9x_BG2;
+	BG3 = ON_SUB (3);// &&  os9x_BG3;
+	OB  = ON_SUB (4);// &&  os9x_OBJ;
     }
 
     sub |= force_no_add;
@@ -2595,5 +2595,3 @@ bool8 S9xSetRenderPixelFormat (int format)
     return (FALSE);
 }
 #endif
-
-

@@ -2537,20 +2537,20 @@ PROF_END(11);
 	    GPUPack.GFX.pCurrentClip = &IPPU.Clip [0];
 
 
-	int32 BG0 = ON_MAIN(0) &&  os9x_BG0;
-	int32 BG1 = ON_MAIN(1) &&  os9x_BG1;
-	int32 BG2 = ON_MAIN(2) &&  os9x_BG2;
-	int32 BG3 = ON_MAIN(3) &&  os9x_BG3;
-	int32 OB  = ON_MAIN(4) &&  os9x_OBJ;
+	int32 BG0 = ON_MAIN(0);// &&  os9x_BG0;
+	int32 BG1 = ON_MAIN(1);// &&  os9x_BG1;
+	int32 BG2 = ON_MAIN(2);// &&  os9x_BG2;
+	int32 BG3 = ON_MAIN(3);// &&  os9x_BG3;
+	int32 OB  = ON_MAIN(4);// &&  os9x_OBJ;
 	    
 	int32 BG0_SUB,BG1_SUB,BG2_SUB,BG3_SUB,OB_SUB;
 	if (ADD_OR_SUB_ON_ANYTHING)
 	{
-	 	BG0_SUB = ON_SUB(0) &&  os9x_BG0;
-	   	BG1_SUB = ON_SUB(1) &&  os9x_BG1;
-	    BG2_SUB = ON_SUB(2) &&  os9x_BG2;
-	    BG3_SUB = ON_SUB(3) &&  os9x_BG3;
-	    OB_SUB = ON_SUB(4) &&  os9x_OBJ;
+	 	BG0_SUB = ON_SUB(0);// &&  os9x_BG0;
+	   	BG1_SUB = ON_SUB(1);// &&  os9x_BG1;
+	    BG2_SUB = ON_SUB(2);// &&  os9x_BG2;
+	    BG3_SUB = ON_SUB(3);// &&  os9x_BG3;
+	    OB_SUB = ON_SUB(4);// &&  os9x_OBJ;
 	} else BG0_SUB=BG1_SUB=BG2_SUB=BG3_SUB=OB_SUB=0;
 	
 	if ((os9x_ShowSub==4)&&(ADD_OR_SUB_ON_ANYTHING)
@@ -3000,4 +3000,3 @@ PROF_END(11);
 	PROF_END(8);
 #endif    
 }
-

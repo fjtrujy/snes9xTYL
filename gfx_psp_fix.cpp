@@ -1480,7 +1480,7 @@ void pspRenderScreenFix (uint8 *Screen, bool8 sub, uint8 D, uint8 drawmode)
   }
 
   if (PPUPack.PPU.BGMode <= 1) {
-		if (OB&&os9x_OBJ) {
+		if (OB){//&&os9x_OBJ) {
 			if (TO_DRAW_OBJ(4)) {
 	    	/*if (os9x_fastsprite) pspDrawFASTOBJSFix (!sub, D,drawmode);
 	    	else*/ if(pCurrentClipFix->GroupCount [4]>0)
@@ -1489,7 +1489,7 @@ void pspRenderScreenFix (uint8 *Screen, bool8 sub, uint8 D, uint8 drawmode)
 				pspDrawOBJS (!sub, D,drawmode);
 	  	}
 		}
-		if (BG0&&os9x_BG0) {	    
+		if (BG0){//&&os9x_BG0) {	    
 	    if (TO_DRAW(0)) {
 /*			if(IPPU.PaletteLineCount>0)
 				pspDrawBackgroundFixPalette (PPUPack.PPU.BGMode, 0, D + 10, D + 14);
@@ -1499,7 +1499,7 @@ void pspRenderScreenFix (uint8 *Screen, bool8 sub, uint8 D, uint8 drawmode)
 				pspDrawBackground (PPUPack.PPU.BGMode, 0, D + 10, D + 14);
 	    }
 		}
-		if (BG1&&os9x_BG1) {			    
+		if (BG1){//&&os9x_BG1) {			    
 			if (TO_DRAW(1)) {				
 /*			if(IPPU.PaletteLineCount>0)
 				pspDrawBackgroundFixPalette (PPUPack.PPU.BGMode, 1, D + 9, D + 13);
@@ -1509,7 +1509,7 @@ void pspRenderScreenFix (uint8 *Screen, bool8 sub, uint8 D, uint8 drawmode)
 				pspDrawBackground (PPUPack.PPU.BGMode, 1, D + 9, D + 13);
 			}
 		}
-		if (BG2&&os9x_BG2) {	    
+		if (BG2){//&&os9x_BG2) {	    
 	    if (TO_DRAW(2)) {	    	
 /*			if(IPPU.PaletteLineCount>0)
 				pspDrawBackgroundFixPalette (PPUPack.PPU.BGMode, 2, D + 3,  (ROM_GLOBAL [0x2105] & 8) == 0 ? D + 6 : D + 17);
@@ -1519,7 +1519,7 @@ void pspRenderScreenFix (uint8 *Screen, bool8 sub, uint8 D, uint8 drawmode)
 				pspDrawBackground (PPUPack.PPU.BGMode, 2, D + 3,  (ROM_GLOBAL [0x2105] & 8) == 0 ? D + 6 : D + 17);
 	    }
 		}
-		if (BG3 && PPUPack.PPU.BGMode == 0 && os9x_BG3) {	    
+		if (BG3 && PPUPack.PPU.BGMode == 0){// && os9x_BG3) {	    
 	    if (TO_DRAW(3)) {	    	
 /*			if(IPPU.PaletteLineCount>0)
 				pspDrawBackgroundFixPalette (PPUPack.PPU.BGMode, 3, D + 2, D + 5);
@@ -1530,14 +1530,14 @@ void pspRenderScreenFix (uint8 *Screen, bool8 sub, uint8 D, uint8 drawmode)
 	    }
 		}
 	} else if (PPUPack.PPU.BGMode != 7) {
-		if (OB&&os9x_OBJ) {
+		if (OB){//&&os9x_OBJ) {
 			/*if (os9x_fastsprite) pspDrawFASTOBJSFix (!sub, D,drawmode);
 	    	else*/ if(pCurrentClipFix->GroupCount [4]>0)
 				pspDrawOBJSFix (!sub, D,drawmode);
 			else
 				pspDrawOBJS (!sub, D,drawmode);
 		}
-		if (BG0&&os9x_BG0) {	    
+		if (BG0){//&&os9x_BG0) {	    
 	    if (TO_DRAW(0)) {	    	
 	    	if(pCurrentClipFix->GroupCount [0]>0)
 				pspDrawBackgroundFix (PPUPack.PPU.BGMode, 0, D + 5, D + 13);
@@ -1545,7 +1545,7 @@ void pspRenderScreenFix (uint8 *Screen, bool8 sub, uint8 D, uint8 drawmode)
 				pspDrawBackground (PPUPack.PPU.BGMode, 0, D + 5, D + 13);
 	    }
 		}
-		if (PPUPack.PPU.BGMode != 6 && BG1 &&os9x_BG1) {	    
+		if (PPUPack.PPU.BGMode != 6 && BG1){// &&os9x_BG1) {	    
 	    if (TO_DRAW(1)) {	    	
 	    	if(pCurrentClipFix->GroupCount [1]>0)
 				pspDrawBackgroundFix (PPUPack.PPU.BGMode, 1, D + 2, D + 9);

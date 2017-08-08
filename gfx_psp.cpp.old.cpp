@@ -1349,43 +1349,43 @@ void pspRenderScreen (uint8 *Screen, bool8 sub, uint8 D, uint8 drawmode)
   }
   
   if (PPU.BGMode <= 1) {
-		if (OB&&os9x_OBJ) {
+		if (OB){//&&os9x_OBJ) {
 			if (TO_DRAW_OBJ(4)) {
 	    	if (os9x_fastsprite) pspDrawFASTOBJS (!sub, D,drawmode);
 	    	else pspDrawOBJS (!sub, D,drawmode);
 	  	}
 		}
-		if (BG0&&os9x_BG0) {	    
+		if (BG0){//&&os9x_BG0) {	    
 	    if (TO_DRAW(0)) {	    	
 	    	pspDrawBackground (PPU.BGMode, 0, D + 10, D + 14);
 	    }
 		}
-		if (BG1&&os9x_BG1) {			    
+		if (BG1){//&&os9x_BG1) {			    
 			if (TO_DRAW(1)) {				
 				pspDrawBackground (PPU.BGMode, 1, D + 9, D + 13);
 			}
 		}
-		if (BG2&&os9x_BG2) {	    
+		if (BG2){//&&os9x_BG2) {	    
 	    if (TO_DRAW(2)) {	    	
 	    	pspDrawBackground (PPU.BGMode, 2, D + 3,  (ROM_GLOBAL [0x2105] & 8) == 0 ? D + 6 : D + 17);
 	    }
 		}
-		if (BG3 && PPU.BGMode == 0 && os9x_BG3) {	    
+		if (BG3 && PPU.BGMode == 0){// && os9x_BG3) {	    
 	    if (TO_DRAW(3)) {	    	
 	    	pspDrawBackground (PPU.BGMode, 3, D + 2, D + 5);
 	    }
 		}
 	} else if (PPU.BGMode != 7) {
-		if (OB&&os9x_OBJ) {
+		if (OB){//&&os9x_OBJ) {
 			if (os9x_fastsprite) pspDrawFASTOBJS (!sub, D,drawmode);
 	    	else pspDrawOBJS (!sub, D,drawmode);
 		}
-		if (BG0&&os9x_BG0) {	    
+		if (BG0){//&&os9x_BG0) {	    
 	    if (TO_DRAW(0)) {	    	
 	    	pspDrawBackground (PPU.BGMode, 0, D + 5, D + 13);
 	    }
 		}
-		if (PPU.BGMode != 6 && BG1 &&os9x_BG1) {	    
+		if (PPU.BGMode != 6 && BG1){// &&os9x_BG1) {	    
 	    if (TO_DRAW(1)) {	    	
 	    	pspDrawBackground (PPU.BGMode, 1, D + 2, D + 9);
 	    }
