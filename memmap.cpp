@@ -636,9 +636,13 @@ int CMemory::LoadROMMore(int TotalFileSize,int &retry_count)
     CalculatedSize = (TotalFileSize / 0x2000) * 0x2000;
     ZeroMemory (ROM + CalculatedSize, MAX_ROM_SIZE - CalculatedSize);
 	
-	if(CalculatedSize >0x400000&&
-		!(ROM[0x7FD5]==0x32&&((ROM[0x7FD6]&0xF0)==0x40)) && //exclude S-DD1
-		!(ROM[0xFFD5]==0x3A&&((ROM[0xFFD6]&0xF0)==0xF0))) //exclude SPC7110
+	if (CalculatedSize > 0x400000 &&
+			(ROM[0x7fd5] + (ROM[0x7fd6] << 8)) != 0x3423 && // exclude SA-1
+			(ROM[0x7fd5] + (ROM[0x7fd6] << 8)) != 0x3523 &&
+			(ROM[0x7fd5] + (ROM[0x7fd6] << 8)) != 0x4332 && // exclude S-DD1
+			(ROM[0x7fd5] + (ROM[0x7fd6] << 8)) != 0x4532 &&
+			(ROM[0xffd5] + (ROM[0xffd6] << 8)) != 0xF93a && // exclude SPC7110
+			(ROM[0xffd5] + (ROM[0xffd6] << 8)) != 0xF53a)
 	{
 		//you might be a Jumbo!
 		ExtendedFormat=YEAH;
@@ -1701,11 +1705,6 @@ void CMemory::InitROM (bool8 Interleaved)
 		memset (ROMId, 0, 5);
 		memset (CompanyId, 0, 3);
 		
-		// Try to auto-detect the DSP1 chip
-		if (!Settings.ForceNoDSP1 &&
-			(ROMType & 0xf) >= 3 && (ROMType & 0xf0) == 0)
-			Settings.DSP1Master = TRUE;
-		
 		if (Memory.HiROM)
 		{
 			Memory.SRAMSize = ROM [0xffd8];
@@ -1719,6 +1718,11 @@ void CMemory::InitROM (bool8 Interleaved)
 			
 			memmove (ROMId, &ROM [0xffb2], 4);
 			memmove (CompanyId, &ROM [0xffb0], 2);
+			
+			// Try to auto-detect the DSP1 chip
+			if (!Settings.ForceNoDSP1 &&
+				(ROMType & 0xf) >= 3 && (ROMType & 0xf0) == 0)
+				Settings.DSP1Master = TRUE;
 
 			Settings.SDD1 = Settings.ForceSDD1;
 			if ((ROMType & 0xf0) == 0x40)
@@ -2332,47 +2336,12 @@ void CMemory::Map_Initialize (void)
 	}
 }
 #endif
+
 void CMemory::LoROMMap ()
 {
     int c;
     int i;
-    int j;
-	int mask[4];
-	for (j=0; j<4; j++)
-		mask[j]=0x00ff;
-
-	mask[0]=(CalculatedSize/0x8000)-1;
-
-	int x;
-	bool foundZeros;
-	bool pastZeros;
-	
-	for(j=0;j<3;j++)
-	{
-		x=1;
-		foundZeros=false;
-		pastZeros=false;
-
-		mask[j+1]=mask[j];
-
-		while (x>0x100&&!pastZeros)
-		{
-			if(mask[j]&x)
-			{
-				x<<=1;
-				if(foundZeros)
-					pastZeros=true;
-			}
-			else
-			{
-				foundZeros=true;
-				pastZeros=false;
-				mask[j+1]|=x;
-				x<<=1;
-			}
-		}
-	}
-
+    
     // Banks 00->3f and 80->bf
     for (c = 0; c < 0x400; c += 16)
     {
@@ -2404,14 +2373,8 @@ void CMemory::LoROMMap ()
 
 	for (i = c + 8; i < c + 16; i++)
 	{
-	    int e=3;
-		int d=c>>4;
-		while(d>mask[0])
-		{
-			d&=mask[e];
-			e--;
-		}
-		Map [i] = Map [i + 0x800] = ROM + (((d)-1)*0x8000);
+		Map [i] = Map [i + 0x800] = &ROM [(c << 11) % CalculatedSize] - 0x8000;
+		//Map [i] = Map [i + 0x800] = ROM + (((d)-1)*0x8000);
 		BlockIsROM [i] = BlockIsROM [i + 0x800] = TRUE;
 	}
 
@@ -2444,22 +2407,11 @@ void CMemory::LoROMMap ()
 			Map [i + 0x400] = Map [i + 0xc00] = &ROM [(c << 11) % CalculatedSize];
 
 		for (i = c + 8; i < c + 16; i++)
-		{
-			int e=3;
-			int d=(c+0x400)>>4;
-			while(d>mask[0])
-			{
-				d&=mask[e];
-				e--;
-			}
-
-			Map [i + 0x400] = Map [i + 0xc00] = ROM + (((d)-1)*0x8000);
-		}
+			Map [i + 0x400] = Map [i + 0xc00] = &ROM [((c << 11) + 0x200000) % CalculatedSize] - 0x8000;
+			//Map [i + 0x400] = Map [i + 0xc00] = ROM + (((d)-1)*0x8000);
 		
 		for (i = c; i < c + 16; i++)	
-		{
 			BlockIsROM [i + 0x400] = BlockIsROM [i + 0xc00] = TRUE;
-		}
     }
 
     if (Settings.DSP1Master)
@@ -2471,23 +2423,6 @@ void CMemory::LoROMMap ()
 	}
     }
 	
-	int sum=0, k,l, bankcount;
-	bankcount=1<<(ROMSize-7);//Mbits
-
-	//safety for corrupt headers
-	if(bankcount > 128)
-		bankcount = (CalculatedSize/0x8000)/4;
-	bankcount*=4;//to banks
-	bankcount<<=4;//Map banks
-	bankcount+=0x800;//normalize
-	for(k=0x800;k<(bankcount);k+=16)
-	{
-		uint8* bank=0x8000+Map[k+8];
-		for(l=0;l<0x8000;l++)
-			sum+=bank[l];
-	}
-	CalculatedChecksum=sum&0xFFFF;
-	
     MapRAM ();
     WriteProtectROM ();
 }
@@ -2496,44 +2431,7 @@ void CMemory::HiROMMap ()
 {
     int i;
 	int c;
-        int j;
-
-		int mask[4];
-	for (j=0; j<4; j++)
-		mask[j]=0x00ff;
-
-	mask[0]=(CalculatedSize/0x10000)-1;
-	
-	int x;
-	bool foundZeros;
-	bool pastZeros;
-	
-	for(j=0;j<3;j++)
-	{
-		x=1;
-		foundZeros=false;
-		pastZeros=false;
-
-		mask[j+1]=mask[j];
-
-		while (x>0x100&&!pastZeros)
-		{
-			if(mask[j]&x)
-			{
-				x<<=1;
-				if(foundZeros)
-					pastZeros=true;
-			}
-			else
-			{
-				foundZeros=true;
-				pastZeros=false;
-				mask[j+1]|=x;
-				x<<=1;
-			}
-		}
-	}
-	
+        
     // Banks 00->3f and 80->bf
     for (c = 0; c < 0x400; c += 16)
     {
@@ -2559,14 +2457,8 @@ void CMemory::HiROMMap ()
 	    
 	for (i = c + 8; i < c + 16; i++)
 	{
-	    int e=3;
-		int d=c>>4;
-		while(d>mask[0])
-		{
-			d&=mask[e];
-			e--;
-		}
-		Map [i] = Map [i + 0x800] = ROM + (d*0x10000);
+		Map [i] = Map [i + 0x800] = &ROM [(c << 12) % CalculatedSize];
+	    //Map [i] = Map [i + 0x800] = ROM + (d*0x10000);
 		BlockIsROM [i] = BlockIsROM [i + 0x800] = TRUE;
 	}
 
@@ -2597,34 +2489,13 @@ void CMemory::HiROMMap ()
     {
 		for (i = c; i < c + 16; i++)
 		{
-			int e=3;
-			int d=(c)>>4;
-			while(d>mask[0])
-			{
-				d&=mask[e];
-				e--;
-			}
-			Map [i + 0x400] = Map [i + 0xc00] = ROM + (d*0x10000);
+			Map [i + 0x400] = Map [i + 0xc00] = &ROM [(c << 12) % CalculatedSize];
+			//Map [i + 0x400] = Map [i + 0xc00] = ROM + (d*0x10000);
 			BlockIsROM [i + 0x400] = BlockIsROM [i + 0xc00] = TRUE;
 		}
     }
 
-	int bankmax=0x40+ (1<<(ROMSize-6));
-	//safety for corrupt headers
-	if(bankmax > 128)
-		bankmax = 0x80;
-	int sum=0;
-	for(i=0x40;i<bankmax; i++)
-	{
-		uint8 * bank_low=(uint8*)Map[i<<4];
-		for (c=0;c<0x10000; c++)
-		{
-			sum+=bank_low[c];
-		}
-	}
-	CalculatedChecksum=sum&0xFFFF;
-
-    MapRAM ();
+	MapRAM ();
     WriteProtectROM ();
 }
 
@@ -3913,7 +3784,17 @@ void CMemory::ApplyROMFixes ()
 
     Settings.H_Max = (SNES_CYCLES_PER_SCANLINE * 
 		      Settings.CyclesPercentage) / 100;
+	
+	// A Couple of HDMA related hacks - Lantus
+	if ((strcmp(ROMName, "SFX SUPERBUTOUDEN2")==0) ||
+	    (strcmp(ROMName, "ALIEN vs. PREDATOR")==0) ||
+		(strcmp(ROMName, "STONE PROTECTORS")==0) ||
+	    (strcmp(ROMName, "SUPER BATTLETANK 2")==0))
+		Settings.H_Max = (SNES_CYCLES_PER_SCANLINE * 130) / 100;
 
+	if(strcmp(ROMName, "HOME IMPROVEMENT")==0)
+		Settings.H_Max = (SNES_CYCLES_PER_SCANLINE * 200) / 100;
+	
     if (strcmp (ROMId, "ASRJ") == 0 && Settings.CyclesPercentage == 100)
 	// Street Racer
 	Settings.H_Max = (SNES_CYCLES_PER_SCANLINE * 95) / 100;
@@ -3947,8 +3828,10 @@ void CMemory::ApplyROMFixes ()
 	Settings.H_Max = (SNES_CYCLES_PER_SCANLINE * 101) / 100;
 
     if (strcmp (ROMName, "WILD TRAX") == 0 || 
-	strcmp (ROMName, "YOSSY'S ISLAND") == 0 || 
-	strcasecmp (ROMName, "YOSHI'S ISLAND") == 0)
+		strcmp (ROMName, "STAR FOX 2") == 0 || 
+		strcmp (ROMName, "YOSSY'S ISLAND") == 0 || 
+		strcmp (ROMName, "YOSHI'S ISLAND") == 0 || 
+		strcasecmp (ROMName, "YOSHI'S ISLAND") == 0)
 	CPU.TriedInterleavedMode2 = TRUE;
 
     // Start Trek: Deep Sleep 9

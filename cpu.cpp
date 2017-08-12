@@ -140,7 +140,7 @@ void debug_dump(const char* filename);
 void S9xReset (void)
 {
 	//	msgBoxLines("S9xReset called",80);	
-	MyCounter_Init();
+	//MyCounter_Init();
 	S9xResumeSoundProcess();
 	S9xSuspendSoundProcess();
 #ifdef _BSX_151_

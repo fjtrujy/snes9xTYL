@@ -1824,7 +1824,7 @@ static void resync_var(){
     *os9x_apuenabled_ptr=tmp;
 		Settings.NextAPUEnabled = Settings.APUEnabled = (os9x_apuenabled==1)||(os9x_apuenabled==2);
 
-		/*if ((!os9x_apuenabled)||(os9x_apuenabled==3))*/ os9x_hack|=APU_FIX;
+		/*if ((!os9x_apuenabled)||(os9x_apuenabled==3))*/ //os9x_hack|=APU_FIX;
 
 		os9x_snesheight=(Settings.PAL&&(!os9x_forcepal_ntsc)?240:224);
 
@@ -1897,7 +1897,7 @@ static void GeCallback(int id, void *arg)
 	swap_buf^=1;
 	pg_drawframe=swap_buf^1;
 
-	if (os9x_showpass){
+	/*if (os9x_showpass){
 		sprintf(buf,"%03d",os9x_renderingpass);
 		pgPrintBG(CMAX_X-8-strlen(buf),0,0xffff,buf);
 
@@ -1912,7 +1912,7 @@ static void GeCallback(int id, void *arg)
 			RESET_PROFILE_FUNC(S9xMainLoop)
 #endif
 	}
-	os9x_renderingpass=0;
+	os9x_renderingpass=0;*/
 
 
 	if (os9x_TurboMode) {
@@ -2429,18 +2429,18 @@ static void initvar_withdefault() {
 	check_battery();
 	//if (scePowerIsBatteryExist()) os9x_lowbat=scePowerIsLowBattery();
 	os9x_applyhacks=1;
-	os9x_BG0=1;
+	/*os9x_BG0=1;
 	os9x_BG1=1;
 	os9x_BG2=1;
 	os9x_BG3=1;
-	os9x_OBJ=1;
+	os9x_OBJ=1;*/
 	os9x_easy=0;
 	os9x_render=2;  //zoom 4/3 (tv mode)
 	os9x_showfps=0;
 	os9x_showpass=0;
 	os9x_vsync=1;
 	os9x_cpuclock=333;
-	os9x_SA1_exec=1;
+	//os9x_SA1_exec=1;
 
 	os9x_apuenabled=2;
 
@@ -2454,7 +2454,11 @@ static void initvar_withdefault() {
 	os9x_speedlimit=1;
 
 	os9x_forcepal_ntsc=1; //most pal games have black bottom borders
+#ifdef ME_SOUND
 	os9x_sndfreq = 44100;
+#else
+	os9x_sndfreq = 11025;
+#endif
 	/** not in menu at the moment **/
 	os9x_ShowSub=0;
 	os9x_CyclesPercentage=100;
@@ -3484,13 +3488,28 @@ static int os9x_getfile() {
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
-//
+// Additional Settings
 ////////////////////////////////////////////////////////////////////////////////////////
 
-// Additional Settings
+static void (*S9x_Current_Main_Loop)();
+
+// If we have harcoded speedhacks then apply them every frame before s9xMainLoop.
 //
+static void S9xMainLoopWithSpeedHacks()
+{
+	Memory.ApplySpeedHackPatches();
+	S9xMainLoop();
+}
+
 static void setup_Main_Loops()
 {
+	// If we have harcoded speedhacks then we use S9xMainLoopWithSpeedHacks.
+	//
+	if (Settings.SpeedHack)
+		S9x_Current_Main_Loop = S9xMainLoopWithSpeedHacks;
+	else
+		S9x_Current_Main_Loop = S9xMainLoop;
+	
 	// This is a modification inspired on CATSFC.
 	// The emulator selects a Main Loop based on the chip used by game.
 	// This avoids the constant Settings.SA1 and Settings.APUEnabled checks on S9xMainLoop.
@@ -3947,9 +3966,11 @@ static int user_main(SceSize args, void* argp) {
 
 		if ((in_emu==1) && ( !Settings.Paused ))
 		{
-			Memory.ApplySpeedHackPatches();
-			S9xMainLoop();
-
+			//Memory.ApplySpeedHackPatches();
+			//S9xMainLoop();
+			
+			(*S9x_Current_Main_Loop)();
+			
 			/*static int printed=false;
 			extern uint32 g_nCount;
 			if(g_nCount>200 && printed==false)
@@ -4013,7 +4034,7 @@ static int user_main(SceSize args, void* argp) {
 /////////////////////////////////////////////////////////////////////
 // カウンタ実態
 
-uint32 g_nCount;
+/*uint32 g_nCount;
 clock_t g_ulStart;
 
 void MyCounter_Init(void)
@@ -4097,7 +4118,7 @@ return;
 	//sprintf(szBuf,"A%d",apu_event1_cpt1>>5);
 	//pgPrintBG(0,6,0xffff,szBuf);
 
-}
+}*/
 
 time_t GetCurrentTime()
 {
