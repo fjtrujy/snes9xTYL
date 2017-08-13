@@ -3512,7 +3512,7 @@ static void setup_Main_Loops()
 	
 	// This is a modification inspired on CATSFC.
 	// The emulator selects a Main Loop based on the chip used by game.
-	// This avoids the constant Settings.SA1 and Settings.APUEnabled checks on S9xMainLoop.
+	// This avoids the constant Settings.SA1, Settings.APUEnabled and Settings.SuperFX checks on S9xMainLoop.
 	//
 	if (Settings.APUEnabled) {
 		if (Settings.SA1)
@@ -3525,6 +3525,11 @@ static void setup_Main_Loops()
 		else
 			S9x_Current_Main_Loop_cpuexec = S9xMainLoop_NoSA1_NoAPU;
 	}
+	
+	if (Settings.SuperFX)
+		S9x_Current_HBLANK_END_EVENT = S9xDoHBlankProcessing_HBLANK_END_EVENT_SFX;
+	else
+		S9x_Current_HBLANK_END_EVENT = S9xDoHBlankProcessing_HBLANK_END_EVENT;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////

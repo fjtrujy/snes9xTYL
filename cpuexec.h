@@ -46,6 +46,7 @@
 
 extern void (*S9x_Current_HBlank_Event)();
 extern void (*S9x_Current_Main_Loop_cpuexec)();
+extern void (*S9x_Current_HBLANK_END_EVENT)();
 
 extern void S9xMainLoop_SA1_APU();
 extern void S9xMainLoop_NoSA1_APU();
@@ -56,6 +57,7 @@ extern void S9xMainLoop_NoSA1_NoAPU();
 
 void S9xDoHBlankProcessing_HBLANK_START_EVENT();
 void S9xDoHBlankProcessing_HBLANK_END_EVENT();
+void S9xDoHBlankProcessing_HBLANK_END_EVENT_SFX();
 void S9xDoHBlankProcessing_HTIMER_BEFORE_EVENT();
 void S9xDoHBlankProcessing_HTIMER_AFTER_EVENT();
 
@@ -191,7 +193,7 @@ STATIC inline void S9xFixCycles ()
   if (CPU.WhichEvent == HBLANK_START_EVENT || CPU.WhichEvent == HTIMER_AFTER_EVENT) { \
 		which = HBLANK_END_EVENT; \
 		max = Settings.H_Max; \
-		S9x_Current_HBlank_Event=S9xDoHBlankProcessing_HBLANK_END_EVENT; \
+		S9x_Current_HBlank_Event=S9x_Current_HBLANK_END_EVENT; \
   } else { \
 		which = HBLANK_START_EVENT; \
 		max = Settings.HBlankStart; \

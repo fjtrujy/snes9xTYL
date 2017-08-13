@@ -63,6 +63,7 @@ extern struct SSA1 SA1;
 
 void (*S9x_Current_HBlank_Event)();
 void (*S9x_Current_Main_Loop_cpuexec)();
+void (*S9x_Current_HBLANK_END_EVENT)();
 
 // Doing the HBlank check before Adding MemSpeed seems to improve performance
 // Optimizations based on snes9x 3DS
@@ -75,8 +76,12 @@ void S9xMainLoop_SA1_APU (void) {
 		CPU.PCAtOpcodeStart = CPU.PC;
 	#endif
 			
-		if (CPU.Cycles >= CPU.NextEvent)
+		if (CPU.Cycles >= CPU.NextEvent){
+	#ifdef CPU_SHUTDOWN
+			CPU.WaitCounter++;
+	#endif
 			(*S9x_Current_HBlank_Event)();
+		}
 		CPU.Cycles += CPU.MemSpeed;
 		(*ICPU.S9xOpcodes [*CPU.PC++].S9xOpcode)();
 		if (SA1.Executing)
@@ -114,8 +119,12 @@ void S9xMainLoop_NoSA1_APU (void) {
 		CPU.PCAtOpcodeStart = CPU.PC;
 	#endif
 	
-		if (CPU.Cycles >= CPU.NextEvent)
+		if (CPU.Cycles >= CPU.NextEvent){
+	#ifdef CPU_SHUTDOWN
+			CPU.WaitCounter++;
+	#endif
 			(*S9x_Current_HBlank_Event)();
+		}
 		CPU.Cycles += CPU.MemSpeed;
 		(*ICPU.S9xOpcodes [*CPU.PC++].S9xOpcode)();
 	
@@ -145,8 +154,12 @@ void S9xMainLoop_SA1_NoAPU (void) {
 		CPU.PCAtOpcodeStart = CPU.PC;
 	#endif
 		
-		if (CPU.Cycles >= CPU.NextEvent)
+		if (CPU.Cycles >= CPU.NextEvent){
+	#ifdef CPU_SHUTDOWN
+			CPU.WaitCounter++;
+	#endif
 			(*S9x_Current_HBlank_Event)();
+		}
 		CPU.Cycles += CPU.MemSpeed;
 		(*ICPU.S9xOpcodes [*CPU.PC++].S9xOpcode)();
 		if (SA1.Executing)
@@ -183,8 +196,12 @@ void S9xMainLoop_NoSA1_NoAPU (void) {
 		CPU.PCAtOpcodeStart = CPU.PC;
 	#endif
 	
-		if (CPU.Cycles >= CPU.NextEvent)
+		if (CPU.Cycles >= CPU.NextEvent){
+	#ifdef CPU_SHUTDOWN
+			CPU.WaitCounter++;
+	#endif
 			(*S9x_Current_HBlank_Event)();
+		}
 		CPU.Cycles += CPU.MemSpeed;
 		(*ICPU.S9xOpcodes [*CPU.PC++].S9xOpcode)();
 
@@ -242,8 +259,7 @@ void S9xMainLoop (void)
   S9xAPUPackStatusUncached ();*/
 }
 
-void
-S9xSetIRQ (uint32 source)
+void S9xSetIRQ (uint32 source)
 {
   CPU.IRQActive |= source;
   CPU.Flags |= IRQ_PENDING_FLAG;
@@ -265,32 +281,29 @@ S9xSetIRQ (uint32 source)
     }*/
 }
 
-void
-S9xClearIRQ (uint32 source)
+void S9xClearIRQ (uint32 source)
 {
   CLEAR_IRQ_SOURCE (source);
 }
 
-void
-S9xDoHBlankProcessing_HBLANK_START_EVENT ()
+void S9xDoHBlankProcessing_HBLANK_START_EVENT ()
 {
 	//START_PROFILE_FUNC (S9xDoHBlankProcessing);
-#ifdef CPU_SHUTDOWN
-  CPU.WaitCounter++;
-#endif
-
   if (IPPU.HDMA && CPU.V_Counter <= PPUPack.PPU.ScreenHeight) IPPU.HDMA = S9xDoHDMA (IPPU.HDMA);
   S9xReschedule ();
   //FINISH_PROFILE_FUNC (S9xDoHBlankProcessing); 
 }
 
-void
-S9xDoHBlankProcessing_HBLANK_END_EVENT () {
+void S9xDoHBlankProcessing_HBLANK_END_EVENT_SFX ()
+{
+	S9xSuperFXExec();
+	S9xDoHBlankProcessing_HBLANK_END_EVENT();
+}
+
+void S9xDoHBlankProcessing_HBLANK_END_EVENT ()
+{
 	//START_PROFILE_FUNC (S9xDoHBlankProcessing);			
-#ifdef CPU_SHUTDOWN
-  CPU.WaitCounter++;
-#endif
-  //if (Settings.SuperFX) S9xSuperFXExec ();
+	//if (Settings.SuperFX) S9xSuperFXExec ();
 
 	static const int addr[] = { 0x2c, 0x2d, 0x2e, 0x2f, 0x30, 0x31 };
 
@@ -501,13 +514,9 @@ S9xDoHBlankProcessing_HBLANK_END_EVENT () {
   //FINISH_PROFILE_FUNC (S9xDoHBlankProcessing); 
 }
 
-void
-S9xDoHBlankProcessing_HTIMER_BEFORE_EVENT ()
+void S9xDoHBlankProcessing_HTIMER_BEFORE_EVENT ()
 {
 	//START_PROFILE_FUNC (S9xDoHBlankProcessing);
-#ifdef CPU_SHUTDOWN
-  CPU.WaitCounter++;
-#endif
   if (PPUPack.PPU.HTimerEnabled && (!PPUPack.PPU.VTimerEnabled || CPU.V_Counter == PPUPack.PPU.IRQVBeamPos)){
     S9xSetIRQ (PPU_H_BEAM_IRQ_SOURCE);
   }
@@ -515,13 +524,9 @@ S9xDoHBlankProcessing_HTIMER_BEFORE_EVENT ()
   //FINISH_PROFILE_FUNC (S9xDoHBlankProcessing); 
 }
 
-void
-S9xDoHBlankProcessing_HTIMER_AFTER_EVENT ()
+void S9xDoHBlankProcessing_HTIMER_AFTER_EVENT ()
 {
 	//START_PROFILE_FUNC (S9xDoHBlankProcessing);
-#ifdef CPU_SHUTDOWN
-  CPU.WaitCounter++;
-#endif
   if (PPUPack.PPU.HTimerEnabled && (!PPUPack.PPU.VTimerEnabled || CPU.V_Counter == PPUPack.PPU.IRQVBeamPos)) {
     S9xSetIRQ (PPU_H_BEAM_IRQ_SOURCE);
   }
