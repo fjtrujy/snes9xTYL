@@ -3493,7 +3493,7 @@ bool CMemory::SpeedHackAdd(int address, int cyclesPerSkip, int16 originalByte1, 
 }
 
 // Applies a speed hack at the given the PB:PC location.
-// It replaces the first byte with the STP (0xDB) opcode.
+// It replaces the first byte with the WDM (0x42) opcode.
 // Code from snes9x 3DS
 bool CMemory::SpeedHackSA1Add(int address, int16 originalByte1, int16 originalByte2, int16 originalByte3, int16 originalByte4)
 {
@@ -3561,16 +3561,18 @@ void CMemory::ApplySpeedHackPatches()
 			*SNESGameFixes.SpeedHackAddress[n] = 0xDB;
 		}
 	}
-
-	for (int n = 0; n < SNESGameFixes.SpeedHackSA1Count; n++)
+	
+	//Since there is just one SA1 speedhack that will be applied, I'll remove the 'for' cycle for now
+	//for (int n = 0; n < SNESGameFixes.SpeedHackSA1Count; n++)
+	if(SNESGameFixes.SpeedHackSA1Count)
 	{
 		// First check that the original bytes matches.
 		//
 		bool allMatches = true;
-		for (int i = 0; i < 4 && SNESGameFixes.SpeedHackSA1OriginalBytes[n][i] != -1; i++)
+		for (int i = 0; i < 4 && SNESGameFixes.SpeedHackSA1OriginalBytes[0][i] != -1; i++)
 		{
-			uint8 byte = GetByte(SNESGameFixes.SpeedHackSA1SNESAddress[n] + i);
-			if (SNESGameFixes.SpeedHackSA1OriginalBytes[n][i] != byte)
+			uint8 byte = GetByte(SNESGameFixes.SpeedHackSA1SNESAddress[0] + i);
+			if (SNESGameFixes.SpeedHackSA1OriginalBytes[0][i] != byte)
 			{
 				allMatches = false;
 				break;
@@ -3578,7 +3580,7 @@ void CMemory::ApplySpeedHackPatches()
 		}
 
 		if (allMatches){
-			*SNESGameFixes.SpeedHackSA1Address[n] = 0xDB;
+			*SNESGameFixes.SpeedHackSA1Address[0] = 0x42;
 		}
 	}
 }
@@ -4215,6 +4217,7 @@ if (ROM [adr] == ov) \
 	// Based on snes9x 3DS
 	
 	SNESGameFixes.SpeedHackCount = 0;
+	SNESGameFixes.SpeedHackSA1Count = 0;
 	Settings.SpeedHack = false;
 	int instructionSet = 0;
 	

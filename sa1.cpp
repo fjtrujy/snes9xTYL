@@ -509,7 +509,7 @@ void S9xSA1SetPCBase (uint32 address)
     }
 }
 
-void S9xSA1ExecuteDuringSleep ()
+/*void S9xSA1ExecuteDuringSleep ()
 {
 #if 0
     if (SA1.Executing)
@@ -521,7 +521,7 @@ void S9xSA1ExecuteDuringSleep ()
 	}
     }
 #endif
-}
+}*/
 
 void S9xSetSA1MemMap (uint32 which1, uint8 map)
 {

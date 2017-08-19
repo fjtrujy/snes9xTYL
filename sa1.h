@@ -151,7 +151,7 @@ void S9xSA1MainLoop ();
 void S9xSA1CheckIRQ ();
 void S9xSA1Init ();
 void S9xFixSA1AfterSnapshotLoad ();
-void S9xSA1ExecuteDuringSleep ();
+//void S9xSA1ExecuteDuringSleep ();
 
 INLINE uint8 S9xSA1GetByteFast (uint32 address)
 {

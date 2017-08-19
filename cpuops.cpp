@@ -2933,7 +2933,7 @@ inline void CPUShutdown() {
 
 		if (CPU.WaitCounter == 0 && !(CPU.Flags & (IRQ_PENDING_FLAG | NMI_FLAG))) {
 		  CPU.WaitAddress = NULL;
-		  if (Settings.SA1)	S9xSA1ExecuteDuringSleep ();
+		  //if (Settings.SA1)	S9xSA1ExecuteDuringSleep ();
 		  			  
 		  if ((IAPU_APUExecuting)) {
 		  	if (CPU.Cycles>CPU.NextEvent) {
@@ -4599,75 +4599,44 @@ static void OpCB (void)
 // Speedhack for main CPU
 // Based on snes9x 3DS
 //
-static void CPUSpeedhack (void) {
+static void CPUSpeedhack (void)
+{
 #ifndef SA1_OPCODES	
-	bool doSkip = false;
-	// If there's any pending NMI/IRQ don't speed hack
-	//
-	if (((CPU.Flags & NMI_FLAG) && (CPU.NMICycleCount - 1 == 0)) ||
-		((CPU.Flags & IRQ_PENDING_FLAG) && (CPU.IRQCycleCount == 0)))    
-		doSkip = false;
-	else
-	{
-		doSkip = false;
-		if (!CPU.Flags)
-			doSkip = true;
-		else if ((CPU.Flags & IRQ_PENDING_FLAG) && (CPU.IRQCycleCount == 0) && CheckFlag (IRQ))
-			doSkip = true;
-	}
 	
-	int foundHackIndex = -1;
-
-    // Search for the appropriate speed hack
-    //
-    uint8* prevCPUPC = (uint8 *)(CPU.PC - 1);
-	
-	// Make sure we check again SpeedHackCount.
-	//
-	for (int i = 0; i < SNESGameFixes.SpeedHackCount; i++)
-	{
-		if (SNESGameFixes.SpeedHackAddress[i] == prevCPUPC) 
-		{ 
-			foundHackIndex = i; 
-			break; 
+	CPU.WaitAddress = NULL;
+	if ((IAPU_APUExecuting)) {
+		if (CPU.Cycles>CPU.NextEvent) {
+			cpu_glob_cycles += CPU.Cycles-old_cpu_cycles;
+			old_cpu_cycles=CPU.NextEvent;
 		}
 	}
 
-	// Some games actually use NOP. So we must ensure
-	// That this is a registered speed hack
-	//
-	if (foundHackIndex == -1)
-	{
-		// If we can't find the speed hack, then
-		// we will treat this like a NOP (as it was before)
-		//
-		doSkip = false;
-		return;
+	CPU.Cycles = CPU.NextEvent;
+			
+	if ((IAPU_APUExecuting)) {
+		ICPU.CPUExecuting = FALSE;
+		
+		UPDATE_APU_COUNTER();
+		
+		ICPU.CPUExecuting = TRUE;
 	}
 	
-	/*if (Settings.SA1)
-		if (SA1.Executing)
-			doSkip = false;*/
-    
 	// Executes the original opcode that we replaced.
 	//
-	(*ICPU.S9xOpcodes [SNESGameFixes.SpeedHackOriginalOpcode[foundHackIndex]].S9xOpcode) (); 
+	(*ICPU.S9xOpcodes [SNESGameFixes.SpeedHackOriginalOpcode[0]].S9xOpcode) (); 
 
 	// If we decide to skip, then we add cycles to the CPU.Cycles
 	// until just before the next event.
 	//
-	if (doSkip)
-	{	
-		int cyclesToSkip = SNESGameFixes.SpeedHackCycles[foundHackIndex];
+	int cyclesToSkip = SNESGameFixes.SpeedHackCycles[0];
 
-		if (cyclesToSkip == -1)
-			CPU.Cycles = CPU.NextEvent;
-		else
+	if (cyclesToSkip == -1)
+		CPU.Cycles = CPU.NextEvent;
+	else
+	{
+		while (CPU.Cycles + cyclesToSkip < CPU.NextEvent)
 		{
-			while (CPU.Cycles + cyclesToSkip < CPU.NextEvent)
-			{
-				CPU.Cycles = CPU.Cycles + cyclesToSkip;
-			}
+			CPU.Cycles = CPU.Cycles + cyclesToSkip;
 		}
 	}
 #endif
@@ -4676,88 +4645,103 @@ static void CPUSpeedhack (void) {
 // Speedhack for SA1 games
 // Based on snes9x 3DS
 //
-static void SA1Speedhack (void) {
+static void SA1Speedhack (void)
+{
 #ifdef SA1_OPCODES	
-	bool doSkip = false;
-	int foundHackIndex = -1;
-	
-    // Search for the appropriate speed hack
-    //
-    uint8* prevCPUPC = (uint8*)(CPU.PC - 1);
-	
-	// Make sure we check again SpeedHackCount.
+	// Executes the original opcode that we replaced.
 	//
-	doSkip = true;
-	for (int i = 0; i < SNESGameFixes.SpeedHackSA1Count; i++)
-	{
-		if (SNESGameFixes.SpeedHackSA1Address[i] == prevCPUPC) 
-		{ 
-			foundHackIndex = i; 
-			break; 
+	(*ICPU.S9xOpcodes [SNESGameFixes.SpeedHackSA1OriginalOpcode[0]].S9xOpcode) (); 
+
+	if (SA1.WaitCounter == 0)
+		SA1.Executing = false;
+	else
+		SA1.WaitCounter--;
+	
+#endif
+}
+
+// SNESAdvance speedhack used on Opcode 0xDB (based on the speed-hacks branch of CatSFC)
+//
+static void SNESAdvance_OpDB (void)
+{
+#ifndef SA1_OPCODES
+	uint8 NextByte;
+
+	CPU.WaitAddress = NULL;
+	if ((IAPU_APUExecuting)) {
+		if (CPU.Cycles>CPU.NextEvent) {
+			cpu_glob_cycles += CPU.Cycles-old_cpu_cycles;
+			old_cpu_cycles=CPU.NextEvent;
 		}
 	}
 
-	// Some games actually use NOP. So we must ensure
-	// That this is a registered speed hack
-	//
-	if (foundHackIndex == -1)
-	{
-		// If we can't find the speed hack, then
-		// we will treat this like a NOP (as it was before)
-		//
-		doSkip = false;
-		return;
+	CPU.Cycles = CPU.NextEvent;
+			
+	if ((IAPU_APUExecuting)) {
+		ICPU.CPUExecuting = FALSE;
+		
+		UPDATE_APU_COUNTER();
+		
+		ICPU.CPUExecuting = TRUE;
 	}
 
-	// Executes the original opcode that we replaced.
-	//
-	(*ICPU.S9xOpcodes [SNESGameFixes.SpeedHackSA1OriginalOpcode[foundHackIndex]].S9xOpcode) (); 
+	NextByte = *CPU.PC++;
+	
+	int8 BranchOffset = (NextByte & 0x7F) | ((NextByte & 0x40) << 1);
+	// ^ -64 .. +63, sign extend bit 6 into 7 for unpacking
+	long OpAddress = ((int) (CPU.PC - CPU.PCBase) + BranchOffset) & 0xffff;
 
-	if (doSkip)
+	switch (NextByte & 0x80)
 	{
-		if (SA1.WaitCounter == 0)
-			SA1.Executing = false;
-		else
-			SA1.WaitCounter--;
+	case 0x00: // BNE
+		BranchCheck();
+		if (!CheckZero ()) {
+			CPU.PC = CPU.PCBase + OpAddress;
+#ifdef VAR_CYCLES
+			CPU.Cycles += ONE_CYCLE;
+#else
+#ifndef SA1_OPCODES
+			CPU.Cycles++;
+#endif
+#endif
+			CPUShutdown ();
+		}
+		return;
+	case 0x80: // BEQ
+		BranchCheck();
+		if (CheckZero ()) {
+			CPU.PC = CPU.PCBase + OpAddress;
+#ifdef VAR_CYCLES
+			CPU.Cycles += ONE_CYCLE;
+#else
+#ifndef SA1_OPCODES
+			CPU.Cycles++;
+#endif
+#endif
+			CPUShutdown ();
+		}
+		return;
 	}
 #endif
 }
 
-// STP
-// Since snes9xTYL already uses opcode 0x42 to apply speedhacks from snesadvance.dat.
-// We use opcode 0xDB instead of 0x42 to apply harcoded speedhacks ported from snes9x 3DS.
-// With this change we avoid graphical glitches, crashes and black screens on several games.
-static void OpDB (void)
+// SNESAdvance speedhack used on Opcode 0x42 (based on the speed-hacks branch of CatSFC)
+//
+static void SNESAdvance_Op42 (void)
 {
-	if (Settings.SpeedHack)
-	{
-		CPUSpeedhack();
-		SA1Speedhack();
-	}
-	else
-	{
-	    CPU.PC--;
-		CPU.Flags |= DEBUG_MODE_FLAG;
-	}
-}
-
-// SNESAdvance speedhack
-static void Op42 (void) {
-#ifndef SA1_OPCODES	
+#ifndef SA1_OPCODES
 	
 	uint8 b;
 		
 	CPU.WaitAddress = NULL;
-	if (Settings.SA1)	S9xSA1ExecuteDuringSleep ();
-		
-		if ((IAPU_APUExecuting)) {
-		  	if (CPU.Cycles>CPU.NextEvent) {
-		  		cpu_glob_cycles += CPU.Cycles-old_cpu_cycles;
-		  		old_cpu_cycles=CPU.NextEvent;
-		  	}
-		  }
+	if ((IAPU_APUExecuting)) {
+		if (CPU.Cycles>CPU.NextEvent) {
+			cpu_glob_cycles += CPU.Cycles-old_cpu_cycles;
+			old_cpu_cycles=CPU.NextEvent;
+		}
+	}
 	
-		CPU.Cycles = CPU.NextEvent;
+	CPU.Cycles = CPU.NextEvent;
 			
 /*	S9xUpdateAPUTimer();*/
 
@@ -4777,7 +4761,7 @@ static void Op42 (void) {
 	#ifdef VAR_CYCLES
   CPU.Cycles += CPU.MemSpeed;
 	#endif    
-  long OpAddress = ((int) (CPU.PC - CPU.PCBase) + s9xInt8) & 0xffff;
+	long OpAddress = ((int) (CPU.PC - CPU.PCBase) + s9xInt8) & 0xffff;
 		
 	switch (b&0xF0) {		
     case 0x10: //BPL
@@ -4906,6 +4890,28 @@ static void Op42 (void) {
     	return;
 	}
 #endif
+}
+
+// STP
+// Since snes9xTYL already uses opcode 0x42 to apply speedhacks from snesadvance.dat.
+// We use opcode 0xDB instead of 0x42 to apply harcoded main CPU speedhacks ported from snes9x 3DS.
+// With this change we avoid graphical glitches, crashes and black screens on several games.
+static void OpDB (void)
+{
+	if (Settings.SpeedHack)
+		CPUSpeedhack();
+	else
+		SNESAdvance_OpDB();
+	//CPU.PC--;
+	//CPU.Flags |= DEBUG_MODE_FLAG;
+}
+
+static void Op42 (void)
+{	
+	// It seems that applying SA1 speedhacks on opcode 0x42 don't give any trouble.
+	// With this we avoid to apply an speedhack twice on every frame.
+	SA1Speedhack();
+	SNESAdvance_Op42();
 }
 
 /**********************************************************************************************/
