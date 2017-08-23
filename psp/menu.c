@@ -3409,8 +3409,7 @@ static int menu_credits(char *mode) {
 
 		mh_printLimit(menu_panel_pos+5,15,479,272,"Code : YoyoFR & Laxer3a",CODE_COL);
 		mh_printLimit(menu_panel_pos+5,25,479,272,"Mod : 173210, Ruka & 33(76)",CODE_COL);
-		if (menu_panel_pos+5+40<479-40) pgDrawFrame(menu_panel_pos+5+40,40,479-40,40,CODE2_COL);
-		if (menu_panel_pos+5+40<479-40) pgDrawFrame(menu_panel_pos+5+40,41,479-40,41,CODE3_COL);
+		mh_printLimit(menu_panel_pos+5,35,479,272,"      esmjanus",CODE_COL);
 
 		mh_printLimit(menu_panel_pos+5,50,479,272,"Splines based on PSPSDK samples",GFX_COL);
 		mh_printLimit(menu_panel_pos+5,60,479,272,"Logo, some bgs : Pochi",GFX_COL);

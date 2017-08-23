@@ -344,7 +344,9 @@ struct SSettings{
     bool8  InterpolatedSound;
     bool8  ThreadSound;
     bool8  Mute;
-
+	
+	bool8  FakeMuteFix;
+	
     bool8  NextAPUEnabled;
     uint8  AltSampleDecode;
     bool8  FixFrequency;

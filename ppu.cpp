@@ -2267,7 +2267,7 @@ if (g_debuginfo)
 		return (0);
 	    }
 		
-	    int ind = 0;//Settings.SwapJoypads ? 1 : 0;
+	    int ind = Settings.SwapJoypads ? 1 : 0;
 	    byte = IPPU.Joypads[ind] >> (PPUPack.PPU.Joypad1ButtonReadPos ^ 15);
 	    PPUPack.PPU.Joypad1ButtonReadPos++;
 #ifdef __debug_io_gb__
@@ -2309,7 +2309,7 @@ if (g_debuginfo)
 			return (0x00);
 		}
 
-		int ind = 0;//Settings.SwapJoypads ? 0 : 1;
+		int ind = Settings.SwapJoypads ? 0 : 1;
 
 		if (IPPU.Controller == SNES_MULTIPLAYER5)
 		{
@@ -3130,7 +3130,7 @@ void S9xUpdateJoypads ()
 			*((uint16*)(ROM_GLOBAL +0x421e)) = (uint16) IPPU.Joypads [4];
 		}
 #else
-		int ind = 0;//Settings.SwapJoypads ? 1 : 0;
+		int ind = Settings.SwapJoypads ? 1 : 0;
 
 		ROM_GLOBAL [0x4218] = (uint8) IPPU.Joypads [ind];
 		ROM_GLOBAL [0x4219] = (uint8) (IPPU.Joypads [ind] >> 8);

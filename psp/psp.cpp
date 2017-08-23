@@ -101,7 +101,6 @@
 #include "display.h"
 #include "gfx.h"
 #include "soundux.h"
-//#define SOUNDDUX_151
 #include "spc700.h"
 #include "psp/counter.h"
 //#include "spc7110.h"
@@ -2772,9 +2771,7 @@ static void low_level_init(){
 
 	sceKernelDcacheWritebackInvalidateAll();
 	(stSoundStatus.sound_fd) = -1;
-#ifndef SOUNDDUX_151
-	S9xAllocSound();
-#endif
+
 	S9xInitAPU();
 
 	SetGeCallback();
@@ -2800,9 +2797,6 @@ static void low_level_deinit(){
 	//snd_beep2_current=0;
 
 	S9xDeinitAPU();
-#ifndef SOUNDDUX_151
-	S9xFreeSound();
-#endif
 
 	//OSK
 	if (os9x_osk) danzeff_free();

@@ -867,7 +867,7 @@ static int Unfreeze (STREAM stream)
 #endif
 
 #ifdef ME_SOUND
-	S9xFixSoundAfterSnapshotLoad ();
+	S9xFixSoundAfterSnapshotLoad (1);
 #else    
     //S9xFixSoundAfterSnapshotLoad ();
 #endif    
@@ -1657,7 +1657,7 @@ READ_STREAM(&temp, 4, fs);
 		S9xFixColourBrightness ();
 		IPPU.RenderThisFrame = FALSE;
 		
-		S9xFixSoundAfterSnapshotLoad ();
+		S9xFixSoundAfterSnapshotLoad (1);
 		ICPU.ShiftedPB = Registers.PB << 16;
 		ICPU.ShiftedDB = Registers.DB << 16;
 		S9xSetPCBase (ICPU.ShiftedPB + Registers.PCw);
