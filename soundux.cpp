@@ -340,21 +340,15 @@ volatile int *apu_init_after_load_=(int*)UNCACHE_PTR(&stAPUEvents.apu_init_after
 volatile int *apu_can_execute_p,*apu_ram_write_cpt1_p,*apu_ram_write_cpt2_p;
 #endif
 
-void S9xAPUSetEndOfSample (int i, Channel *);
-void S9xAPUSetEndX (int);
-void S9xSetEnvRate (Channel *, int32, int32);
-void MixStereo (int);
-void MixMono (int);
-
+static void S9xAPUSetEndOfSample (int i, Channel *);
+static void S9xAPUSetEndX (int);
+static void S9xSetEnvRate (Channel *, int32, int32);
+static void MixStereo (int);
 static void S9xSetSoundFrequency (int, int);
 static void S9xConvertSoundOldValues ();
 static void DecodeBlock (Channel *);
-static void AltDecodeBlock (Channel *);
-static void AltDecodeBlock2 (Channel *);
-STATIC inline uint8 *S9xGetSampleAddress (int);
 
-EXTERN_C void DecodeBlockAsm (int8 *, int16 *, int32 *, int32 *);
-EXTERN_C void DecodeBlockAsm2 (int8 *, int16 *, int32 *, int32 *);
+STATIC inline uint8 *S9xGetSampleAddress (int);
 
 static bool8 DoFakeMute = FALSE;
 
@@ -363,7 +357,7 @@ STATIC inline uint8 *S9xGetSampleAddress (int sample_number) {
   return (IAPU.RAM + addr);
 }
 
-void S9xAPUSetEndOfSample (int i, Channel *ch) {
+static void S9xAPUSetEndOfSample (int i, Channel *ch) {
 	ch->state = SOUND_SILENT;
 	ch->mode = MODE_NONE;
 	ch->out_sample = 0;
@@ -377,13 +371,13 @@ void S9xAPUSetEndOfSample (int i, Channel *ch) {
 	}
 }
 
-void S9xAPUSetEndX (int i) {
+static void S9xAPUSetEndX (int i) {
 	if(!DoFakeMute) {
 		APUPack.APU.DSP[APU_ENDX] |= 1 << i;
 	}
 }
 
-void S9xSetEnvRate (Channel *ch, int32 rate_count, int32 xtarget)
+static void S9xSetEnvRate (Channel *ch, int32 rate_count, int32 xtarget)
 {
 	ch->xenvx_target = xtarget;
 	ch->xenv_rate = rate_count;
@@ -404,8 +398,8 @@ void S9xSetSoundVolume (int channel, short volume_left, short volume_right)
 		volume_right = ((stSoundStatus.stereo_switch & (256 << channel)) ? volume_right : 0);
 	}
 
-	if (!stSoundStatus.stereo)
-		volume_left = (ABS(volume_right) + ABS(volume_left)) >> 1;
+	/*if (!stSoundStatus.stereo)
+		volume_left = (ABS(volume_right) + ABS(volume_left)) >> 1;*/
 
 	ch->volume_left  = volume_left;
 	ch->volume_right = volume_right;
@@ -421,46 +415,36 @@ void S9xSetMasterVolume (short volume_left, short volume_right)
 	}
 	else
 	{
-		if (!stSoundStatus.stereo)
-			volume_left = (ABS(volume_right) + ABS(volume_left)) >> 1;
+		/*if (!stSoundStatus.stereo)
+			volume_left = (ABS(volume_right) + ABS(volume_left)) >> 1;*/
 
 		SoundData.master_volume_left  = volume_left;
 		SoundData.master_volume_right = volume_right;
-		SoundData.master_volume[Settings.ReverseStereo]     = volume_left;
-		SoundData.master_volume[1 ^ Settings.ReverseStereo] = volume_right;
+		SoundData.master_volume[0] = volume_left;
+		SoundData.master_volume[1] = volume_right;
 	}
 }
 
 void S9xSetEchoVolume (short volume_left, short volume_right)
 {
-	if (!stSoundStatus.stereo)
-		volume_left = (ABS(volume_right) + ABS(volume_left)) >> 1;
+	/*if (!stSoundStatus.stereo)
+		volume_left = (ABS(volume_right) + ABS(volume_left)) >> 1;*/
 
 	SoundData.echo_volume_left  = volume_left;
 	SoundData.echo_volume_right = volume_right;
-	SoundData.echo_volume[Settings.ReverseStereo]     = volume_left;
-	SoundData.echo_volume[1 ^ Settings.ReverseStereo] = volume_right;
+	SoundData.echo_volume[0] = volume_left;
+	SoundData.echo_volume[1] = volume_right;
 }
 
 void S9xSetEchoEnable (uint8 byte)
 {
-#if 0
-	SoundData.echo_channel_enable = byte;
-	if (!SoundData.echo_write_enabled || Settings.DisableSoundEcho)
-		byte = 0;
-	if (byte && !SoundData.echo_enable)
-	{
-		memset (Loop, 0, sizeof (Loop));
-		memset (Echo, 0, sizeof (Echo));
-	}
-#endif
 	SoundData.echo_enable = byte;
 	for (int i = 0; i < NUM_CHANNELS; i++)
 	{
 		if (byte & (1 << i))
 			SoundData.channels[i].echo_buf_ptr = EchoBuffer;
 		else
-			SoundData.channels[i].echo_buf_ptr = DummyEchoBuffer;
+			SoundData.channels[i].echo_buf_ptr = 0;
 	}
 }
 
@@ -472,8 +456,8 @@ void S9xSetEchoFeedback (int feedback)
 void S9xSetEchoDelay (unsigned int delay)
 {
 	SoundData.echo_buffer_size = (delay << 10) * stSoundStatus.playback_rate / 32000;
-	if (!stSoundStatus.stereo)
-		SoundData.echo_buffer_size >>= 1;
+	/*if (!stSoundStatus.stereo)
+		SoundData.echo_buffer_size >>= 1;*/
 	if (SoundData.echo_buffer_size)
 		SoundData.echo_ptr %= SoundData.echo_buffer_size;
 	else
@@ -746,373 +730,254 @@ bool8 S9xSetSoundMute (bool8 mute) {
 	return (old);
 }
 
-static void AltDecodeBlock (Channel *ch)
-{
-	if (ch->block_pointer > 0x10000 - 9)
-	{
-		ch->last_block = TRUE;
-		ch->loop = FALSE;
-		ch->block = ch->decoded;
-		memset ((void *) ch->decoded, 0, sizeof (int16) * 16);
-		return;
-	}
-
-	signed char *compressed = (signed char *) &IAPU.RAM[ch->block_pointer];
-
-	unsigned char filter = *compressed;
-	ch->last_block = filter & 1;
-	ch->loop = (filter & 2) != 0;
-
-	signed short *raw = ch->block = ch->decoded;
-
-#if (defined (USE_X86_ASM) && (defined (__i386__) || defined (__i486__) || \
-	defined (__i586__) || defined (__WIN32__) || defined (__DJGPP)))
-	if (Settings.AltSampleDecode == 1)
-		DecodeBlockAsm (compressed, raw, &ch->previous[0], &ch->previous[1]);
-	else
-		DecodeBlockAsm2 (compressed, raw, &ch->previous[0], &ch->previous[1]);
-#else
-	int32 out;
-	unsigned char shift;
-	signed char sample1, sample2;
-	uint32 i;
-
-	compressed++;
-
-	int32 prev0 = ch->previous[0];
-	int32 prev1 = ch->previous[1];
-	shift = filter >> 4;
-
-	switch ((filter >> 2) & 3)
-	{
-		case 0:
-			for (i = 8; i != 0; i--)
-			{
-				sample1 = *compressed++;
-				sample2 = sample1 << 4;
-				sample2 >>= 4;
-				sample1 >>= 4;
-				*raw++ = ((int32) sample1 << shift);
-				*raw++ = ((int32) sample2 << shift);
-			}
-			prev1 = *(raw - 2);
-			prev0 = *(raw - 1);
-			break;
-
-		case 1:
-			for (i = 8; i != 0; i--)
-			{
-				sample1 = *compressed++;
-				sample2 = sample1 << 4;
-				sample2 >>= 4;
-				sample1 >>= 4;
-				prev0 = (int16) prev0;
-				*raw++ = prev1 = ((int32) sample1 << shift) + prev0 - (prev0 >> 4);
-				prev1 = (int16) prev1;
-				*raw++ = prev0 = ((int32) sample2 << shift) + prev1 - (prev1 >> 4);
-			}
-			break;
-
-		case 2:
-			for (i = 8; i != 0; i--)
-			{
-				sample1 = *compressed++;
-				sample2 = sample1 << 4;
-				sample2 >>= 4;
-				sample1 >>= 4;
-
-				out = (sample1 << shift) - prev1 + (prev1 >> 4);
-				prev1 = (int16) prev0;
-				prev0 &= ~3;
-				*raw++ = prev0 = out + (prev0 << 1) - (prev0 >> 5) -
-					(prev0 >> 4);
-
-				out = (sample2 << shift) - prev1 + (prev1 >> 4);
-				prev1 = (int16) prev0;
-				prev0 &= ~3;
-				*raw++ = prev0 = out + (prev0 << 1) - (prev0 >> 5) -
-					(prev0 >> 4);
-			}
-			break;
-
-		case 3:
-			for (i = 8; i != 0; i--)
-			{
-				sample1 = *compressed++;
-				sample2 = sample1 << 4;
-				sample2 >>= 4;
-				sample1 >>= 4;
-				out = (sample1 << shift);
-
-				out = out - prev1 + (prev1 >> 3) + (prev1 >> 4);
-				prev1 = (int16) prev0;
-				prev0 &= ~3;
-				*raw++ = prev0 = out + (prev0 << 1) - (prev0 >> 3) -
-					(prev0 >> 4) - (prev1 >> 6);
-
-				out = (sample2 << shift);
-				out = out - prev1 + (prev1 >> 3) + (prev1 >> 4);
-				prev1 = (int16) prev0;
-				prev0 &= ~3;
-				*raw++ = prev0 = out + (prev0 << 1) - (prev0 >> 3) -
-					(prev0 >> 4) - (prev1 >> 6);
-			}
-			break;
-	}
-
-	ch->previous[0] = prev0;
-	ch->previous[1] = prev1;
-#endif
-    ch->block_pointer += 9;
-}
-
-static void AltDecodeBlock2 (Channel *ch)
-{
-	int32 out;
-	unsigned char filter;
-	unsigned char shift;
-	signed char sample1, sample2;
-	uint32 i;
-
-	if (ch->block_pointer > 0x10000 - 9)
-	{
-		ch->last_block = TRUE;
-		ch->loop = FALSE;
-		ch->block = ch->decoded;
-		memset ((void *) ch->decoded, 0, sizeof (int16) * 16);
-		return;
-	}
-
-	signed char *compressed = (signed char *) &IAPU.RAM[ch->block_pointer];
-
-	filter = *compressed;
-	ch->last_block = filter & 1;
-	ch->loop = (filter & 2) != 0;
-
-	compressed++;
-	signed short *raw = ch->block = ch->decoded;
-
-	shift = filter >> 4;
-	int32 prev0 = ch->previous[0];
-	int32 prev1 = ch->previous[1];
-
-	if(shift > 12)
-		shift -= 4;
-
-	switch ((filter >> 2) & 3)
-	{
-		case 0:
-			for (i = 8; i != 0; i--)
-			{
-				sample1 = *compressed++;
-				sample2 = sample1 << 4;
-				sample2 >>= 4;
-				sample1 >>= 4;
-
-				out = (int32) (sample1 << shift);
-
-				prev1 = prev0;
-				prev0 = out;
-				CLIP16(out);
-				*raw++ = (int16) out;
-
-				out = (int32) (sample2 << shift);
-
-				prev1 = prev0;
-				prev0 = out;
-				CLIP16(out);
-				*raw++ = (int16) out;
-			}
-			break;
-
-		case 1:
-			for (i = 8; i != 0; i--)
-			{
-				sample1 = *compressed++;
-				sample2 = sample1 << 4;
-				sample2 >>= 4;
-				sample1 >>= 4;
-				out = (int32) (sample1 << shift);
-				out += (int32) ((double) prev0 * 15/16);
-
-				prev1 = prev0;
-				prev0 = out;
-				CLIP16(out);
-				*raw++ = (int16) out;
-
-				out = (int32) (sample2 << shift);
-				out += (int32) ((double) prev0 * 15/16);
-
-				prev1 = prev0;
-				prev0 = out;
-				CLIP16(out);
-				*raw++ = (int16) out;
-			}
-			break;
-
-		case 2:
-			for (i = 8; i != 0; i--)
-			{
-				sample1 = *compressed++;
-				sample2 = sample1 << 4;
-				sample2 >>= 4;
-				sample1 >>= 4;
-
-				out = ((sample1 << shift) * 256 + (prev0 & ~0x2) * 488 - prev1 * 240) >> 8;
-
-				prev1 = prev0;
-				prev0 = (int16) out;
-				*raw++ = (int16) out;
-
-				out = ((sample2 << shift) * 256 + (prev0 & ~0x2) * 488 - prev1 * 240) >> 8;
-
-				prev1 = prev0;
-				prev0 = (int16) out;
-				*raw++ = (int16) out;
-			}
-			break;
-
-		case 3:
-			for (i = 8; i != 0; i--)
-			{
-				sample1 = *compressed++;
-				sample2 = sample1 << 4;
-				sample2 >>= 4;
-				sample1 >>= 4;
-				out = (int32) (sample1 << shift);
-				out += (int32) ((double) prev0 * 115/64 - (double) prev1 * 13/16);
-
-				prev1 = prev0;
-				prev0 = out;
-
-				CLIP16(out);
-				*raw++ = (int16) out;
-
-				out = (int32) (sample2 << shift);
-				out += (int32) ((double) prev0 * 115/64 - (double) prev1 * 13/16);
-
-				prev1 = prev0;
-				prev0 = out;
-
-				CLIP16(out);
-				*raw++ = (int16) out;
-			}
-			break;
-	}
-
-	ch->previous[0] = prev0;
-	ch->previous[1] = prev1;
-
-	ch->block_pointer += 9;
-}
+int16 silentBlock[16] = {0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0};
 
 static void DecodeBlock (Channel *ch)
 {
-	int32 out;
-	unsigned char filter;
-	unsigned char shift;
-	signed char sample1, sample2;
-	bool invalid_header;
-
-	if (Settings.AltSampleDecode)
-	{
-		if (Settings.AltSampleDecode < 3)
-			AltDecodeBlock (ch);
-		else
-			AltDecodeBlock2 (ch);
-		return;
-	}
-
-	if (ch->block_pointer > 0x10000 - 9)
-	{
+    if (ch->block_pointer >= 0x10000 - 9)
+    {
 		ch->last_block = TRUE;
 		ch->loop = FALSE;
-		ch->block = ch->decoded;
+		ch->block = silentBlock;
 		return;
-	}
+    }
 
-	signed char *compressed = (signed char *) &IAPU.RAM[ch->block_pointer];
+    signed char *compressed = (signed char *) &IAPU.RAM [ch->block_pointer];
+	
+    unsigned char filter = *compressed;
+    if ((ch->last_block = filter & 1))
+		ch->loop = (filter & 2) != 0;
 
-	filter = *compressed;
-	ch->last_block = filter & 1;
-	ch->loop = (filter & 2) != 0;
-
-	compressed++;
 	signed short *raw = ch->block = ch->decoded;
+    int32 out;
+    unsigned char shift;
+    signed char sample1, sample2;
+    unsigned int i;
+	
+    compressed++;
+    
+    shift = filter >> 4;
 
-	// Seperate out the header parts used for decoding
-
-	shift = filter >> 4;
+    int32 prev0 = ch->previous [0];
+    int32 prev1 = ch->previous [1];
 
 	// Header validity check: if range(shift) is over 12, ignore
 	// all bits of the data for that block except for the sign bit of each
-	invalid_header = !(shift < 0xD);
+	bool invalid_header = !(shift < 0xD);
 
-	filter &= 0x0C;
-
-	int32 prev0 = ch->previous[0];
-	int32 prev1 = ch->previous[1];
-
-	for (uint32 i = 8; i != 0; i--)
+	if (!invalid_header)
 	{
-		sample1 = *compressed++;
-		sample2 = sample1 << 4;
-		//Sample 2 = Bottom Nibble, Sign Extended.
-		sample2 >>= 4;
-		//Sample 1 = Top Nibble, shifted down and Sign Extended.
-		sample1 >>= 4;
-
-		for (int nybblesmp = 0; nybblesmp < 2; nybblesmp++)
+		switch ((filter >> 2) & 3)
 		{
-			out = (nybblesmp ? sample2 : sample1);
-			if (!invalid_header)
-				out = (out << shift) >> 1;
-			else
-				out &= ~0x7FF;
+		case 0:
 
-			switch (filter)
+			for (i = 8; i != 0; i--)
 			{
-				case 0x00:
-					// Method0 -[Smp]
-					break;
+				sample1 = *compressed++;
+				sample2 = sample1 << 4;
+				sample2 >>= 4;
+				sample1 >>= 4;
+				//if (invalid_header) { sample1>>=3; sample2>>=3; }
 
-				case 0x04:
-					// Method1 -[Delta]+[Smp-1](15/16)
-					out += prev0 >> 1;
-					out += (-prev0) >> 5;
-					break;
-
-				case 0x08:
-					// Method2 -[Delta]+[Smp-1](61/32)-[Smp-2](15/16)
-					out += prev0;
-					out += (-(prev0 + (prev0 >> 1))) >> 5;
-					out -= prev1 >> 1;
-					out += prev1 >> 5;
-					break;
-
-				case 0x0C:
-					// Method3 -[Delta]+[Smp-1](115/64)-[Smp-2](13/16)
-					out += prev0;
-					out += (-(prev0 + (prev0 << 2) + (prev0 << 3))) >> 7;
-					out -= prev1 >> 1;
-					out += (prev1 + (prev1 >> 1)) >> 4;
-					break;
+				out = ((int32)sample1 << shift);
+				*raw++ = out;
+				
+				out = ((int32)sample2 << shift);
+				*raw++ = out;
 			}
+			prev1 = *(raw - 2);
+			prev0 = *(raw - 1);
+			
 
-			CLIP16(out);
+			ch->previous [0] = prev0;
+			ch->previous [1] = prev1;
+			ch->block_pointer += 9;
+			return;
+		case 1:
+			for (i = 8; i != 0; i--)
+			{
+				sample1 = *compressed++;
+				sample2 = sample1 << 4;
+				sample2 >>= 4;
+				sample1 >>= 4;
+				//if (invalid_header) { sample1>>=3; sample2>>=3; }
+				
+				out = (((int32)sample1 << shift) >> 1) + (prev0 >> 1) + ((-prev0) >> 5);
+				CLIP16(out);
+				out = (signed short) (out << 1);
+				*raw++ = prev1 = out;
 
-			prev1 = (signed short) prev0;
-			prev0 = *raw++ = (signed short) (out << 1);
+				out = (((int32)sample2 << shift) >> 1) + (prev1 >> 1) + ((-prev1) >> 5);
+				CLIP16(out);
+				out = (signed short) (out << 1);
+				*raw++ = prev0 = out;
+			}
+			
+			ch->previous [0] = prev0;
+			ch->previous [1] = prev1;
+			ch->block_pointer += 9;
+			return;
+		case 2:
+			
+			for (i = 8; i != 0; i--)
+			{
+				sample1 = *compressed++;
+				sample2 = sample1 << 4;
+				sample2 >>= 4;
+				sample1 >>= 4;
+				//if (invalid_header) { sample1>>=3; sample2>>=3; }
+				
+				out = (((int32)sample1 << shift) >> 1) + (prev0)+((-(prev0 +(prev0>>1)))>>5)-(prev1>>1)+(prev1>>5);
+				CLIP16(out);
+				out = (signed short) (out << 1);
+				*raw++ = prev1 = out;
+
+				out = (((int32)sample2 << shift) >> 1) + (prev1)+((-(prev1 +(prev1>>1)))>>5)-(prev0>>1)+(prev0>>5);
+				CLIP16(out);
+				out = (signed short) (out << 1);
+				*raw++ = prev0 = out;
+			}
+			
+			ch->previous [0] = prev0;
+			ch->previous [1] = prev1;
+			ch->block_pointer += 9;
+			return;
+		case 3:
+
+			for (i = 8; i != 0; i--)
+			{
+				sample1 = *compressed++;
+				sample2 = sample1 << 4;
+				sample2 >>= 4;
+				sample1 >>= 4;
+				//if (invalid_header) { sample1>>=3; sample2>>=3; }
+				
+				out = (((int32)sample1 << shift) >> 1) + (prev0)+((-(prev0 + (prev0<<2) + (prev0<<3)))>>7)-(prev1>>1)+((prev1+(prev1>>1))>>4);
+				CLIP16(out);
+				out = (signed short) (out << 1);
+				*raw++ = prev1 = out;
+
+				out = (((int32)sample2 << shift) >> 1) + (prev1)+((-(prev1 + (prev1<<2) + (prev1<<3)))>>7)-(prev0>>1)+((prev0+(prev0>>1))>>4);
+				CLIP16(out);
+				out = (signed short) (out << 1);
+				*raw++ = prev0 = out;
+			}
+			
+			ch->previous [0] = prev0;
+			ch->previous [1] = prev1;
+			ch->block_pointer += 9;
+			return;
+
 		}
 	}
+	else
+	{
+		switch ((filter >> 2) & 3)
+		{
+		case 0:
 
-	ch->previous[0] = prev0;
-	ch->previous[1] = prev1;
+			for (i = 8; i != 0; i--)
+			{
+				sample1 = *compressed++;
+				sample2 = sample1 << 4;
+				sample2 >>= 4;
+				sample1 >>= 4;
+				/*if (invalid_header)*/ { sample1>>=3; sample2>>=3; }
 
-	ch->block_pointer += 9;
+				out = ((int32)sample1 << shift);
+				*raw++ = out;
+				
+				out = ((int32)sample2 << shift);
+				*raw++ = out;
+			}
+			prev1 = *(raw - 2);
+			prev0 = *(raw - 1);
+			
+
+			ch->previous [0] = prev0;
+			ch->previous [1] = prev1;
+			ch->block_pointer += 9;
+			return;
+		case 1:
+			for (i = 8; i != 0; i--)
+			{
+				sample1 = *compressed++;
+				sample2 = sample1 << 4;
+				sample2 >>= 4;
+				sample1 >>= 4;
+				/*if (invalid_header)*/ { sample1>>=3; sample2>>=3; }
+				
+				out = (((int32)sample1 << shift) >> 1) + (prev0 >> 1) + ((-prev0) >> 5);
+				CLIP16(out);
+				out = (signed short) (out << 1);
+				*raw++ = prev1 = out;
+
+				out = (((int32)sample2 << shift) >> 1) + (prev1 >> 1) + ((-prev1) >> 5);
+				CLIP16(out);
+				out = (signed short) (out << 1);
+				*raw++ = prev0 = out;
+			}
+			
+			ch->previous [0] = prev0;
+			ch->previous [1] = prev1;
+			ch->block_pointer += 9;
+			return;
+		case 2:
+			
+			for (i = 8; i != 0; i--)
+			{
+				sample1 = *compressed++;
+				sample2 = sample1 << 4;
+				sample2 >>= 4;
+				sample1 >>= 4;
+				/*if (invalid_header)*/ { sample1>>=3; sample2>>=3; }
+				
+				out = (((int32)sample1 << shift) >> 1) + (prev0)+((-(prev0 +(prev0>>1)))>>5)-(prev1>>1)+(prev1>>5);
+				CLIP16(out);
+				out = (signed short) (out << 1);
+				*raw++ = prev1 = out;
+
+				out = (((int32)sample2 << shift) >> 1) + (prev1)+((-(prev1 +(prev1>>1)))>>5)-(prev0>>1)+(prev0>>5);
+				CLIP16(out);
+				out = (signed short) (out << 1);
+				*raw++ = prev0 = out;
+			}
+			
+			ch->previous [0] = prev0;
+			ch->previous [1] = prev1;
+			ch->block_pointer += 9;
+			return;
+		case 3:
+
+			for (i = 8; i != 0; i--)
+			{
+				sample1 = *compressed++;
+				sample2 = sample1 << 4;
+				sample2 >>= 4;
+				sample1 >>= 4;
+				/*if (invalid_header)*/ { sample1>>=3; sample2>>=3; }
+				
+				out = (((int32)sample1 << shift) >> 1) + (prev0)+((-(prev0 + (prev0<<2) + (prev0<<3)))>>7)-(prev1>>1)+((prev1+(prev1>>1))>>4);
+				CLIP16(out);
+				out = (signed short) (out << 1);
+				*raw++ = prev1 = out;
+
+				out = (((int32)sample2 << shift) >> 1) + (prev1)+((-(prev1 + (prev1<<2) + (prev1<<3)))>>7)-(prev0>>1)+((prev0+(prev0>>1))>>4);
+				CLIP16(out);
+				out = (signed short) (out << 1);
+				*raw++ = prev0 = out;
+			}
+			
+			ch->previous [0] = prev0;
+			ch->previous [1] = prev1;
+			ch->block_pointer += 9;
+			return;
+
+		}
+	}	
 }
 
-void MixStereo (int sample_count)
+static void MixStereo (int sample_count)
 {
 	DoFakeMute=Settings.FakeMuteFix;
 
@@ -1146,20 +1011,22 @@ void MixStereo (int sample_count)
 		Channel *ch = &SoundData.channels[J];
 		uint32 freq = ch->frequency;
 
-		bool8 last_block = FALSE;
-
 		if (ch->type == SOUND_NOISE)
 		{
 			noise_index = 0;
 			noise_count = SoundData.noise_count;
 		}
 
-		if (ch->state == SOUND_SILENT || last_block || !(stSoundStatus.sound_switch & (1 << J)))
+		if (ch->state == SOUND_SILENT || !(stSoundStatus.sound_switch & (1 << J)))
 			continue;
 
 		bool8 mod1 = pitch_mod & (1 << J);
 		bool8 mod2 = pitch_mod & (1 << (J + 1));
-
+		bool8 env = !((ch->state == SOUND_SUSTAIN || ch->state == SOUND_GAIN ||
+			ch->state == SOUND_DECREASE_EXPONENTIAL || ch->state == SOUND_DECREASE_LINEAR) 
+			&& ch->xenv_rate == 0);
+		bool8 echo = ch->echo_buf_ptr != 0;
+		
 		if (ch->needs_decode)
 		{
 			DecodeBlock(ch);
@@ -1170,173 +1037,176 @@ void MixStereo (int sample_count)
 
 		for (uint32 I = 0; I < (uint32) sample_count; I += 2)
 		{
-			switch (ch->state)
+			if (env)
 			{
-				case SOUND_ATTACK:
-					if (ch->xenv_rate == env_counter_max_master)
-						ch->xenvx += (ENV_RANGE >> 1); // FIXME
-					else
-					{
+				switch (ch->state)
+				{
+					case SOUND_ATTACK:
+						if (ch->xenv_rate == env_counter_max_master)
+							ch->xenvx += (ENV_RANGE >> 1); // FIXME
+						else
+						{
+							ch->xenv_count -= ch->xenv_rate;
+							while (ch->xenv_count <= 0)
+							{
+								ch->xenvx += (ENV_RANGE >> 6); // 1/64
+								ch->xenv_count += env_counter_max;
+							}
+						}
+
+						if (ch->xenvx > ENV_MAX)
+						{
+							ch->xenvx = ENV_MAX;
+
+							if (ch->xsustain_level != ENV_RANGE)
+							{
+								ch->state = SOUND_DECAY;
+								S9xSetEnvRate (ch, ch->xdecay_rate, ch->xsustain_level);
+							}
+							else
+							{
+								ch->state = SOUND_SUSTAIN;
+								S9xSetEnvRate (ch, ch->xsustain_rate, 0);
+							}
+						}
+
+						break;
+
+					case SOUND_DECAY:
+						ch->xenv_count -= ch->xenv_rate;
+						while (ch->xenv_count <= 0)
+						{
+							ch->xenvx -= ((ch->xenvx - 1) >> 8) + 1; // 1 - 1/256
+							ch->xenv_count += env_counter_max;
+						}
+
+						if (ch->xenvx <= ch->xenvx_target)
+						{
+							if (ch->xenvx <= 0)
+							{
+								S9xAPUSetEndOfSample (J, ch);
+								goto stereo_exit;
+							}
+							else
+							{
+								ch->state = SOUND_SUSTAIN;
+								S9xSetEnvRate (ch, ch->xsustain_rate, 0);
+							}
+						}
+
+						break;
+
+					case SOUND_SUSTAIN:
+						ch->xenv_count -= ch->xenv_rate;
+						while (ch->xenv_count <= 0)
+						{
+							ch->xenvx -= ((ch->xenvx - 1) >> 8) + 1;  // 1 - 1/256
+							ch->xenv_count += env_counter_max;
+						}
+
+						if (ch->xenvx <= 0)
+						{
+							S9xAPUSetEndOfSample (J, ch);
+							goto stereo_exit;
+						}
+
+						break;
+
+					case SOUND_RELEASE:
+						ch->xenv_count -= env_counter_max;
+						while (ch->xenv_count <= 0)
+						{
+							ch->xenvx -= (ENV_RANGE >> 8); // 1/256
+							ch->xenv_count += env_counter_max;
+						}
+
+						if (ch->xenvx <= 0)
+						{
+							S9xAPUSetEndOfSample (J, ch);
+							goto stereo_exit;
+						}
+
+						break;
+
+					case SOUND_INCREASE_LINEAR:
 						ch->xenv_count -= ch->xenv_rate;
 						while (ch->xenv_count <= 0)
 						{
 							ch->xenvx += (ENV_RANGE >> 6); // 1/64
 							ch->xenv_count += env_counter_max;
 						}
-					}
 
-					if (ch->xenvx > ENV_MAX)
-					{
-						ch->xenvx = ENV_MAX;
-
-						if (ch->xsustain_level != ENV_RANGE)
+						if (ch->xenvx > ENV_MAX)
 						{
-							ch->state = SOUND_DECAY;
-							S9xSetEnvRate (ch, ch->xdecay_rate, ch->xsustain_level);
+							ch->xenvx = ENV_MAX;
+							ch->state = SOUND_GAIN;
+							ch->mode  = MODE_GAIN;
+							S9xSetEnvRate (ch, 0, 0);
 						}
-						else
+
+						break;
+
+					case SOUND_INCREASE_BENT_LINE:
+						ch->xenv_count -= ch->xenv_rate;
+						while (ch->xenv_count <= 0)
 						{
-							ch->state = SOUND_SUSTAIN;
-							S9xSetEnvRate (ch, ch->xsustain_rate, 0);
+							if (ch->xenvx >= ((ENV_RANGE * 3) >> 2)) // 0x600
+								ch->xenvx += (ENV_RANGE >> 8); // 1/256
+							else
+								ch->xenvx += (ENV_RANGE >> 6); // 1/64
+
+							ch->xenv_count += env_counter_max;
 						}
-					}
 
-					break;
+						if (ch->xenvx > ENV_MAX)
+						{
+							ch->xenvx = ENV_MAX;
+							ch->state = SOUND_GAIN;
+							ch->mode  = MODE_GAIN;
+							S9xSetEnvRate (ch, 0, 0);
+						}
 
-				case SOUND_DECAY:
-					ch->xenv_count -= ch->xenv_rate;
-					while (ch->xenv_count <= 0)
-					{
-						ch->xenvx -= ((ch->xenvx - 1) >> 8) + 1; // 1 - 1/256
-						ch->xenv_count += env_counter_max;
-					}
+						break;
 
-					if (ch->xenvx <= ch->xenvx_target)
-					{
+					case SOUND_DECREASE_LINEAR:
+						ch->xenv_count -= ch->xenv_rate;
+						while (ch->xenv_count <= 0)
+						{
+							ch->xenvx -= (ENV_RANGE >> 6); // 1/64
+							ch->xenv_count += env_counter_max;
+						}
+
 						if (ch->xenvx <= 0)
 						{
 							S9xAPUSetEndOfSample (J, ch);
 							goto stereo_exit;
 						}
-						else
+
+						break;
+
+					case SOUND_DECREASE_EXPONENTIAL:
+						ch->xenv_count -= ch->xenv_rate;
+						while (ch->xenv_count <= 0)
 						{
-							ch->state = SOUND_SUSTAIN;
-							S9xSetEnvRate (ch, ch->xsustain_rate, 0);
+							ch->xenvx -= ((ch->xenvx - 1) >> 8) + 1; // 1 - 1/256
+							ch->xenv_count += env_counter_max;
 						}
-					}
 
-					break;
+						if (ch->xenvx <= 0)
+						{
+							S9xAPUSetEndOfSample (J, ch);
+							goto stereo_exit;
+						}
 
-				case SOUND_SUSTAIN:
-					ch->xenv_count -= ch->xenv_rate;
-					while (ch->xenv_count <= 0)
-					{
-						ch->xenvx -= ((ch->xenvx - 1) >> 8) + 1;  // 1 - 1/256
-						ch->xenv_count += env_counter_max;
-					}
+						break;
 
-					if (ch->xenvx <= 0)
-					{
-						S9xAPUSetEndOfSample (J, ch);
-						goto stereo_exit;
-					}
-
-					break;
-
-				case SOUND_RELEASE:
-					ch->xenv_count -= env_counter_max;
-					while (ch->xenv_count <= 0)
-					{
-						ch->xenvx -= (ENV_RANGE >> 8); // 1/256
-						ch->xenv_count += env_counter_max;
-					}
-
-					if (ch->xenvx <= 0)
-					{
-						S9xAPUSetEndOfSample (J, ch);
-						goto stereo_exit;
-					}
-
-					break;
-
-				case SOUND_INCREASE_LINEAR:
-					ch->xenv_count -= ch->xenv_rate;
-					while (ch->xenv_count <= 0)
-					{
-						ch->xenvx += (ENV_RANGE >> 6); // 1/64
-						ch->xenv_count += env_counter_max;
-					}
-
-					if (ch->xenvx > ENV_MAX)
-					{
-						ch->xenvx = ENV_MAX;
-						ch->state = SOUND_GAIN;
-						ch->mode  = MODE_GAIN;
+					case SOUND_GAIN:
 						S9xSetEnvRate (ch, 0, 0);
-					}
 
-					break;
-
-				case SOUND_INCREASE_BENT_LINE:
-					ch->xenv_count -= ch->xenv_rate;
-					while (ch->xenv_count <= 0)
-					{
-						if (ch->xenvx >= ((ENV_RANGE * 3) >> 2)) // 0x600
-							ch->xenvx += (ENV_RANGE >> 8); // 1/256
-						else
-							ch->xenvx += (ENV_RANGE >> 6); // 1/64
-
-						ch->xenv_count += env_counter_max;
-					}
-
-					if (ch->xenvx > ENV_MAX)
-					{
-						ch->xenvx = ENV_MAX;
-						ch->state = SOUND_GAIN;
-						ch->mode  = MODE_GAIN;
-						S9xSetEnvRate (ch, 0, 0);
-					}
-
-					break;
-
-				case SOUND_DECREASE_LINEAR:
-					ch->xenv_count -= ch->xenv_rate;
-					while (ch->xenv_count <= 0)
-					{
-						ch->xenvx -= (ENV_RANGE >> 6); // 1/64
-						ch->xenv_count += env_counter_max;
-					}
-
-					if (ch->xenvx <= 0)
-					{
-						S9xAPUSetEndOfSample (J, ch);
-						goto stereo_exit;
-					}
-
-					break;
-
-				case SOUND_DECREASE_EXPONENTIAL:
-					ch->xenv_count -= ch->xenv_rate;
-					while (ch->xenv_count <= 0)
-					{
-						ch->xenvx -= ((ch->xenvx - 1) >> 8) + 1; // 1 - 1/256
-						ch->xenv_count += env_counter_max;
-					}
-
-					if (ch->xenvx <= 0)
-					{
-						S9xAPUSetEndOfSample (J, ch);
-						goto stereo_exit;
-					}
-
-					break;
-
-				case SOUND_GAIN:
-					S9xSetEnvRate (ch, 0, 0);
-
-					break;
+						break;
+				}
 			}
-
+			
 			ch->xsmp_count += mod1 ? (((int64) freq * (32768 + wave[I >> 1])) >> 15) : freq;
 
 			while (ch->xsmp_count >= 0)
@@ -1356,7 +1226,6 @@ void MixStereo (int sample_count)
 						if (!ch->loop)
 						{
 							ch->xenvx = 0;
-							last_block = TRUE;
 							//S9xAPUSetEndOfSample (J, ch);
 							while (ch->xsmp_count >= 0)
 							{
@@ -1385,19 +1254,14 @@ void MixStereo (int sample_count)
 
 			if (ch->type == SOUND_SAMPLE)
 			{
-				if (Settings.InterpolatedSound)
-				{
-					// 4-point gaussian interpolation
-					d = ch->xsmp_count >> (FIXED_POINT_SHIFT - 8);
-					outx  = ((G4(-d) * ch->nb_sample[ ch->nb_index         ]) >> 11) & ~1;
-					outx += ((G3(-d) * ch->nb_sample[(ch->nb_index + 1) & 3]) >> 11) & ~1;
-					outx += ((G2( d) * ch->nb_sample[(ch->nb_index + 2) & 3]) >> 11) & ~1;
-					outx = ((outx & 0xFFFF) ^ 0x8000) - 0x8000;
-					outx += ((G1( d) * ch->nb_sample[(ch->nb_index + 3) & 3]) >> 11) & ~1;
-					CLIP16(outx);
-				}
-				else
-					outx = ch->sample;
+				// 4-point gaussian interpolation
+				d = ch->xsmp_count >> (FIXED_POINT_SHIFT - 8);
+				outx  = ((G4(-d) * ch->nb_sample[ ch->nb_index         ]) >> 11) & ~1;
+				outx += ((G3(-d) * ch->nb_sample[(ch->nb_index + 1) & 3]) >> 11) & ~1;
+				outx += ((G2( d) * ch->nb_sample[(ch->nb_index + 2) & 3]) >> 11) & ~1;
+				outx = ((outx & 0xFFFF) ^ 0x8000) - 0x8000;
+				outx += ((G1( d) * ch->nb_sample[(ch->nb_index + 3) & 3]) >> 11) & ~1;
+				CLIP16(outx);
 			}
 			else // SAMPLE_NOISE
 			{
@@ -1422,13 +1286,16 @@ void MixStereo (int sample_count)
 			VL = (outx * ch->volume_left ) >> 7;
 			VR = (outx * ch->volume_right) >> 7;
 
-			MixBuffer[I      ^ Settings.ReverseStereo ] += VL;
-			MixBuffer[I + (1 ^ Settings.ReverseStereo)] += VR;
-			ch->echo_buf_ptr[I      ^ Settings.ReverseStereo ] += VL;
-			ch->echo_buf_ptr[I + (1 ^ Settings.ReverseStereo)] += VR;
+			MixBuffer[I] += VL;
+			MixBuffer[I + 1] += VR;
+			if (echo)
+			{
+			ch->echo_buf_ptr[I] += VL;
+			ch->echo_buf_ptr[I + 1] += VR;
+			}
 		}
 
-	stereo_exit: ;
+		stereo_exit: ;
 	}
 	DoFakeMute=FALSE;
 
@@ -1443,11 +1310,9 @@ void S9xMixSamples (uint8 *buffer, int sample_count)
 	if (!stSoundStatus.mute_sound)
 	{
 		memset (MixBuffer, 0, sample_count * sizeof (MixBuffer[0]));
-		if (!Settings.DisableSoundEcho)
-			memset (EchoBuffer, 0, sample_count * sizeof (EchoBuffer[0]));
+		memset (EchoBuffer, 0, sample_count * sizeof (EchoBuffer[0]));
 
 		MixStereo (sample_count);
-
 	}
 
 	/* Mix and convert waveforms */
@@ -1457,82 +1322,69 @@ void S9xMixSamples (uint8 *buffer, int sample_count)
 		memset (buffer, 0, sample_count << 1);
 	else
 	{
-		if (!Settings.DisableSoundEcho)
+		// 16-bit stereo sound with echo enabled ...
+		if (SoundData.no_filter)
 		{
-			// 16-bit stereo sound with echo enabled ...
-			if (SoundData.no_filter)
+			// ... but no filter defined.
+			for (J = 0; J < sample_count; J++)
 			{
-				// ... but no filter defined.
-				for (J = 0; J < sample_count; J++)
+				int E = Echo[SoundData.echo_ptr];
+
+				Loop[FIRIndex & 15] = E;
+				E = (E * 127) >> 7;
+				FIRIndex++;
+
+				if (SoundData.echo_write_enabled)
 				{
-					int E = Echo[SoundData.echo_ptr];
-
-					Loop[FIRIndex & 15] = E;
-					E = (E * 127) >> 7;
-					FIRIndex++;
-
-					if (SoundData.echo_write_enabled)
-					{
-						I = EchoBuffer[J] + ((E * SoundData.echo_feedback) >> 7);
-						CLIP16(I);
-						Echo[SoundData.echo_ptr] = I;
-					}
-					else // FIXME: Snes9x's echo buffer is not in APU_RAM
-						Echo[SoundData.echo_ptr] = 0;
-
-					if (++SoundData.echo_ptr >= SoundData.echo_buffer_size)
-						SoundData.echo_ptr = 0;
-
-					I = (MixBuffer[J] * SoundData.master_volume[J & 1] +
-						E * SoundData.echo_volume[J & 1]) >> 7;
+					I = EchoBuffer[J] + ((E * SoundData.echo_feedback) >> 7);
 					CLIP16(I);
-					((int16 *) buffer) [J] = I;
+					Echo[SoundData.echo_ptr] = I;
 				}
-			}
-			else
-			{
-				// ... with filter defined.
-				for (J = 0; J < sample_count; J++)
-				{
-					int E = Echo[SoundData.echo_ptr];
+				else // FIXME: Snes9x's echo buffer is not in APU_RAM
+					Echo[SoundData.echo_ptr] = 0;
 
-					Loop[FIRIndex & 15] = E;
-					E  = E                          * FilterTaps[0];
-					E += Loop[(FIRIndex -  2) & 15] * FilterTaps[1];
-					E += Loop[(FIRIndex -  4) & 15] * FilterTaps[2];
-					E += Loop[(FIRIndex -  6) & 15] * FilterTaps[3];
-					E += Loop[(FIRIndex -  8) & 15] * FilterTaps[4];
-					E += Loop[(FIRIndex - 10) & 15] * FilterTaps[5];
-					E += Loop[(FIRIndex - 12) & 15] * FilterTaps[6];
-					E += Loop[(FIRIndex - 14) & 15] * FilterTaps[7];
-					E >>= 7;
-					FIRIndex++;
+				if (++SoundData.echo_ptr >= SoundData.echo_buffer_size)
+					SoundData.echo_ptr = 0;
 
-					if (SoundData.echo_write_enabled)
-					{
-						I = EchoBuffer[J] + ((E * SoundData.echo_feedback) >> 7);
-						CLIP16(I);
-						Echo[SoundData.echo_ptr] = I;
-					}
-					else // FIXME: Snes9x's echo buffer is not in APU_RAM
-						Echo[SoundData.echo_ptr] = 0;
-
-					if (++SoundData.echo_ptr >= SoundData.echo_buffer_size)
-						SoundData.echo_ptr = 0;
-
-					I = (MixBuffer[J] * SoundData.master_volume[J & 1] +
-						E * SoundData.echo_volume[J & 1]) >> 7;
-					CLIP16(I);
-					((int16 *) buffer) [J] = I;
-				}
+				I = (MixBuffer[J] * SoundData.master_volume[J & 1] +
+					E * SoundData.echo_volume[J & 1]) >> 7;
+				CLIP16(I);
+				((int16 *) buffer) [J] = I;
 			}
 		}
 		else
 		{
-			// 16-bit mono or stereo sound, no echo
+			// ... with filter defined.
 			for (J = 0; J < sample_count; J++)
 			{
-				I = (MixBuffer[J] * SoundData.master_volume[J & 1]) >> 7;
+				int E = Echo[SoundData.echo_ptr];
+
+				Loop[FIRIndex & 15] = E;
+				E  = E                          * FilterTaps[0];
+				E += Loop[(FIRIndex -  2) & 15] * FilterTaps[1];
+				E += Loop[(FIRIndex -  4) & 15] * FilterTaps[2];
+				E += Loop[(FIRIndex -  6) & 15] * FilterTaps[3];
+				E += Loop[(FIRIndex -  8) & 15] * FilterTaps[4];
+				E += Loop[(FIRIndex - 10) & 15] * FilterTaps[5];
+				E += Loop[(FIRIndex - 12) & 15] * FilterTaps[6];
+				E += Loop[(FIRIndex - 14) & 15] * FilterTaps[7];
+				E >>= 7;
+				FIRIndex++;
+
+				if (SoundData.echo_write_enabled)
+				{
+					I = EchoBuffer[J] + ((E * SoundData.echo_feedback) >> 7);
+					CLIP16(I);
+					Echo[SoundData.echo_ptr] = I;
+				}
+				else // FIXME: Snes9x's echo buffer is not in APU_RAM
+					Echo[SoundData.echo_ptr] = 0;
+
+				if (++SoundData.echo_ptr >= SoundData.echo_buffer_size)
+					SoundData.echo_ptr = 0;
+
+				I = (MixBuffer[J] * SoundData.master_volume[J & 1] +
+					E * SoundData.echo_volume[J & 1]) >> 7;
 				CLIP16(I);
 				((int16 *) buffer) [J] = I;
 			}
@@ -1743,6 +1595,15 @@ void S9xSetSoundControl (int sound_switch)
 void S9xPlaySample (int channel)
 {
 	Channel *ch = &SoundData.channels[channel];
+	
+	if (ch->state == SOUND_SILENT)
+	{
+		ch->nb_sample[0] = 0;
+		ch->nb_sample[1] = 0;
+		ch->nb_sample[2] = 0;
+		ch->nb_sample[3] = 0;
+		ch->nb_index = 0;
+	}
 
 	ch->state = SOUND_SILENT;
 	ch->mode = MODE_NONE;
@@ -1768,13 +1629,15 @@ void S9xPlaySample (int channel)
 	ch->block_pointer = READ_WORD (dir);
 	ch->sample_pointer = 0;
 	ch->xenv_count = env_counter_max;
-	ch->xsmp_count = 3 * FIXED_POINT; // since gaussian interpolation uses 4 points
-	ch->nb_sample[0] = 0;
+	//ch->xsmp_count = 3 * FIXED_POINT; // since gaussian interpolation uses 4 points
+	ch->xsmp_count = 0;
+	/*ch->nb_sample[0] = 0;
 	ch->nb_sample[1] = 0;
 	ch->nb_sample[2] = 0;
 	ch->nb_sample[3] = 0;
-	ch->nb_index = 0;
-
+	ch->nb_index = 0;*/
+	ch->sample = 0;
+	
 	switch (ch->mode)
 	{
 		case MODE_ADSR: // FIXME: rapid attack

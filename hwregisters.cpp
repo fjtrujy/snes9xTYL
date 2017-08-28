@@ -145,37 +145,23 @@ uint16 S9xGetWordFromRegister (uint8 *GetAddress, uint32 Address)
 			(S9xGetDSP ((Address + 1) & 0xffff) << 8));
 		case CMemory::MAP_SA1RAM:
 		case CMemory::MAP_LOROM_SRAM:
-	
-		   //Address &0x7FFF -offset into bank
-			//Address&0xFF0000 -bank
-			//bank>>1 | offset = s-ram address, unbound
-			//unbound & SRAMMask = Sram offset
-			/*if(Memory.SRAMMask>=MEMMAP_MASK){
-				return READ_WORD(SRAM + ((((Address&0xFF0000)>>1) |(Address&0x7FFF)) &Memory.SRAMMask));
-			} else {*/
-				/* no READ_WORD here, since if Memory.SRAMMask=0x7ff
-				 * then the high byte doesn't follow the low byte. */
-				return
-					(*(SRAM + ((((Address&0xFF0000)>>1) |(Address&0x7FFF)) &Memory.SRAMMask)))|
-					((*(SRAM + (((((Address+1)&0xFF0000)>>1) |((Address+1)&0x7FFF)) &Memory.SRAMMask)))<<8);
-			//}
+		   	/* no READ_WORD here, since if Memory.SRAMMask=0x7ff
+			 * then the high byte doesn't follow the low byte. */
+			return
+				(*(SRAM + ((((Address&0xFF0000)>>1) |(Address&0x7FFF)) &Memory.SRAMMask)))|
+				((*(SRAM + (((((Address+1)&0xFF0000)>>1) |((Address+1)&0x7FFF)) &Memory.SRAMMask)))<<8);
 
 		case CMemory::MAP_RONLY_SRAM:
 		case CMemory::MAP_HIROM_SRAM:
-			/*if(Memory.SRAMMask>=MEMMAP_MASK){
-				return READ_WORD(SRAM +
-								 (((Address & 0x7fff) - 0x6000 +
-								   ((Address & 0xf0000) >> 3)) & Memory.SRAMMask));
-			} else {*/
-				/* no READ_WORD here, since if Memory.SRAMMask=0x7ff
-				 * then the high byte doesn't follow the low byte. */
-				return (*(SRAM +
-						  (((Address & 0x7fff) - 0x6000 +
-							((Address & 0xf0000) >> 3)) & Memory.SRAMMask)) |
-						(*(SRAM +
-						   ((((Address + 1) & 0x7fff) - 0x6000 +
-							 (((Address + 1) & 0xf0000) >> 3)) & Memory.SRAMMask)) << 8));
-			//}
+			
+			/* no READ_WORD here, since if Memory.SRAMMask=0x7ff
+			 * then the high byte doesn't follow the low byte. */
+			return (*(SRAM +
+					  (((Address & 0x7fff) - 0x6000 +
+						((Address & 0xf0000) >> 3)) & Memory.SRAMMask)) |
+					(*(SRAM +
+					   ((((Address + 1) & 0x7fff) - 0x6000 +
+						 (((Address + 1) & 0xf0000) >> 3)) & Memory.SRAMMask)) << 8));
 
 		case CMemory::MAP_BWRAM:
 		return (*(BWRAM + ((Address & 0x7fff) - 0x6000)) |
@@ -206,6 +192,8 @@ uint16 S9xGetWordFromRegister (uint8 *GetAddress, uint32 Address)
     }
 }
 
+#define COMPARE_WRITE_SRAM(addr, data)  if (*(addr) != data) { *(addr) = data; CPU.SRAMModified = TRUE; }
+
 void S9xSetByteToRegister (uint8 Byte, uint8* SetAddress, uint32 Address)
 {
 	switch ((int) SetAddress)
@@ -224,24 +212,17 @@ void S9xSetByteToRegister (uint8 Byte, uint8* SetAddress, uint32 Address)
 
 		case CMemory::MAP_LOROM_SRAM:
 			if (Memory.SRAMMask)
-			{
-				*(SRAM + ((((Address&0xFF0000)>>1)|(Address&0x7FFF))& Memory.SRAMMask))=Byte;
-				CPU.SRAMModified = TRUE;
-			}
+				COMPARE_WRITE_SRAM(SRAM + ((((Address&0xFF0000)>>1)|(Address&0x7FFF))& Memory.SRAMMask), Byte);
 		return;
 
 		case CMemory::MAP_HIROM_SRAM:
 			if (Memory.SRAMMask)
-			{
-				*(SRAM + (((Address & 0x7fff) - 0x6000 +
-								  ((Address & 0xf0000) >> 3)) & Memory.SRAMMask)) = Byte;
-				CPU.SRAMModified = TRUE;
-			}
+				COMPARE_WRITE_SRAM(SRAM + (((Address & 0x7fff) - 0x6000 + 
+					((Address & 0xf0000) >> 3)) & Memory.SRAMMask), Byte);
 			return;
 
 		case CMemory::MAP_BWRAM:
-			*(BWRAM + ((Address & 0x7fff) - 0x6000)) = Byte;
-		CPU.SRAMModified = TRUE;
+			COMPARE_WRITE_SRAM(BWRAM + ((Address & 0x7fff) - 0x6000), Byte);
 		return;
 
 		case CMemory::MAP_DEBUG:
@@ -289,44 +270,30 @@ void S9xSetWordToRegister(uint16 Word, uint8 *SetAddress, uint32 Address)
 
 	case CMemory::MAP_LOROM_SRAM:
 	   if (Memory.SRAMMask) {
-			/*if(Memory.SRAMMask>=MEMMAP_MASK){
-				WRITE_WORD(SRAM + ((((Address&0xFF0000)>>1)|(Address&0x7FFF))&Memory.SRAMMask), Word);
-			} else {*/
-				/* no WRITE_WORD here, since if Memory.SRAMMask=0x7ff
-				 * then the high byte doesn't follow the low byte. */
-				*(SRAM + ((((Address&0xFF0000)>>1)|(Address&0x7FFF))& Memory.SRAMMask)) = (uint8) Word;
-				*(SRAM + (((((Address+1)&0xFF0000)>>1)|((Address+1)&0x7FFF))& Memory.SRAMMask)) = Word >> 8;
-			//}
-
-			CPU.SRAMModified = TRUE;
+			/* no WRITE_WORD here, since if Memory.SRAMMask=0x7ff
+			* then the high byte doesn't follow the low byte. */
+			COMPARE_WRITE_SRAM(SRAM + ((((Address&0xFF0000)>>1)|(Address&0x7FFF))& Memory.SRAMMask), (uint8) Word);
+			COMPARE_WRITE_SRAM(SRAM + (((((Address+1)&0xFF0000)>>1)|((Address+1)&0x7FFF))& Memory.SRAMMask), Word >> 8);
 		}
 		return;
 
 	case CMemory::MAP_HIROM_SRAM:
-	if (Memory.SRAMMask)
-	{
-			/*if(Memory.SRAMMask>=MEMMAP_MASK){
-				WRITE_WORD(SRAM +
-						   (((Address & 0x7fff) - 0x6000 +
-							 ((Address & 0xf0000) >> 3)) & Memory.SRAMMask), Word);
-			} else {*/
-				/* no WRITE_WORD here, since if Memory.SRAMMask=0x7ff
-				 * then the high byte doesn't follow the low byte. */
-				*(SRAM +
-				  (((Address & 0x7fff) - 0x6000 +
-					((Address & 0xf0000) >> 3)) & Memory.SRAMMask)) = (uint8) Word;
-				*(SRAM +
-				  ((((Address + 1) & 0x7fff) - 0x6000 +
-					(((Address + 1) & 0xf0000) >> 3)) & Memory.SRAMMask)) = (uint8) (Word >> 8);
-			//}
-		CPU.SRAMModified = TRUE;
-	}
+		if (Memory.SRAMMask)
+		{
+			/* no WRITE_WORD here, since if Memory.SRAMMask=0x7ff
+			 * then the high byte doesn't follow the low byte. */
+			COMPARE_WRITE_SRAM(SRAM + 
+				((((Address & 0x7fff) - 0x6000 +
+				((Address & 0xf0000) >> 3)) & Memory.SRAMMask)), (uint8) Word);
+			COMPARE_WRITE_SRAM(SRAM + 
+				(((((Address + 1) & 0x7fff) - 0x6000 +
+				(((Address + 1) & 0xf0000) >> 3)) & Memory.SRAMMask)), (uint8) (Word >> 8));
+		}
 	return;
 
 	case CMemory::MAP_BWRAM:
-	*(BWRAM + ((Address & 0x7fff) - 0x6000)) = (uint8) Word;
-	*(BWRAM + (((Address + 1) & 0x7fff) - 0x6000)) = (uint8) (Word >> 8);
-	CPU.SRAMModified = TRUE;
+		COMPARE_WRITE_SRAM(BWRAM + ((Address & 0x7fff) - 0x6000), (uint8) Word);
+		COMPARE_WRITE_SRAM(BWRAM + (((Address + 1) & 0x7fff) - 0x6000), (uint8) (Word >> 8));
 	return;
 
 	case CMemory::MAP_DEBUG:
@@ -336,21 +303,16 @@ void S9xSetWordToRegister(uint16 Word, uint8 *SetAddress, uint32 Address)
 	SA1.Executing = !SA1.Waiting;
 	SA1.WaitCounter = 3;
 	break;
-	//#ifndef __GP32__
+	
 	case CMemory::MAP_C4:
 	S9xSetC4 (Word & 0xff, Address & 0xffff);
 	S9xSetC4 ((uint8) (Word >> 8), (Address + 1) & 0xffff);
 	return;
-	//#endif	
+	
 	#ifdef _BSX_151_
 	case CMemory::MAP_BSX:
-		//if(o){
-			S9xSetBSX ((uint8) (Word >> 8),(Address + 1));
-			S9xSetBSX (Word & 0xff, Address);
-		//} else {
-		//    S9xSetBSX (Word & 0xff, Address);
-		//    S9xSetBSX ((uint8) (Word >> 8),(Address + 1));
-		//}
+		S9xSetBSX ((uint8) (Word >> 8),(Address + 1));
+		S9xSetBSX (Word & 0xff, Address);
 		return;
 	#endif
 

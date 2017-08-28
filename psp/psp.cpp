@@ -1427,7 +1427,7 @@ static int S9xProcessSound (SceSize ,void *) {
 				S9xAPUUnpackStatus ();
 				if (APUCheckDirectPage ()) (IAPU.DirectPage) = (IAPU.RAM) + 0x100;
 				else(IAPU.DirectPage) = (IAPU.RAM);
-				S9xFixSoundAfterSnapshotLoad ();
+				S9xFixSoundAfterSnapshotLoad (1);
 				if (os9x_apuenabled==2) S9xSetSoundMute( false );
 			}
 			apu_init_after_load=0;
@@ -2456,7 +2456,7 @@ static void initvar_withdefault() {
 #ifdef ME_SOUND
 	os9x_sndfreq = 44100;
 #else
-	os9x_sndfreq = 11025;
+	os9x_sndfreq = 22050;
 #endif
 	/** not in menu at the moment **/
 	os9x_ShowSub=0;

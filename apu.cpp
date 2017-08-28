@@ -343,8 +343,9 @@ void S9xSetAPUDSP (uint8 byte)
 {
 	static uint8 KeyOn;
 	static uint8 KeyOnPrev;
-//WAIT4MIXING()		
-  uint8 reg = (IAPU.RAM) [0xf2];	
+	int pitch;
+
+	uint8 reg = (IAPU.RAM) [0xf2];	
   
     switch (reg)
     {
@@ -520,7 +521,9 @@ void S9xSetAPUDSP (uint8 byte)
     case APU_P_LOW + 0x50:
     case APU_P_LOW + 0x60:
     case APU_P_LOW + 0x70:
-		S9xSetSoundHertz (reg >> 4, ((byte + (APUPack.APU.DSP[reg + 1] << 8)) & FREQUENCY_MASK) * 8);
+		pitch = (((int)byte + ((int)APUPack.APU.DSP [reg + 1] << 8)) & FREQUENCY_MASK);
+		S9xSetSoundHertz (reg >> 4, pitch * 8);
+		//S9xSetSoundHertz (reg >> 4, ((byte + (APUPack.APU.DSP [reg + 1] << 8)) & FREQUENCY_MASK) * 8);
 		break;
 		
     case APU_P_HIGH + 0x00:
@@ -531,8 +534,9 @@ void S9xSetAPUDSP (uint8 byte)
     case APU_P_HIGH + 0x50:
     case APU_P_HIGH + 0x60:
     case APU_P_HIGH + 0x70:
-		S9xSetSoundHertz (reg >> 4, 
-			(((byte << 8) + APUPack.APU.DSP[reg - 1]) & FREQUENCY_MASK) * 8);
+		pitch = ((((int)byte << 8) + (int)APUPack.APU.DSP [reg - 1]) & FREQUENCY_MASK);
+		S9xSetSoundHertz (reg >> 4, pitch * 8);
+		//S9xSetSoundHertz (reg >> 4, (((byte << 8) + APUPack.APU.DSP [reg - 1]) & FREQUENCY_MASK) * 8);
 		break;
 		
     case APU_SRCN + 0x00:
