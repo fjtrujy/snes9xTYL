@@ -401,8 +401,8 @@ void S9xSetSoundVolume (int channel, short volume_left, short volume_right)
 	/*if (!stSoundStatus.stereo)
 		volume_left = (ABS(volume_right) + ABS(volume_left)) >> 1;*/
 
-	ch->volume_left  = volume_left;
-	ch->volume_right = volume_right;
+	ch->volume_left  = volume_left*1.5;
+	ch->volume_right = volume_right*1.5;
 }
 
 void S9xSetMasterVolume (short volume_left, short volume_right)
@@ -418,10 +418,10 @@ void S9xSetMasterVolume (short volume_left, short volume_right)
 		/*if (!stSoundStatus.stereo)
 			volume_left = (ABS(volume_right) + ABS(volume_left)) >> 1;*/
 
-		SoundData.master_volume_left  = volume_left;
-		SoundData.master_volume_right = volume_right;
-		SoundData.master_volume[0] = volume_left;
-		SoundData.master_volume[1] = volume_right;
+		SoundData.master_volume_left  = volume_left*1.5;
+		SoundData.master_volume_right = volume_right*1.5;
+		SoundData.master_volume[0] = volume_left*1.5;
+		SoundData.master_volume[1] = volume_right*1.5;
 	}
 }
 
@@ -430,10 +430,10 @@ void S9xSetEchoVolume (short volume_left, short volume_right)
 	/*if (!stSoundStatus.stereo)
 		volume_left = (ABS(volume_right) + ABS(volume_left)) >> 1;*/
 
-	SoundData.echo_volume_left  = volume_left;
-	SoundData.echo_volume_right = volume_right;
-	SoundData.echo_volume[0] = volume_left;
-	SoundData.echo_volume[1] = volume_right;
+	SoundData.echo_volume_left  = volume_left*1.5;
+	SoundData.echo_volume_right = volume_right*1.5;
+	SoundData.echo_volume[0] = volume_left*1.5;
+	SoundData.echo_volume[1] = volume_right*1.5;
 }
 
 void S9xSetEchoEnable (uint8 byte)

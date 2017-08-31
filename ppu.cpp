@@ -1145,6 +1145,7 @@ void S9xSetPPU (uint8 Byte, uint16 Address)
 		break;
 	    case 0x3038:
 		ROM_GLOBAL [Address] = Byte;
+		fx_dirtySCBR();
 		break;
 	    case 0x3039:
 		ROM_GLOBAL [Address] = Byte;
@@ -1153,6 +1154,10 @@ void S9xSetPPU (uint8 Byte, uint16 Address)
 		ROM_GLOBAL [Address] = Byte;
 		break;
 	    case 0x303b:
+		break;
+		case 0x303c:
+		ROM_GLOBAL [Address] = Byte;
+		fx_updateRamBank(Byte);
 		break;
 	    case 0x303f:
 		ROM_GLOBAL [Address] = Byte;
