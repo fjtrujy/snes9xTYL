@@ -103,8 +103,9 @@ INLINE uint8 S9xGetByte (uint32 Address)
 {
 	int block;
     uint8 *GetAddress = CPU.MemoryMap [block = (Address >> MEMMAP_SHIFT) & MEMMAP_MASK];
-
+#ifdef VAR_CYCLES
 	if ((intptr_t) GetAddress != Memory.MAP_CPU || !CPU.InDMA)
+#endif
         CPU.Cycles += CPU.MemorySpeed [block];
 
     if (GetAddress >= (uint8 *) CMemory::MAP_LAST)
@@ -120,7 +121,9 @@ INLINE uint16 S9xGetWord (uint32 Address)
    		int block;
    		uint8 *GetAddress = CPU.MemoryMap [block = (Address >> MEMMAP_SHIFT) & MEMMAP_MASK];
 				
+#ifdef VAR_CYCLES
 		if ((intptr_t) GetAddress != Memory.MAP_CPU || !CPU.InDMA)
+#endif
   	  	    CPU.Cycles += CPU.MemorySpeed [block];
 
 		if (GetAddress >= (uint8 *) CMemory::MAP_LAST)
@@ -149,105 +152,38 @@ INLINE void S9xSetByte (uint8 Byte, uint32 Address)
     int block;
     uint8 *SetAddress = CPU.MemoryWriteMap [block = ((Address >> MEMMAP_SHIFT) & MEMMAP_MASK)];
 	
+#ifdef VAR_CYCLES
 	if ((intptr_t) SetAddress != Memory.MAP_CPU || !CPU.InDMA)
+#endif
 		CPU.Cycles += CPU.MemorySpeed [block];
 	
     if (SetAddress >= (uint8 *) CMemory::MAP_LAST)
     {
-#ifdef CPU_SHUTDOWN
-		SetAddress += Address & 0xffff;
-		if (SetAddress == SA1.WaitByteAddress1 || SetAddress == SA1.WaitByteAddress2)
-		{
-			SA1.Executing = SA1.S9xOpcodes != NULL;
-			SA1.WaitCounter = 0;
-		}
-		*SetAddress = Byte;
-#else
 		*(SetAddress + (Address & 0xffff)) = Byte;
-#endif
-		return;
-    }
-	S9xSetByteToRegister(Byte, SetAddress, Address);
-}
-
-INLINE void CpuSetByteWakeSA1 (uint8 Byte, uint32 Address)
-{
-    int block;
-    uint8 *SetAddress = CPU.MemoryWriteMap [block = ((Address >> MEMMAP_SHIFT) & MEMMAP_MASK)];
-	
-	CPU.Cycles += CPU.MemorySpeed [block];
-	
-    if (SetAddress >= (uint8 *) CMemory::MAP_LAST)
-    {
-        *(SetAddress + (Address & 0xffff)) = Byte;
-
- 		if ((SetAddress + (Address & 0xffff)) == SA1.WaitByteAddress1 ||
+#ifdef CPU_SHUTDOWN
+		if ((SetAddress + (Address & 0xffff)) == SA1.WaitByteAddress1 ||
 			(SetAddress + (Address & 0xffff)) == SA1.WaitByteAddress2)
 		{
             if (!SA1.Executing)
                 SA1.Executing = !SA1.Waiting && SA1.S9xOpcodes != NULL;
             if (SA1.Executing) SA1.WaitCounter = 3;
 		}       
-        return;
+#endif
+		return;
     }
-    S9xSetByteToRegister(Byte, SetAddress, Address);
+	S9xSetByteToRegister(Byte, SetAddress, Address);
 }
-
 
 INLINE void S9xSetWord(uint16 Word, uint32 Address)
 {
+#ifdef VAR_CYCLES
 	if((Address & 0x0FFF)==0x0FFF)
 	{
 		S9xSetByte(Word&0x00FF, Address);
 		S9xSetByte(Word>>8, Address+1);
 		return;
 	}
-
-#if defined(CPU_SHUTDOWN)
-    CPU.WaitAddress = NULL;
 #endif
-    int block;
-    uint8 *SetAddress = CPU.MemoryWriteMap [block = ((Address >> MEMMAP_SHIFT) & MEMMAP_MASK)];
-		
-	if ((intptr_t) SetAddress != Memory.MAP_CPU || !CPU.InDMA)
-		CPU.Cycles += CPU.MemorySpeed [block];
-
-    if (SetAddress >= (uint8 *) CMemory::MAP_LAST)
-    {
-#ifdef CPU_SHUTDOWN
-		SetAddress += Address & 0xffff;
-		if (SetAddress == SA1.WaitByteAddress1 || SetAddress == SA1.WaitByteAddress2)
-		{
-			SA1.Executing = SA1.S9xOpcodes != NULL;
-			SA1.WaitCounter = 0;
-		}
-#ifdef FAST_LSB_WORD_ACCESS
-		*(uint16 *) SetAddress = Word;
-#else
-		*SetAddress = (uint8) Word;
-		*(SetAddress + 1) = Word >> 8;
-#endif
-#else
-#ifdef FAST_LSB_WORD_ACCESS
-		*(uint16 *) (SetAddress + (Address & 0xffff)) = Word;
-#else
-		*(SetAddress + (Address & 0xffff)) = (uint8) Word;
-		*(SetAddress + ((Address + 1) & 0xffff)) = Word >> 8;
-#endif
-#endif
-		return;
-    }	
-	S9xSetWordToRegister(Word, SetAddress, Address);
-}
-
-INLINE void CpuSetWordWakeSA1 (uint16 Word, uint32 Address)
-{
-	if((Address & 0x0FFF)==0x0FFF)
-	{
-		S9xSetByte(Word&0x00FF, Address);
-		S9xSetByte(Word>>8, Address+1);
-		return;
-	}
 	
 #if defined(CPU_SHUTDOWN)
     CPU.WaitAddress = NULL;
@@ -255,8 +191,11 @@ INLINE void CpuSetWordWakeSA1 (uint16 Word, uint32 Address)
 
     int block;
     uint8 *SetAddress = CPU.MemoryWriteMap [block = ((Address >> MEMMAP_SHIFT) & MEMMAP_MASK)];
-
-	CPU.Cycles += CPU.MemorySpeed [block];
+	
+#ifdef VAR_CYCLES
+	if ((intptr_t) SetAddress != Memory.MAP_CPU || !CPU.InDMA)
+#endif
+		CPU.Cycles += CPU.MemorySpeed [block];
 
 	if (SetAddress >= (uint8 *) CMemory::MAP_LAST)
 	{

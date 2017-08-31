@@ -4264,7 +4264,6 @@ if (ROM [adr] == ov) \
 	SNESGameFixes.SpeedHackCount = 0;
 	SNESGameFixes.SpeedHackSA1Count = 0;
 	Settings.SpeedHack = false;
-	int instructionSet = 0;
 	
 	if (strcmp (ROMName, "YOSHI'S ISLAND") == 0)
 	{
@@ -4301,7 +4300,6 @@ if (ROM [adr] == ov) \
 		SpeedHackAdd(0x7FF7AF, -1, 0xF0, 0xFB);  // 
 		SpeedHackAdd(0xC202E9, -1, 0xD0, 0xFB);	 //
 		SpeedHackSA1Add(0xC08171, 0xF0, 0xFC);
-		instructionSet = 1;
 		Settings.SpeedHack = true;
 	}
 	if (strcmp (ROMName, "KIRBY'S DREAM LAND 3") == 0)
@@ -4309,14 +4307,12 @@ if (ROM [adr] == ov) \
 		SpeedHackAdd(0x00949B, -1, 0xF0, 0xFB);  
 		SpeedHackSA1Add(0x0082D7, 0xF0, 0xFB);
 		//SpeedHackSA1Add(0x00A970, 0xF0, 0xFB);
-		instructionSet = 1;
 		Settings.SpeedHack = true;
 	}
 	if (strcmp (ROMName, "OSHABERI PARODIUS") == 0)
 	{
 		SpeedHackAdd(0x80814A, -1, 0x80, 0xF0);  
 		SpeedHackSA1Add(0x8084E8, 0x80, 0xFB);
-		instructionSet = 1;
 		Settings.SpeedHack = true;
 	}
     // KIRBY SUPER DELUXE JAP 
@@ -4324,7 +4320,6 @@ if (ROM [adr] == ov) \
     {
 		SpeedHackAdd(0x008A59, -1, 0x80, 0xF0);  
 		SpeedHackSA1Add(0x008C96, 0x30, 0x09);
-		instructionSet = 1;
 		Settings.SpeedHack = true;
     }
     // KIRBY SUPER DELUXE US 
@@ -4332,7 +4327,6 @@ if (ROM [adr] == ov) \
     {
 		SpeedHackAdd(0x008A59, -1, 0xF0, 0xFB);  
 		SpeedHackSA1Add(0x008CBB, 0x30, 0x09);
-		instructionSet = 1;
 		Settings.SpeedHack = true;
     }
 	// MARVELOUS 
@@ -4340,7 +4334,6 @@ if (ROM [adr] == ov) \
     {
 		SpeedHackAdd(0x009941, -1, 0xF0, 0xFB);  
 		SpeedHackSA1Add(0x0085F4, 0xf0, 0xfc);
-		instructionSet = 1;
 		Settings.SpeedHack = true;
     }
 	// SUPER ROBOT TAISEN - MASOUKISHIN 
@@ -4349,7 +4342,6 @@ if (ROM [adr] == ov) \
 		SpeedHackAdd(0x00F0AF, -1, 0x70, 0xFC);
 		SpeedHackSA1Add(0x00EC9F, 0xf0, 0xfb);
 		SA1.WaitByteAddress1 = ROM_GLOBAL + 0x003072;
-		instructionSet = 1;
 		Settings.SpeedHack = true;
     }
     // PANIC BOMBER WORLD 
@@ -4365,14 +4357,12 @@ if (ROM [adr] == ov) \
     {
 		SpeedHackAdd(0x008031, -1, 0xD0, 0xFB); 
 		SpeedHackSA1Add(0x0080BF, 0x4C, 0x83, 0x80);
-		instructionSet = 1;
 		Settings.SpeedHack = true;
     }
     // SFC SDGUNDAMGNEXT 
     if (strcmp (ROMId, "ZX3J") == 0)
     {
 		SpeedHackSA1Add(0x01AE76, 0xD0, 0xFC);
-		instructionSet = 1;
 		Settings.SpeedHack = true;
     }
     // POWER RANGERS 4 
@@ -4380,14 +4370,12 @@ if (ROM [adr] == ov) \
     {
 		SpeedHackAdd(0x0082B0, -1, 0xF0, 0xFC);
 		SpeedHackSA1Add(0x00989F, 0x80, 0xF8);
-		instructionSet = 1;
 		Settings.SpeedHack = true;
     }
     // DAISENRYAKU EXPERTWW2 
     if (strcmp (ROMId, "AEVJ") == 0)
     {
 		SpeedHackSA1Add(0x0ED18F, 0xF0, 0xFC);
-		instructionSet = 1;
 		Settings.SpeedHack = true;
     }
     // AUGUSTA3 MASTERS NEW 
@@ -4395,14 +4383,12 @@ if (ROM [adr] == ov) \
     {
 		SpeedHackAdd(0x00CFAF, -1, 0xF0, 0xFA);
 		SpeedHackSA1Add(0x00DDDE, 0xF0, 0xFB);
-		instructionSet = 1;
 		Settings.SpeedHack = true;
     }
     // Bass Fishing 
     if (strcmp (ROMId, "ZBPJ") == 0)
     {
 		SpeedHackSA1Add(0x0093F4, 0xF0, 0xFB);
-		instructionSet = 1;
 		Settings.SpeedHack = true;
     }
     // J96 DREAM STADIUM 
@@ -4428,21 +4414,18 @@ if (ROM [adr] == ov) \
     if (strcmp (ROMId, "AONJ") == 0)
     {
 		SpeedHackSA1Add(0x00DF36, 0xF0, 0xFB);
-		instructionSet = 1;
 		Settings.SpeedHack = true;
     }
     // PGA EUROPEAN TOUR 
     if (strcmp (ROMId, "AEPE") == 0)
     {
 		SpeedHackSA1Add(0x003704, 0xF0, 0xFA);
-		instructionSet = 1;
 		Settings.SpeedHack = true;
     }
     // PGA TOUR 96 
     if (strcmp (ROMId, "A3GE") == 0)
     {
 		SpeedHackSA1Add(0x003704, 0xF0, 0xFA);
-		instructionSet = 1;
 		Settings.SpeedHack = true;
     }
     // SD F1 GRAND PRIX 
@@ -4454,10 +4437,6 @@ if (ROM [adr] == ov) \
 	
 	ApplySpeedHackPatches();
 
-	// Use the
-	//  0 - Default instruction set,
-	//  1 - The one that allows waking the SA1 from non-executing state.
-	S9xUseInstructionSet(instructionSet);
 }
 
 #define IPS_EOF 0x00454F46l

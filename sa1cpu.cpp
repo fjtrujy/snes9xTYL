@@ -61,11 +61,6 @@
 #define S9xOpcodesM1X0 S9xSA1OpcodesM1X0
 #define S9xOpcodesM0X1 S9xSA1OpcodesM0X1
 #define S9xOpcodesM0X0 S9xSA1OpcodesM0X0
-#define S9xOpcodesE1WakeSA1   S9xSA1OpcodesE1WakeSA1
-#define S9xOpcodesM1X1WakeSA1 S9xSA1OpcodesM1X1WakeSA1
-#define S9xOpcodesM1X0WakeSA1 S9xSA1OpcodesM1X0WakeSA1
-#define S9xOpcodesM0X1WakeSA1 S9xSA1OpcodesM0X1WakeSA1
-#define S9xOpcodesM0X0WakeSA1 S9xSA1OpcodesM0X0WakeSA1
 #define S9xOpcode_IRQ S9xSA1Opcode_IRQ
 #define S9xOpcode_NMI S9xSA1Opcode_NMI
 #define S9xUnpackStatus S9xSA1UnpackStatus
@@ -93,7 +88,6 @@
 #define DirectIndirectLong SA1DirectIndirectLong
 #define StackRelative SA1StackRelative
 #define StackRelativeIndirectIndexed SA1StackRelativeIndirectIndexed
-#define S9xUseInstructionSet S9xUseInstructionSetSA1
 
 //#undef CPU_SHUTDOWN
 #undef VAR_CYCLES

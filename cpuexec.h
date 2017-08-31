@@ -106,8 +106,6 @@ extern struct SOpcodes S9xOpcodesM1X0 [256];
 extern struct SOpcodes S9xOpcodesM0X1 [256];
 extern struct SOpcodes S9xOpcodesM0X0 [256];
 
-void S9xUseInstructionSet(int set);
-
 #ifndef VAR_CYCLES
 extern uint8 S9xE1M1X1 [256];
 extern uint8 S9xE0M1X0 [256];

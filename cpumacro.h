@@ -1,43 +1,92 @@
-/*
- * Snes9x - Portable Super Nintendo Entertainment System (TM) emulator.
- *
- * (c) Copyright 1996 - 2001 Gary Henderson (gary.henderson@ntlworld.com) and
- *                           Jerremy Koot (jkoot@snes9x.com)
- *
- * Super FX C emulator code 
- * (c) Copyright 1997 - 1999 Ivar (ivar@snes9x.com) and
- *                           Gary Henderson.
- * Super FX assembler emulator code (c) Copyright 1998 zsKnight and _Demo_.
- *
- * DSP1 emulator code (c) Copyright 1998 Ivar, _Demo_ and Gary Henderson.
- * C4 asm and some C emulation code (c) Copyright 2000 zsKnight and _Demo_.
- * C4 C code (c) Copyright 2001 Gary Henderson (gary.henderson@ntlworld.com).
- *
- * DOS port code contains the works of other authors. See headers in
- * individual files.
- *
- * Snes9x homepage: http://www.snes9x.com
- *
- * Permission to use, copy, modify and distribute Snes9x in both binary and
- * source form, for non-commercial purposes, is hereby granted without fee,
- * providing that this license information and copyright notice appear with
- * all copies and any derived work.
- *
- * This software is provided 'as-is', without any express or implied
- * warranty. In no event shall the authors be held liable for any damages
- * arising from the use of this software.
- *
- * Snes9x is freeware for PERSONAL USE only. Commercial users should
- * seek permission of the copyright holders first. Commercial use includes
- * charging money for Snes9x or software derived from Snes9x.
- *
- * The copyright holders request that bug fixes and improvements to the code
- * should be forwarded to them so everyone can benefit from the modifications
- * in future versions.
- *
- * Super NES and Super Nintendo Entertainment System are trademarks of
- * Nintendo Co., Limited and its subsidiary companies.
- */
+/*******************************************************************************
+  Snes9x - Portable Super Nintendo Entertainment System (TM) emulator.
+ 
+  (c) Copyright 1996 - 2002 Gary Henderson (gary.henderson@ntlworld.com) and
+                            Jerremy Koot (jkoot@snes9x.com)
+
+  (c) Copyright 2001 - 2004 John Weidman (jweidman@slip.net)
+
+  (c) Copyright 2002 - 2004 Brad Jorsch (anomie@users.sourceforge.net),
+                            funkyass (funkyass@spam.shaw.ca),
+                            Joel Yliluoma (http://iki.fi/bisqwit/)
+                            Kris Bleakley (codeviolation@hotmail.com),
+                            Matthew Kendora,
+                            Nach (n-a-c-h@users.sourceforge.net),
+                            Peter Bortas (peter@bortas.org) and
+                            zones (kasumitokoduck@yahoo.com)
+
+  C4 x86 assembler and some C emulation code
+  (c) Copyright 2000 - 2003 zsKnight (zsknight@zsnes.com),
+                            _Demo_ (_demo_@zsnes.com), and Nach
+
+  C4 C++ code
+  (c) Copyright 2003 Brad Jorsch
+
+  DSP-1 emulator code
+  (c) Copyright 1998 - 2004 Ivar (ivar@snes9x.com), _Demo_, Gary Henderson,
+                            John Weidman, neviksti (neviksti@hotmail.com),
+                            Kris Bleakley, Andreas Naive
+
+  DSP-2 emulator code
+  (c) Copyright 2003 Kris Bleakley, John Weidman, neviksti, Matthew Kendora, and
+                     Lord Nightmare (lord_nightmare@users.sourceforge.net
+
+  OBC1 emulator code
+  (c) Copyright 2001 - 2004 zsKnight, pagefault (pagefault@zsnes.com) and
+                            Kris Bleakley
+  Ported from x86 assembler to C by sanmaiwashi
+
+  SPC7110 and RTC C++ emulator code
+  (c) Copyright 2002 Matthew Kendora with research by
+                     zsKnight, John Weidman, and Dark Force
+
+  S-DD1 C emulator code
+  (c) Copyright 2003 Brad Jorsch with research by
+                     Andreas Naive and John Weidman
+ 
+  S-RTC C emulator code
+  (c) Copyright 2001 John Weidman
+  
+  ST010 C++ emulator code
+  (c) Copyright 2003 Feather, Kris Bleakley, John Weidman and Matthew Kendora
+
+  Super FX x86 assembler emulator code 
+  (c) Copyright 1998 - 2003 zsKnight, _Demo_, and pagefault 
+
+  Super FX C emulator code 
+  (c) Copyright 1997 - 1999 Ivar, Gary Henderson and John Weidman
+
+
+  SH assembler code partly based on x86 assembler code
+  (c) Copyright 2002 - 2004 Marcus Comstedt (marcus@mc.pp.se) 
+
+ 
+  Specific ports contains the works of other authors. See headers in
+  individual files.
+ 
+  Snes9x homepage: http://www.snes9x.com
+ 
+  Permission to use, copy, modify and distribute Snes9x in both binary and
+  source form, for non-commercial purposes, is hereby granted without fee,
+  providing that this license information and copyright notice appear with
+  all copies and any derived work.
+ 
+  This software is provided 'as-is', without any express or implied
+  warranty. In no event shall the authors be held liable for any damages
+  arising from the use of this software.
+ 
+  Snes9x is freeware for PERSONAL USE only. Commercial users should
+  seek permission of the copyright holders first. Commercial use includes
+  charging money for Snes9x or software derived from Snes9x.
+ 
+  The copyright holders request that bug fixes and improvements to the code
+  should be forwarded to them so everyone can benefit from the modifications
+  in future versions.
+ 
+  Super NES and Super Nintendo Entertainment System are trademarks of
+  Nintendo Co., Limited and its subsidiary companies.
+*******************************************************************************/
+
 #ifndef _CPUMACRO_H_
 #define _CPUMACRO_H_
 
@@ -68,6 +117,7 @@ STATIC inline void ADC8 (long OpAddress)
 	if (A1 > 9)
 	{
 	    A1 -= 10;
+		A1 &= 0xF;
 	    A2++;
 	}
 
@@ -75,6 +125,7 @@ STATIC inline void ADC8 (long OpAddress)
 	if (A2 > 9)
 	{
 	    A2 -= 10;
+		A2 &= 0xF;
 	    SetCarry ();
 	}
 	else
@@ -127,6 +178,7 @@ STATIC inline void ADC16 (long OpAddress)
 	if (A1 > 9)
 	{
 	    A1 -= 10;
+		A1 &= 0xF;
 	    A2++;
 	}
 
@@ -134,6 +186,7 @@ STATIC inline void ADC16 (long OpAddress)
 	if (A2 > 9)
 	{
 	    A2 -= 10;
+		A2 &= 0xF;
 	    A3++;
 	}
 
@@ -141,6 +194,7 @@ STATIC inline void ADC16 (long OpAddress)
 	if (A3 > 9)
 	{
 	    A3 -= 10;
+		A3 &= 0xF;
 	    A4++;
 	}
 
@@ -148,6 +202,7 @@ STATIC inline void ADC16 (long OpAddress)
 	if (A4 > 9)
 	{
 	    A4 -= 10;
+		A4 &= 0xF;
 	    SetCarry ();
 	}
 	else
@@ -220,7 +275,9 @@ STATIC inline void ASL16 (long OpAddress)
     uint16 Work16 = S9xGetWord (OpAddress);
     ICPU._Carry = (Work16 & 0x8000) != 0;
     Work16 <<= 1;
-    S9xSetWord (Work16, OpAddress);
+    //S9xSetWord (Work16, OpAddress);
+	S9xSetByte(Work16>>8, OpAddress+1);
+	S9xSetByte(Work16&0xFF, OpAddress);
     SetZN16 (Work16);
 }
 
@@ -336,8 +393,10 @@ STATIC inline void DEC16 (long OpAddress)
 #endif
 
     uint16 Work16 = S9xGetWord (OpAddress) - 1;
-    S9xSetWord (Work16, OpAddress);
-    SetZN16 (Work16);
+    //S9xSetWord (Work16, OpAddress);
+    S9xSetByte (Work16>>8, OpAddress+1);
+	S9xSetByte (Work16&0xFF, OpAddress);
+	SetZN16 (Work16);
 }
 
 STATIC inline void DEC8 (long OpAddress)
@@ -351,39 +410,6 @@ STATIC inline void DEC8 (long OpAddress)
 
     uint8 Work8 = S9xGetByte (OpAddress) - 1;
     S9xSetByte (Work8, OpAddress);
-    SetZN8 (Work8);
-}
-
-//-------------------------------------------------------
-// DEC (Wake SA1 if required)
-//-------------------------------------------------------
-
-STATIC inline void  DEC16WakeSA1 (long OpAddress)
-{
-#ifdef VAR_CYCLES
-    CPU.Cycles += ONE_CYCLE;
-#endif
-#ifdef CPU_SHUTDOWN
-    CPU.WaitAddress = NULL;
-#endif
-
-    uint16 Work16 = S9xGetWord (OpAddress) - 1;
-    CpuSetByteWakeSA1 (Work16>>8, OpAddress+1);
-	CpuSetByteWakeSA1 (Work16&0xFF, OpAddress);
-	SetZN16 (Work16);
-}
-
-STATIC inline void  DEC8WakeSA1 (long OpAddress)
-{
-#ifdef VAR_CYCLES
-    CPU.Cycles += ONE_CYCLE;
-#endif
-#ifdef CPU_SHUTDOWN
-    CPU.WaitAddress = NULL;
-#endif
-
-    uint8 Work8 = S9xGetByte (OpAddress) - 1;
-    CpuSetByteWakeSA1 (Work8, OpAddress);
     SetZN8 (Work8);
 }
 
@@ -435,7 +461,9 @@ STATIC inline void INC16 (long OpAddress)
 #endif
 
     uint16 Work16 = S9xGetWord (OpAddress) + 1;
-    S9xSetWord (Work16, OpAddress);
+    //S9xSetWord (Work16, OpAddress);
+	S9xSetByte (Work16>>8, OpAddress+1);
+	S9xSetByte (Work16&0xFF, OpAddress);
     SetZN16 (Work16);
 }
 
@@ -450,39 +478,6 @@ STATIC inline void INC8 (long OpAddress)
 
     uint8 Work8 = S9xGetByte (OpAddress) + 1;
     S9xSetByte (Work8, OpAddress);
-    SetZN8 (Work8);
-}
-
-//-------------------------------------------------------
-// INC (Wake SA1 if required)
-//-------------------------------------------------------
-
-STATIC inline void  INC16WakeSA1 (long OpAddress)
-{
-#ifdef VAR_CYCLES
-    CPU.Cycles += ONE_CYCLE;
-#endif
-#ifdef CPU_SHUTDOWN
-    CPU.WaitAddress = NULL;
-#endif
-
-    uint16 Work16 = S9xGetWord (OpAddress) + 1;
-	CpuSetByteWakeSA1 (Work16>>8, OpAddress+1);
-	CpuSetByteWakeSA1 (Work16&0xFF, OpAddress);
-    SetZN16 (Work16);
-}
-
-STATIC inline void  INC8WakeSA1 (long OpAddress)
-{
-#ifdef VAR_CYCLES
-    CPU.Cycles += ONE_CYCLE;
-#endif
-#ifdef CPU_SHUTDOWN
-    CPU.WaitAddress = NULL;
-#endif
-
-    uint8 Work8 = S9xGetByte (OpAddress) + 1;
-    CpuSetByteWakeSA1 (Work8, OpAddress);
     SetZN8 (Work8);
 }
 
@@ -550,7 +545,9 @@ STATIC inline void LSR16 (long OpAddress)
     uint16 Work16 = S9xGetWord (OpAddress);
     ICPU._Carry = Work16 & 1;
     Work16 >>= 1;
-    S9xSetWord (Work16, OpAddress);
+    //S9xSetWord (Work16, OpAddress);
+	S9xSetByte (Work16>>8, OpAddress+1);
+	S9xSetByte (Work16&0xFF, OpAddress);
     SetZN16 (Work16);
 }
 
@@ -611,7 +608,9 @@ STATIC inline void ROL16 (long OpAddress)
     Work32 <<= 1;
     Work32 |= CheckCarry();
     ICPU._Carry = Work32 >= 0x10000;
-    S9xSetWord ((uint16) Work32, OpAddress);
+    //S9xSetWord ((uint16) Work32, OpAddress);
+	S9xSetByte((Work32>>8)&0xFF, OpAddress+1);
+	S9xSetByte(Work32&0xFF, OpAddress);
     SetZN16 ((uint16) Work32);
 }
 
@@ -662,7 +661,9 @@ STATIC inline void ROR16 (long OpAddress)
     Work32 |= (int) CheckCarry() << 16;
     ICPU._Carry = (uint8) (Work32 & 1);
     Work32 >>= 1;
-    S9xSetWord ((uint16) Work32, OpAddress);
+    //S9xSetWord ((uint16) Work32, OpAddress);
+	S9xSetByte ( (Work32>>8)&0x00FF, OpAddress+1);
+	S9xSetByte (Work32&0x00FF, OpAddress);
     SetZN16 ((uint16) Work32);
 }
 
@@ -810,20 +811,6 @@ STATIC inline void STA8 (long OpAddress)
     S9xSetByte (Registers.AL, OpAddress);
 }
 
-//-------------------------------------------------------
-// STA (Wake SA1 if required)
-//-------------------------------------------------------
-
-STATIC inline void  STA16WakeSA1 (long addr)
-{
-    CpuSetWordWakeSA1 (Registers.A.W, addr);
-}
-
-STATIC inline void  STA8WakeSA1 (long addr)
-{
-    CpuSetByteWakeSA1 (Registers.AL, addr);
-}
-
 STATIC inline void STX16 (long OpAddress)
 {
     S9xSetWord (Registers.X.W, OpAddress);
@@ -832,20 +819,6 @@ STATIC inline void STX16 (long OpAddress)
 STATIC inline void STX8 (long OpAddress)
 {
     S9xSetByte (Registers.XL, OpAddress);
-}
-
-//-------------------------------------------------------
-// STX (Wake SA1 if required)
-//-------------------------------------------------------
-
-STATIC inline void  STX16WakeSA1 (long addr)
-{
-    CpuSetWordWakeSA1 (Registers.X.W, addr);
-}
-
-STATIC inline void  STX8WakeSA1 (long addr)
-{
-    CpuSetByteWakeSA1 (Registers.XL, addr);
 }
 
 STATIC inline void STY16 (long OpAddress)
@@ -858,20 +831,6 @@ STATIC inline void STY8 (long OpAddress)
     S9xSetByte (Registers.YL, OpAddress);
 }
 
-//-------------------------------------------------------
-// STY (Wake SA1 if required)
-//-------------------------------------------------------
-
-STATIC inline void  STY16WakeSA1 (long addr)
-{
-    CpuSetWordWakeSA1 (Registers.Y.W, addr);
-}
-
-STATIC inline void  STY8WakeSA1 (long addr)
-{
-    CpuSetByteWakeSA1 (Registers.YL, addr);
-}
-
 STATIC inline void STZ16 (long OpAddress)
 {
     S9xSetWord (0, OpAddress);
@@ -882,20 +841,6 @@ STATIC inline void STZ8 (long OpAddress)
     S9xSetByte (0, OpAddress);
 }
 
-//-------------------------------------------------------
-// STZ (Wake SA1 if required)
-//-------------------------------------------------------
-
-STATIC inline void  STZ16WakeSA1 (long addr)
-{
-    CpuSetWordWakeSA1 (0, addr);
-}
-
-STATIC inline void  STZ8WakeSA1 (long addr)
-{
-    CpuSetByteWakeSA1 (0, addr);
-}
-
 STATIC inline void TSB16 (long OpAddress)
 {
 #ifdef VAR_CYCLES
@@ -904,7 +849,9 @@ STATIC inline void TSB16 (long OpAddress)
     uint16 Work16 = S9xGetWord (OpAddress);
     ICPU._Zero = (Work16 & Registers.A.W) != 0;
     Work16 |= Registers.A.W;
-    S9xSetWord (Work16, OpAddress);
+    //S9xSetWord (Work16, OpAddress);
+	S9xSetByte (Work16>>8, OpAddress+1);
+	S9xSetByte (Work16&0xFF, OpAddress);
 }
 
 STATIC inline void TSB8 (long OpAddress)
@@ -918,34 +865,6 @@ STATIC inline void TSB8 (long OpAddress)
     S9xSetByte (Work8, OpAddress);
 }
 
-//-------------------------------------------------------
-// TSB (Wake SA1 if required)
-//-------------------------------------------------------
-
-STATIC inline void  TSB16WakeSA1 (long OpAddress)
-{
-#ifdef VAR_CYCLES
-    CPU.Cycles += ONE_CYCLE;
-#endif
-    uint16 Work16 = S9xGetWord (OpAddress);
-    ICPU._Zero = (Work16 & Registers.A.W) != 0;
-    Work16 |= Registers.A.W;
-	CpuSetByteWakeSA1 (Work16>>8, OpAddress+1);
-	CpuSetByteWakeSA1 (Work16&0xFF, OpAddress);
-}
-
-
-STATIC inline void  TSB8WakeSA1 (long OpAddress)
-{
-#ifdef VAR_CYCLES
-    CPU.Cycles += ONE_CYCLE;
-#endif
-    uint8 Work8 = S9xGetByte (OpAddress);
-    ICPU._Zero = Work8 & Registers.AL;
-    Work8 |= Registers.AL;
-    CpuSetByteWakeSA1 (Work8, OpAddress);
-}
-
 STATIC inline void TRB16 (long OpAddress)
 {
 #ifdef VAR_CYCLES
@@ -954,7 +873,9 @@ STATIC inline void TRB16 (long OpAddress)
     uint16 Work16 = S9xGetWord (OpAddress);
     ICPU._Zero = (Work16 & Registers.A.W) != 0;
     Work16 &= ~Registers.A.W;
-    S9xSetWord (Work16, OpAddress);
+    //S9xSetWord (Work16, OpAddress);
+	S9xSetByte (Work16>>8, OpAddress+1);
+	S9xSetByte (Work16&0xFF, OpAddress);
 }
 
 STATIC inline void TRB8 (long OpAddress)
@@ -966,33 +887,6 @@ STATIC inline void TRB8 (long OpAddress)
     ICPU._Zero = Work8 & Registers.AL;
     Work8 &= ~Registers.AL;
     S9xSetByte (Work8, OpAddress);
-}
-
-//-------------------------------------------------------
-// TRB (Wake SA1 if required)
-//-------------------------------------------------------
-
-STATIC inline void  TRB16WakeSA1 (long OpAddress)
-{
-#ifdef VAR_CYCLES
-    CPU.Cycles += ONE_CYCLE;
-#endif
-    uint16 Work16 = S9xGetWord (OpAddress);
-    ICPU._Zero = (Work16 & Registers.A.W) != 0;
-    Work16 &= ~Registers.A.W;
-	CpuSetByteWakeSA1 (Work16>>8, OpAddress+1);
-	CpuSetByteWakeSA1 (Work16&0xFF, OpAddress);
-}
-
-STATIC inline void  TRB8WakeSA1 (long OpAddress)
-{
-#ifdef VAR_CYCLES
-    CPU.Cycles += ONE_CYCLE;
-#endif
-    uint8 Work8 = S9xGetByte (OpAddress);
-    ICPU._Zero = Work8 & Registers.AL;
-    Work8 &= ~Registers.AL;
-    CpuSetByteWakeSA1 (Work8, OpAddress);
 }
 
 #endif
