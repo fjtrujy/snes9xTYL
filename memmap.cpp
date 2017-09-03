@@ -780,13 +780,12 @@ if (!Settings.ForceHiROM && !Settings.ForceLoROM &&
 	!Settings.ForceSDD1)
     {
     
-	    if(strncmp((char *) &ROM [0x7fc0], "YOSHI'S ISLAND", 14) == 0&&(*(uint16*)&ROM[0x7FDE])==57611&&ROM[0x10002]==0xA9)
+	    /*if(strncmp((char *) &ROM [0x7fc0], "YOSHI'S ISLAND", 14) == 0&&(*(uint16*)&ROM[0x7FDE])==57611&&ROM[0x10002]==0xA9)
 		{
 			Interleaved=true;
 			Settings.ForceInterleaved2=true;
-		}
-
-    
+		}*/
+		
 		if (strncmp ((char *) &ROM [0x7fc0], "YUYU NO QUIZ DE GO!GO!", 22) == 0)
 		{
 		    LoROM = TRUE;
@@ -1027,11 +1026,11 @@ if (!Settings.ForceHiROM && !Settings.ForceLoROM &&
 	!Settings.ForceSDD1)
     {
     
-	    if(strncmp((char *) &ROM [0x7fc0], "YOSHI'S ISLAND", 14) == 0&&(*(uint16*)&ROM[0x7FDE])==57611&&ROM[0x10002]==0xA9)
+	    /*if(strncmp((char *) &ROM [0x7fc0], "YOSHI'S ISLAND", 14) == 0&&(*(uint16*)&ROM[0x7FDE])==57611&&ROM[0x10002]==0xA9)
 		{
 			Interleaved=true;
 			Settings.ForceInterleaved2=true;
-		}
+		}*/
 
     
 		if (strncmp ((char *) &ROM [0x7fc0], "YUYU NO QUIZ DE GO!GO!", 22) == 0)
@@ -2011,16 +2010,16 @@ void CMemory::InitROM (bool8 Interleaved)
 	    p--;
 	*p = 0;
     }
-    if (Settings.SuperFX)
+    /*if (Settings.SuperFX)
     {
 	SRAMMask = 0xffff;
 	Memory.SRAMSize = 16;
     }
     else
-    {
+    {*/
 	SRAMMask = Memory.SRAMSize ?
 		    ((1 << (Memory.SRAMSize + 3)) * 128) - 1 : 0;
-    }
+    //}
 
     (IAPUuncached.OneCycle) = ONE_APU_CYCLE;
     Settings.Shutdown = Settings.ShutdownMaster;
@@ -3583,31 +3582,32 @@ uint8 CMemory::GetByte (uint32 Address)
 // Code based on snes9x 3DS
 void CMemory::ApplySpeedHackPatches()
 {
-	// Patch 
-	for (int n = 0; n < SNESGameFixes.SpeedHackCount; n++)
+	// Patch
+	//for (int n = 0; n < SNESGameFixes.SpeedHackCount; n++)
+	if(SNESGameFixes.SpeedHackCount)
 	{
 		// First check that the original bytes matches.
 		//
 		bool allMatches = true;
-		for (int i = 0; i < 4 && SNESGameFixes.SpeedHackOriginalBytes[n][i] != -1; i++)
+		for (int i = 0; i < 4 && SNESGameFixes.SpeedHackOriginalBytes[0][i] != -1; i++)
 		{
-			uint8 byte = GetByte(SNESGameFixes.SpeedHackSNESAddress[n] + i);
-			if (SNESGameFixes.SpeedHackOriginalBytes[n][i] != byte)
+			uint8 byte = GetByte(SNESGameFixes.SpeedHackSNESAddress[0] + i);
+			if (SNESGameFixes.SpeedHackOriginalBytes[0][i] != byte)
 			{
 				allMatches = false;
 				break;
 			}
 		}
 
-		if (allMatches){
-			*SNESGameFixes.SpeedHackAddress[n] = 0xDB;
-		}
+		if (allMatches)
+			*SNESGameFixes.SpeedHackAddress[0] = 0xDB;
 	}
 	
 	//Since there is just one SA1 speedhack that will be applied, I'll remove the 'for' cycle for now
 	//for (int n = 0; n < SNESGameFixes.SpeedHackSA1Count; n++)
 	if(SNESGameFixes.SpeedHackSA1Count)
-	{
+		*SNESGameFixes.SpeedHackSA1Address[0] = 0x42;
+	/*{
 		// First check that the original bytes matches.
 		//
 		bool allMatches = true;
@@ -3624,7 +3624,7 @@ void CMemory::ApplySpeedHackPatches()
 		if (allMatches){
 			*SNESGameFixes.SpeedHackSA1Address[0] = 0x42;
 		}
-	}
+	}*/
 }
 
 void CMemory::ApplyROMFixes ()
@@ -3866,7 +3866,7 @@ void CMemory::ApplyROMFixes ()
     if (strcmp (ROMId, "ATQP") == 0)
 	Settings.WrestlemaniaArcade = TRUE;
 
-    if (strncmp (ROMId, "A3M", 3) == 0 && Settings.CyclesPercentage == 100)
+    if ((strncmp (ROMId, "A3ME", 3) == 0 || strncmp (ROMId, "A3ZE", 3) == 0) && Settings.CyclesPercentage == 100)
 	// Mortal Kombat 3. Fixes cut off speech sample
 	Settings.H_Max = (SNES_CYCLES_PER_SCANLINE * 110) / 100;
 
@@ -3874,12 +3874,12 @@ void CMemory::ApplyROMFixes ()
 	Settings.CyclesPercentage == 100)
 	Settings.H_Max = (SNES_CYCLES_PER_SCANLINE * 101) / 100;
 
-    if (strcmp (ROMName, "WILD TRAX") == 0 || 
+    /*if (strcmp (ROMName, "WILD TRAX") == 0 || 
 		strcmp (ROMName, "STAR FOX 2") == 0 || 
 		strcmp (ROMName, "YOSSY'S ISLAND") == 0 || 
 		strcmp (ROMName, "YOSHI'S ISLAND") == 0 || 
 		strcasecmp (ROMName, "YOSHI'S ISLAND") == 0)
-	CPU.TriedInterleavedMode2 = TRUE;
+	CPU.TriedInterleavedMode2 = TRUE;*/
 
     // Start Trek: Deep Sleep 9
     if (strncmp (ROMId, "A9D", 3) == 0 && Settings.CyclesPercentage == 100)
@@ -4263,32 +4263,26 @@ if (ROM [adr] == ov) \
 	
 	SNESGameFixes.SpeedHackCount = 0;
 	SNESGameFixes.SpeedHackSA1Count = 0;
-	Settings.SpeedHack = false;
 	
 	if (strcmp (ROMName, "YOSHI'S ISLAND") == 0)
 	{
 		SpeedHackAdd(0x0080F4, 54, 0x30, 0xfb, -1, -1);  // US + EUR version
-		Settings.SpeedHack = true;
 	}
 	if (strcmp (ROMName, "SUPER MARIO KART") == 0)
 	{
 		SpeedHackAdd(0x80805E, 46, 0xf0, 0xfc, -1, -1);  // US + EUR version
-		Settings.SpeedHack = true;
 	}
 	if (strcmp (ROMName, "F-ZERO") == 0)
 	{
 		SpeedHackAdd(0x00803C, 46, 0xf0, 0xfc, -1, -1);  // US + EUR version
-		Settings.SpeedHack = true;
 	}
 	if (strcmp (ROMName, "\xb4\xb0\xbd\xa6\xc8\xd7\xb4\x21") == 0)	// Ace o Nerae
 	{
-		SpeedHackAdd(0x80C458, -1, 0x10, 0xfb);  
-		Settings.SpeedHack = true;
+		SpeedHackAdd(0x80C458, -1, 0x10, 0xfb);
 	}
 	if (strcmp (ROMName, "AXELAY") == 0)
 	{
 		SpeedHackAdd(0x00893D, -1, 0xf0, 0xdb, -1, -1);  // US + EUR version
-		Settings.SpeedHack = true;
 	}
 		
 	// SA1 Games Speed Hacks
@@ -4300,41 +4294,35 @@ if (ROM [adr] == ov) \
 		SpeedHackAdd(0x7FF7AF, -1, 0xF0, 0xFB);  // 
 		SpeedHackAdd(0xC202E9, -1, 0xD0, 0xFB);	 //
 		SpeedHackSA1Add(0xC08171, 0xF0, 0xFC);
-		Settings.SpeedHack = true;
 	}
 	if (strcmp (ROMName, "KIRBY'S DREAM LAND 3") == 0)
 	{
 		SpeedHackAdd(0x00949B, -1, 0xF0, 0xFB);  
 		SpeedHackSA1Add(0x0082D7, 0xF0, 0xFB);
 		//SpeedHackSA1Add(0x00A970, 0xF0, 0xFB);
-		Settings.SpeedHack = true;
 	}
 	if (strcmp (ROMName, "OSHABERI PARODIUS") == 0)
 	{
 		SpeedHackAdd(0x80814A, -1, 0x80, 0xF0);  
 		SpeedHackSA1Add(0x8084E8, 0x80, 0xFB);
-		Settings.SpeedHack = true;
 	}
     // KIRBY SUPER DELUXE JAP 
     if (strcmp (ROMId, "AKFJ") == 0)
     {
 		SpeedHackAdd(0x008A59, -1, 0x80, 0xF0);  
 		SpeedHackSA1Add(0x008C96, 0x30, 0x09);
-		Settings.SpeedHack = true;
     }
     // KIRBY SUPER DELUXE US 
     if (strcmp (ROMId, "AKFE") == 0)
     {
 		SpeedHackAdd(0x008A59, -1, 0xF0, 0xFB);  
 		SpeedHackSA1Add(0x008CBB, 0x30, 0x09);
-		Settings.SpeedHack = true;
     }
 	// MARVELOUS 
     if (strcmp (ROMId, "AVRJ") == 0)
     {
 		SpeedHackAdd(0x009941, -1, 0xF0, 0xFB);  
 		SpeedHackSA1Add(0x0085F4, 0xf0, 0xfc);
-		Settings.SpeedHack = true;
     }
 	// SUPER ROBOT TAISEN - MASOUKISHIN 
     if (strcmp (ROMId, "ALXJ") == 0)
@@ -4342,7 +4330,6 @@ if (ROM [adr] == ov) \
 		SpeedHackAdd(0x00F0AF, -1, 0x70, 0xFC);
 		SpeedHackSA1Add(0x00EC9F, 0xf0, 0xfb);
 		SA1.WaitByteAddress1 = ROM_GLOBAL + 0x003072;
-		Settings.SpeedHack = true;
     }
     // PANIC BOMBER WORLD 
     if (strcmp (ROMId, "APBJ") == 0)
@@ -4350,93 +4337,78 @@ if (ROM [adr] == ov) \
 		SpeedHackAdd(0x0082AA, -1, 0xF0, 0xFC);
 		SpeedHackSA1Add(0x00857A, 0xCB);
 		SA1.WaitAddress = SA1.Map [0x00857a >> MEMMAP_SHIFT] + 0x857a;
-		Settings.SpeedHack = true;
     }
     // Dragon Ballz HD 
     if (strcmp (ROMId, "AZIJ") == 0)
     {
 		SpeedHackAdd(0x008031, -1, 0xD0, 0xFB); 
 		SpeedHackSA1Add(0x0080BF, 0x4C, 0x83, 0x80);
-		Settings.SpeedHack = true;
     }
     // SFC SDGUNDAMGNEXT 
     if (strcmp (ROMId, "ZX3J") == 0)
     {
 		SpeedHackSA1Add(0x01AE76, 0xD0, 0xFC);
-		Settings.SpeedHack = true;
     }
     // POWER RANGERS 4 
     if (strcmp (ROMId, "A4RE") == 0)
     {
 		SpeedHackAdd(0x0082B0, -1, 0xF0, 0xFC);
 		SpeedHackSA1Add(0x00989F, 0x80, 0xF8);
-		Settings.SpeedHack = true;
     }
     // DAISENRYAKU EXPERTWW2 
     if (strcmp (ROMId, "AEVJ") == 0)
     {
 		SpeedHackSA1Add(0x0ED18F, 0xF0, 0xFC);
-		Settings.SpeedHack = true;
     }
     // AUGUSTA3 MASTERS NEW 
     if (strcmp (ROMId, "AO3J") == 0)
     {
 		SpeedHackAdd(0x00CFAF, -1, 0xF0, 0xFA);
 		SpeedHackSA1Add(0x00DDDE, 0xF0, 0xFB);
-		Settings.SpeedHack = true;
     }
     // Bass Fishing 
     if (strcmp (ROMId, "ZBPJ") == 0)
     {
 		SpeedHackSA1Add(0x0093F4, 0xF0, 0xFB);
-		Settings.SpeedHack = true;
     }
     // J96 DREAM STADIUM 
     if (strcmp (ROMId, "AJ6J") == 0)
     {
 		SpeedHackSA1Add(0xC0F74A, 0x80, 0xFE);
-		Settings.SpeedHack = true;
     }
     // Jumpin' Derby 
     if (strcmp (ROMId, "AJUJ") == 0)
     {
 		SpeedHackSA1Add(0x00d926, 0x80, 0xFE);
-		Settings.SpeedHack = true;
     }
     // SHINING SCORPION 
     if (strcmp (ROMId, "A4WJ") == 0)
     {
 		//SpeedHackAdd(0xC00185, -1, 0xF0, 0xFC);
 		SpeedHackSA1Add(0xC048C0, 0x80, 0xFC);
-		Settings.SpeedHack = true;
     }
     // PEBBLE BEACH NEW 
     if (strcmp (ROMId, "AONJ") == 0)
     {
 		SpeedHackSA1Add(0x00DF36, 0xF0, 0xFB);
-		Settings.SpeedHack = true;
     }
     // PGA EUROPEAN TOUR 
     if (strcmp (ROMId, "AEPE") == 0)
     {
 		SpeedHackSA1Add(0x003704, 0xF0, 0xFA);
-		Settings.SpeedHack = true;
     }
     // PGA TOUR 96 
     if (strcmp (ROMId, "A3GE") == 0)
     {
 		SpeedHackSA1Add(0x003704, 0xF0, 0xFA);
-		Settings.SpeedHack = true;
     }
     // SD F1 GRAND PRIX 
     if (strcmp (ROMId, "AGFJ") == 0)
     {
 		SpeedHackSA1Add(0x0181BC, 0x80, 0xFE);
-		Settings.SpeedHack = true;
     }
 	
 	ApplySpeedHackPatches();
-
 }
 
 #define IPS_EOF 0x00454F46l

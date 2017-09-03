@@ -863,6 +863,7 @@ static int os9x_findhacks(int game_crc32){
 				//pgPrintAllBG(32,31-p++,0xFFFF,str);
 				
 				if ((val==0x42)||((val&0xFF00)==0x4200)) {
+					Settings.SNESAdvanceHack = true;
 					if (val&0xFF00) {
 						Memory.ROM[adr]=(val>>8)&0xFF;
 						Memory.ROM[adr+1]=val&0xFF;

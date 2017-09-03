@@ -492,10 +492,7 @@ void S9xSetAPUDSP (uint8 byte)
     case APU_VOL_LEFT + 0x70:
 		// At Shin Megami Tensei suggestion 6/11/00
 		//	if (byte != APUPack.APU.DSP[reg])
-		{
-			S9xSetSoundVolume (reg >> 4, (signed char) byte,
-				(signed char) APUPack.APU.DSP[reg + 1]);
-		}
+		S9xSetSoundVolume (reg >> 4, (signed char) byte, (signed char) APUPack.APU.DSP[reg + 1]);
 		break;
     case APU_VOL_RIGHT + 0x00:
     case APU_VOL_RIGHT + 0x10:
@@ -507,10 +504,7 @@ void S9xSetAPUDSP (uint8 byte)
     case APU_VOL_RIGHT + 0x70:
 		// At Shin Megami Tensei suggestion 6/11/00
 		//	if (byte != APUPack.APU.DSP[reg])
-		{
-			S9xSetSoundVolume (reg >> 4, (signed char) APUPack.APU.DSP[reg - 1],
-				(signed char) byte);
-		}
+		S9xSetSoundVolume (reg >> 4, (signed char) APUPack.APU.DSP[reg - 1], (signed char) byte);
 		break;
 		
     case APU_P_LOW + 0x00:
@@ -558,12 +552,7 @@ void S9xSetAPUDSP (uint8 byte)
     case APU_ADSR1 + 0x60:
     case APU_ADSR1 + 0x70:
 		if (byte != APUPack.APU.DSP[reg])
-		{
-			{
-				S9xFixEnvelope (reg >> 4, APUPack.APU.DSP[reg + 2], byte, 
-					APUPack.APU.DSP[reg + 1]);
-			}
-		}
+			S9xFixEnvelope (reg >> 4, APUPack.APU.DSP[reg + 2], byte, APUPack.APU.DSP[reg + 1]);
 		break;
 		
     case APU_ADSR2 + 0x00:
@@ -575,12 +564,7 @@ void S9xSetAPUDSP (uint8 byte)
     case APU_ADSR2 + 0x60:
     case APU_ADSR2 + 0x70:
 		if (byte != APUPack.APU.DSP[reg])
-		{
-			{
-				S9xFixEnvelope (reg >> 4, APUPack.APU.DSP[reg + 1], APUPack.APU.DSP[reg - 1],
-					byte);
-			}
-		}
+			S9xFixEnvelope (reg >> 4, APUPack.APU.DSP[reg + 1], APUPack.APU.DSP[reg - 1], byte);
 		break;
 		
     case APU_GAIN + 0x00:
@@ -592,12 +576,7 @@ void S9xSetAPUDSP (uint8 byte)
     case APU_GAIN + 0x60:
     case APU_GAIN + 0x70:
 		if (byte != APUPack.APU.DSP[reg])
-		{
-			{
-				S9xFixEnvelope (reg >> 4, byte, APUPack.APU.DSP[reg - 2],
-					APUPack.APU.DSP[reg - 1]);
-			}
-		}
+			S9xFixEnvelope (reg >> 4, byte, APUPack.APU.DSP[reg - 2], APUPack.APU.DSP[reg - 1]);
 		break;
 		
     case APU_ENVX + 0x00:
@@ -625,18 +604,14 @@ void S9xSetAPUDSP (uint8 byte)
 		
     case APU_PMON:
 		if (byte != APUPack.APU.DSP[APU_PMON])
-		{
 			S9xSetFrequencyModulationEnable (byte);
-		}
 		break;
 		
     case APU_EON:
 		if (byte != APUPack.APU.DSP[APU_EON])
-		{
 			S9xSetEchoEnable (byte);
-		}
 		break;
-		
+	
     case APU_EFB:
 		S9xSetEchoFeedback ((signed char) byte);
 		break;
@@ -816,17 +791,17 @@ uint8 S9xGetAPUDSP ()
     case APU_OUTX + 0x50:
     case APU_OUTX + 0x60:
     case APU_OUTX + 0x70:
-		if(Settings.FakeMuteFix)
+		/*if(Settings.FakeMuteFix)
 		{
 			// hack that is off by default: fixes Terranigma desync
 			return (0);
 		}
 		else
-		{
+		{*/
 			if (SoundData.channels [reg >> 4].state == SOUND_SILENT)
 				return (0);
 			return (int8) (SoundData.channels [reg >> 4].out_sample >> 8);
-		}
+		//}
     case APU_ENVX + 0x00:
     case APU_ENVX + 0x10:
     case APU_ENVX + 0x20:

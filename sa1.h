@@ -147,7 +147,7 @@ extern struct SOpcodes S9xSA1OpcodesM1X0 [256];
 extern struct SOpcodes S9xSA1OpcodesM0X1 [256];
 extern struct SOpcodes S9xSA1OpcodesM0X0 [256];
 
-void S9xSA1MainLoop ();
+//void S9xSA1MainLoop ();
 void S9xSA1CheckIRQ ();
 void S9xSA1Init ();
 void S9xFixSA1AfterSnapshotLoad ();

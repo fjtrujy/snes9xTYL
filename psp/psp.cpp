@@ -3499,7 +3499,7 @@ static void setup_Main_Loops()
 {
 	// If we have harcoded speedhacks then we use S9xMainLoopWithSpeedHacks.
 	//
-	if (Settings.SpeedHack)
+	if (SNESGameFixes.SpeedHackCount || SNESGameFixes.SpeedHackSA1Count)
 		S9x_Current_Main_Loop = S9xMainLoopWithSpeedHacks;
 	else
 		S9x_Current_Main_Loop = S9xMainLoop;
@@ -3625,7 +3625,8 @@ static int init_snes_rom() {
   Settings.StopEmulation = TRUE;
   Settings.Paused = FALSE;
   Settings.HBlankStart = (256 * Settings.H_Max) / SNES_HCOUNTER_MAX;
-
+	
+  Settings.SNESAdvanceHack = false;
   ///////////////////
   ///////////////////
   if (  !Memory.Init() ) {

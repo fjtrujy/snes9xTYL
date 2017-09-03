@@ -38,10 +38,10 @@
  * Super NES and Super Nintendo Entertainment System are trademarks of
  * Nintendo Co., Limited and its subsidiary companies.
  */
-#include "snes9x.h"
+//#include "snes9x.h"
 #include "memmap.h"
-#include "ppu.h"
-#include "cpuexec.h"
+//#include "ppu.h"
+//#include "cpuexec.h"
 
 #include "sa1.h"
 #undef CPU
@@ -95,11 +95,11 @@
 
 #include "cpuops.cpp"
 
-void S9xSA1MainLoop ()
+/*void S9xSA1MainLoop ()
 {
     //int i;
 
-/*#if 0
+#if 0
     if (SA1.Flags & NMI_FLAG)
     {
 	SA1.Flags &= ~NMI_FLAG;
@@ -110,7 +110,7 @@ void S9xSA1MainLoop ()
 	}
 	S9xSA1Opcode_NMI ();
     }
-#endif*/
+#endif
     if (SA1.Flags & IRQ_PENDING_FLAG)
     {
 	if (SA1.IRQActive)
@@ -126,7 +126,7 @@ void S9xSA1MainLoop ()
 	else
 	    SA1.Flags &= ~IRQ_PENDING_FLAG;
     }
-/*#ifdef DEBUGGER
+#ifdef DEBUGGER
     if (SA1.Flags & TRACE_FLAG)
     {
 	for (i = 0; i < 3 && SA1.Executing; i++)
@@ -146,11 +146,11 @@ void S9xSA1MainLoop ()
 	SA1.PCAtOpcodeStart = SA1.PC;
 #endif
 	(*SA1.S9xOpcodes [*SA1.PC++].S9xOpcode) ();
-    }*/
+    }
     (*SA1.S9xOpcodes [*SA1.PC++].S9xOpcode) ();
     (*SA1.S9xOpcodes [*SA1.PC++].S9xOpcode) ();
 	(*SA1.S9xOpcodes [*SA1.PC++].S9xOpcode) ();
-}
+}*/
 
 void S9xSA1CheckIRQ()
 {

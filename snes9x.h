@@ -378,7 +378,7 @@ struct SSettings{
     bool8  ApplyCheats;
     bool8  TurboMode;
 	bool8  sp;
-	bool8  SpeedHack;	//Check if a game has harcoded speedhacks
+	bool8  SNESAdvanceHack; //Check if a game has snesadvance.dat speedhacks
 	
     uint32 TurboSkipFrames;
     uint32 AutoMaxSkipFrames;

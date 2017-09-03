@@ -105,8 +105,8 @@ INLINE uint8 S9xGetByte (uint32 Address)
     uint8 *GetAddress = CPU.MemoryMap [block = (Address >> MEMMAP_SHIFT) & MEMMAP_MASK];
 #ifdef VAR_CYCLES
 	if ((intptr_t) GetAddress != Memory.MAP_CPU || !CPU.InDMA)
-#endif
         CPU.Cycles += CPU.MemorySpeed [block];
+#endif
 
     if (GetAddress >= (uint8 *) CMemory::MAP_LAST)
 		return (*(GetAddress + (Address & 0xffff)));
@@ -123,8 +123,8 @@ INLINE uint16 S9xGetWord (uint32 Address)
 				
 #ifdef VAR_CYCLES
 		if ((intptr_t) GetAddress != Memory.MAP_CPU || !CPU.InDMA)
-#endif
   	  	    CPU.Cycles += CPU.MemorySpeed [block];
+#endif
 
 		if (GetAddress >= (uint8 *) CMemory::MAP_LAST)
 		{
@@ -154,8 +154,8 @@ INLINE void S9xSetByte (uint8 Byte, uint32 Address)
 	
 #ifdef VAR_CYCLES
 	if ((intptr_t) SetAddress != Memory.MAP_CPU || !CPU.InDMA)
-#endif
 		CPU.Cycles += CPU.MemorySpeed [block];
+#endif
 	
     if (SetAddress >= (uint8 *) CMemory::MAP_LAST)
     {
@@ -194,8 +194,8 @@ INLINE void S9xSetWord(uint16 Word, uint32 Address)
 	
 #ifdef VAR_CYCLES
 	if ((intptr_t) SetAddress != Memory.MAP_CPU || !CPU.InDMA)
-#endif
 		CPU.Cycles += CPU.MemorySpeed [block];
+#endif
 
 	if (SetAddress >= (uint8 *) CMemory::MAP_LAST)
 	{

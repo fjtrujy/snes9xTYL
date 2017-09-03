@@ -249,11 +249,11 @@ void S9xMainLoop (void)
     S9xSyncSpeed ();
     CPU.Flags &= ~SCAN_KEYS_FLAG;
   }
-  if (CPU.BRKTriggered && Settings.SuperFX && !CPU.TriedInterleavedMode2) {
+  /*if (CPU.BRKTriggered && Settings.SuperFX && !CPU.TriedInterleavedMode2) {
     CPU.TriedInterleavedMode2 = TRUE;
     CPU.BRKTriggered = FALSE;
     S9xDeinterleaveMode2 ();
-  }
+  }*/
 
   /*(APURegistersUncached.PC) = (IAPUuncached.PC) - (IAPUuncached.RAM);
   S9xAPUPackStatusUncached ();*/

@@ -117,7 +117,6 @@ STATIC inline void ADC8 (long OpAddress)
 	if (A1 > 9)
 	{
 	    A1 -= 10;
-		A1 &= 0xF;
 	    A2++;
 	}
 
@@ -125,7 +124,6 @@ STATIC inline void ADC8 (long OpAddress)
 	if (A2 > 9)
 	{
 	    A2 -= 10;
-		A2 &= 0xF;
 	    SetCarry ();
 	}
 	else
@@ -178,7 +176,6 @@ STATIC inline void ADC16 (long OpAddress)
 	if (A1 > 9)
 	{
 	    A1 -= 10;
-		A1 &= 0xF;
 	    A2++;
 	}
 
@@ -186,7 +183,6 @@ STATIC inline void ADC16 (long OpAddress)
 	if (A2 > 9)
 	{
 	    A2 -= 10;
-		A2 &= 0xF;
 	    A3++;
 	}
 
@@ -194,7 +190,6 @@ STATIC inline void ADC16 (long OpAddress)
 	if (A3 > 9)
 	{
 	    A3 -= 10;
-		A3 &= 0xF;
 	    A4++;
 	}
 
@@ -202,7 +197,6 @@ STATIC inline void ADC16 (long OpAddress)
 	if (A4 > 9)
 	{
 	    A4 -= 10;
-		A4 &= 0xF;
 	    SetCarry ();
 	}
 	else
@@ -275,9 +269,7 @@ STATIC inline void ASL16 (long OpAddress)
     uint16 Work16 = S9xGetWord (OpAddress);
     ICPU._Carry = (Work16 & 0x8000) != 0;
     Work16 <<= 1;
-    //S9xSetWord (Work16, OpAddress);
-	S9xSetByte(Work16>>8, OpAddress+1);
-	S9xSetByte(Work16&0xFF, OpAddress);
+    S9xSetWord (Work16, OpAddress);
     SetZN16 (Work16);
 }
 
@@ -393,10 +385,8 @@ STATIC inline void DEC16 (long OpAddress)
 #endif
 
     uint16 Work16 = S9xGetWord (OpAddress) - 1;
-    //S9xSetWord (Work16, OpAddress);
-    S9xSetByte (Work16>>8, OpAddress+1);
-	S9xSetByte (Work16&0xFF, OpAddress);
-	SetZN16 (Work16);
+    S9xSetWord (Work16, OpAddress);
+    SetZN16 (Work16);
 }
 
 STATIC inline void DEC8 (long OpAddress)
@@ -461,9 +451,7 @@ STATIC inline void INC16 (long OpAddress)
 #endif
 
     uint16 Work16 = S9xGetWord (OpAddress) + 1;
-    //S9xSetWord (Work16, OpAddress);
-	S9xSetByte (Work16>>8, OpAddress+1);
-	S9xSetByte (Work16&0xFF, OpAddress);
+    S9xSetWord (Work16, OpAddress);
     SetZN16 (Work16);
 }
 
@@ -545,9 +533,7 @@ STATIC inline void LSR16 (long OpAddress)
     uint16 Work16 = S9xGetWord (OpAddress);
     ICPU._Carry = Work16 & 1;
     Work16 >>= 1;
-    //S9xSetWord (Work16, OpAddress);
-	S9xSetByte (Work16>>8, OpAddress+1);
-	S9xSetByte (Work16&0xFF, OpAddress);
+    S9xSetWord (Work16, OpAddress);
     SetZN16 (Work16);
 }
 
@@ -608,9 +594,7 @@ STATIC inline void ROL16 (long OpAddress)
     Work32 <<= 1;
     Work32 |= CheckCarry();
     ICPU._Carry = Work32 >= 0x10000;
-    //S9xSetWord ((uint16) Work32, OpAddress);
-	S9xSetByte((Work32>>8)&0xFF, OpAddress+1);
-	S9xSetByte(Work32&0xFF, OpAddress);
+    S9xSetWord ((uint16) Work32, OpAddress);
     SetZN16 ((uint16) Work32);
 }
 
@@ -661,9 +645,7 @@ STATIC inline void ROR16 (long OpAddress)
     Work32 |= (int) CheckCarry() << 16;
     ICPU._Carry = (uint8) (Work32 & 1);
     Work32 >>= 1;
-    //S9xSetWord ((uint16) Work32, OpAddress);
-	S9xSetByte ( (Work32>>8)&0x00FF, OpAddress+1);
-	S9xSetByte (Work32&0x00FF, OpAddress);
+    S9xSetWord ((uint16) Work32, OpAddress);
     SetZN16 ((uint16) Work32);
 }
 
@@ -849,9 +831,7 @@ STATIC inline void TSB16 (long OpAddress)
     uint16 Work16 = S9xGetWord (OpAddress);
     ICPU._Zero = (Work16 & Registers.A.W) != 0;
     Work16 |= Registers.A.W;
-    //S9xSetWord (Work16, OpAddress);
-	S9xSetByte (Work16>>8, OpAddress+1);
-	S9xSetByte (Work16&0xFF, OpAddress);
+    S9xSetWord (Work16, OpAddress);
 }
 
 STATIC inline void TSB8 (long OpAddress)
@@ -873,9 +853,7 @@ STATIC inline void TRB16 (long OpAddress)
     uint16 Work16 = S9xGetWord (OpAddress);
     ICPU._Zero = (Work16 & Registers.A.W) != 0;
     Work16 &= ~Registers.A.W;
-    //S9xSetWord (Work16, OpAddress);
-	S9xSetByte (Work16>>8, OpAddress+1);
-	S9xSetByte (Work16&0xFF, OpAddress);
+    S9xSetWord (Work16, OpAddress);
 }
 
 STATIC inline void TRB8 (long OpAddress)
