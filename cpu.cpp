@@ -62,15 +62,66 @@ extern "C" {
 #include "fxemu.h"
 
 extern struct FxInit_s SuperFX;
+extern int os9x_SFX_overclock;
 
-void S9xResetSuperFX ()
+void S9xResetSuperFX (bool8 reset)
 {
-    SuperFX.vFlags = 0; //FX_FLAG_ROM_BUFFER;// | FX_FLAG_ADDRESS_CHECKING;
-    FxReset (&SuperFX);
+	float frames_per_second;
+	float speed = 0;
+	
+    if (Settings.PAL)
+		frames_per_second = 50.0f;
+	else
+		frames_per_second = 60.0f;
+    
+	switch (os9x_SFX_overclock)
+	{
+		case 10:
+			speed = 0.417 * 10.5e6;
+			break;
+		case 20:
+			speed = 0.417 * 20.5e6;
+			break;
+		case 30:
+			speed = 0.417 * 30.5e6;
+			break;
+		case 40:
+			speed = 0.417 * 40.5e6;
+			break;
+		case 50:
+			speed = 0.417 * 50.5e6;
+			break;
+		case 60:
+			speed = 0.417 * 60.5e6;
+			break;
+		case 70:
+			speed = 0.417 * 70.5e6;
+			break;
+		case 80:
+			speed = 0.417 * 80.5e6;
+			break;
+		case 90:
+			speed = 0.417 * 90.5e6;
+			break;
+		case 100:
+			speed = 0.417 * 100.5e6;
+			break;
+	}
+	
+	//SuperFX.speedPerLine = (uint32) (0.417 * 10.5e6 * ((1.0 / (float) Memory.ROMFramesPerSecond) / ((float) (Settings.PAL ? SNES_MAX_PAL_VCOUNTER : SNES_MAX_NTSC_VCOUNTER))));
+	SuperFX.speedPerLine = (uint32) (speed * ((1.0f / frames_per_second) / ((float) (Settings.PAL ? SNES_MAX_PAL_VCOUNTER : SNES_MAX_NTSC_VCOUNTER))));
+	SuperFX.speedPerLinex2 = SuperFX.speedPerLine * 2;
+	
+	if(reset)
+	{
+		SuperFX.oneLineDone = false;
+		SuperFX.vFlags = 0; //FX_FLAG_ROM_BUFFER;// | FX_FLAG_ADDRESS_CHECKING;
+		FxReset (&SuperFX);
+	}
 }
 #endif
 
-void S9xResetCPU ()
+static void S9xResetCPU ()
 {		
     Registers.PB = 0;
     Registers.PCw = S9xGetWord (0xFFFC);
@@ -149,7 +200,7 @@ void S9xReset (void)
 #endif
 
     if (Settings.SuperFX)
-        S9xResetSuperFX ();
+        S9xResetSuperFX (true);
 
 #ifdef ZSNES_FX
     WinterGold = Settings.WinterGold;

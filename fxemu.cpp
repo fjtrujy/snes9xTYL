@@ -1,91 +1,147 @@
-/*******************************************************************************
+/**********************************************************************************
   Snes9x - Portable Super Nintendo Entertainment System (TM) emulator.
- 
-  (c) Copyright 1996 - 2002 Gary Henderson (gary.henderson@ntlworld.com) and
-                            Jerremy Koot (jkoot@snes9x.com)
 
-  (c) Copyright 2001 - 2004 John Weidman (jweidman@slip.net)
+  (c) Copyright 1996 - 2002  Gary Henderson (gary.henderson@ntlworld.com) and
+                             Jerremy Koot (jkoot@snes9x.com)
 
-  (c) Copyright 2002 - 2004 Brad Jorsch (anomie@users.sourceforge.net),
-                            funkyass (funkyass@spam.shaw.ca),
-                            Joel Yliluoma (http://iki.fi/bisqwit/)
-                            Kris Bleakley (codeviolation@hotmail.com),
-                            Matthew Kendora,
-                            Nach (n-a-c-h@users.sourceforge.net),
-                            Peter Bortas (peter@bortas.org) and
-                            zones (kasumitokoduck@yahoo.com)
+  (c) Copyright 2002 - 2004  Matthew Kendora
+
+  (c) Copyright 2002 - 2005  Peter Bortas (peter@bortas.org)
+
+  (c) Copyright 2004 - 2005  Joel Yliluoma (http://iki.fi/bisqwit/)
+
+  (c) Copyright 2001 - 2006  John Weidman (jweidman@slip.net)
+
+  (c) Copyright 2002 - 2006  Brad Jorsch (anomie@users.sourceforge.net),
+                             funkyass (funkyass@spam.shaw.ca),
+                             Kris Bleakley (codeviolation@hotmail.com),
+                             Nach (n-a-c-h@users.sourceforge.net), and
+                             zones (kasumitokoduck@yahoo.com)
+
+  BS-X C emulator code
+  (c) Copyright 2005 - 2006  Dreamer Nom,
+                             zones
 
   C4 x86 assembler and some C emulation code
-  (c) Copyright 2000 - 2003 zsKnight (zsknight@zsnes.com),
-                            _Demo_ (_demo_@zsnes.com), and Nach
+  (c) Copyright 2000 - 2003  _Demo_ (_demo_@zsnes.com),
+                             Nach,
+                             zsKnight (zsknight@zsnes.com)
 
   C4 C++ code
-  (c) Copyright 2003 Brad Jorsch
+  (c) Copyright 2003 - 2006  Brad Jorsch,
+                             Nach
 
   DSP-1 emulator code
-  (c) Copyright 1998 - 2004 Ivar (ivar@snes9x.com), _Demo_, Gary Henderson,
-                            John Weidman, neviksti (neviksti@hotmail.com),
-                            Kris Bleakley, Andreas Naive
+  (c) Copyright 1998 - 2006  _Demo_,
+                             Andreas Naive (andreasnaive@gmail.com)
+                             Gary Henderson,
+                             Ivar (ivar@snes9x.com),
+                             John Weidman,
+                             Kris Bleakley,
+                             Matthew Kendora,
+                             Nach,
+                             neviksti (neviksti@hotmail.com)
 
   DSP-2 emulator code
-  (c) Copyright 2003 Kris Bleakley, John Weidman, neviksti, Matthew Kendora, and
-                     Lord Nightmare (lord_nightmare@users.sourceforge.net
+  (c) Copyright 2003         John Weidman,
+                             Kris Bleakley,
+                             Lord Nightmare (lord_nightmare@users.sourceforge.net),
+                             Matthew Kendora,
+                             neviksti
+
+
+  DSP-3 emulator code
+  (c) Copyright 2003 - 2006  John Weidman,
+                             Kris Bleakley,
+                             Lancer,
+                             z80 gaiden
+
+  DSP-4 emulator code
+  (c) Copyright 2004 - 2006  Dreamer Nom,
+                             John Weidman,
+                             Kris Bleakley,
+                             Nach,
+                             z80 gaiden
 
   OBC1 emulator code
-  (c) Copyright 2001 - 2004 zsKnight, pagefault (pagefault@zsnes.com) and
-                            Kris Bleakley
-  Ported from x86 assembler to C by sanmaiwashi
+  (c) Copyright 2001 - 2004  zsKnight,
+                             pagefault (pagefault@zsnes.com),
+                             Kris Bleakley,
+                             Ported from x86 assembler to C by sanmaiwashi
 
   SPC7110 and RTC C++ emulator code
-  (c) Copyright 2002 Matthew Kendora with research by
-                     zsKnight, John Weidman, and Dark Force
+  (c) Copyright 2002         Matthew Kendora with research by
+                             zsKnight,
+                             John Weidman,
+                             Dark Force
 
   S-DD1 C emulator code
-  (c) Copyright 2003 Brad Jorsch with research by
-                     Andreas Naive and John Weidman
- 
+  (c) Copyright 2003         Brad Jorsch with research by
+                             Andreas Naive,
+                             John Weidman
+
   S-RTC C emulator code
-  (c) Copyright 2001 John Weidman
-  
+  (c) Copyright 2001-2006    byuu,
+                             John Weidman
+
   ST010 C++ emulator code
-  (c) Copyright 2003 Feather, Kris Bleakley, John Weidman and Matthew Kendora
+  (c) Copyright 2003         Feather,
+                             John Weidman,
+                             Kris Bleakley,
+                             Matthew Kendora
 
-  Super FX x86 assembler emulator code 
-  (c) Copyright 1998 - 2003 zsKnight, _Demo_, and pagefault 
+  Super FX x86 assembler emulator code
+  (c) Copyright 1998 - 2003  _Demo_,
+                             pagefault,
+                             zsKnight,
 
-  Super FX C emulator code 
-  (c) Copyright 1997 - 1999 Ivar, Gary Henderson and John Weidman
+  Super FX C emulator code
+  (c) Copyright 1997 - 1999  Ivar,
+                             Gary Henderson,
+                             John Weidman
 
+  Sound DSP emulator code is derived from SNEeSe and OpenSPC:
+  (c) Copyright 1998 - 2003  Brad Martin
+  (c) Copyright 1998 - 2006  Charles Bilyue'
 
   SH assembler code partly based on x86 assembler code
-  (c) Copyright 2002 - 2004 Marcus Comstedt (marcus@mc.pp.se) 
+  (c) Copyright 2002 - 2004  Marcus Comstedt (marcus@mc.pp.se)
 
- 
+  2xSaI filter
+  (c) Copyright 1999 - 2001  Derek Liauw Kie Fa
+
+  HQ2x filter
+  (c) Copyright 2003         Maxim Stepin (maxim@hiend3d.com)
+
   Specific ports contains the works of other authors. See headers in
   individual files.
- 
+
   Snes9x homepage: http://www.snes9x.com
- 
-  Permission to use, copy, modify and distribute Snes9x in both binary and
-  source form, for non-commercial purposes, is hereby granted without fee,
-  providing that this license information and copyright notice appear with
-  all copies and any derived work.
- 
+
+  Permission to use, copy, modify and/or distribute Snes9x in both binary
+  and source form, for non-commercial purposes, is hereby granted without 
+  fee, providing that this license information and copyright notice appear 
+  with all copies and any derived work.
+
   This software is provided 'as-is', without any express or implied
   warranty. In no event shall the authors be held liable for any damages
-  arising from the use of this software.
- 
+  arising from the use of this software or it's derivatives.
+
   Snes9x is freeware for PERSONAL USE only. Commercial users should
-  seek permission of the copyright holders first. Commercial use includes
-  charging money for Snes9x or software derived from Snes9x.
- 
+  seek permission of the copyright holders first. Commercial use includes,
+  but is not limited to, charging money for Snes9x or software derived from
+  Snes9x, including Snes9x or derivatives in commercial game bundles, and/or
+  using Snes9x as a promotion for your commercial product.
+
   The copyright holders request that bug fixes and improvements to the code
   should be forwarded to them so everyone can benefit from the modifications
   in future versions.
- 
+
   Super NES and Super Nintendo Entertainment System are trademarks of
   Nintendo Co., Limited and its subsidiary companies.
-*******************************************************************************/
+**********************************************************************************/
+
+#include "memmap.h"
 #include "fxemu.h"
 #include "fxinst.h"
 #include <stdlib.h>
@@ -94,12 +150,13 @@
 
 /* The FxChip Emulator's internal variables */
 struct FxRegs_s GSU = FxRegs_s_null;
+extern struct FxInit_s SuperFX;
 
 uint32 (**fx_ppfFunctionTable)(uint32) = 0;
 void (**fx_ppfPlotTable)() = 0;
 void (**fx_ppfOpcodeTable)() = 0;
 
-#if 0
+/*#if 0
 void fx_setCache()
 {
     uint32 c;
@@ -127,31 +184,31 @@ void fx_setCache()
 	memcpy(&GSU.pvCache[i],t2,512-i);
     }
 }
-#endif
+#endif*/
 
-void FxCacheWriteAccess(uint16 vAddress)
+/*void FxCacheWriteAccess(uint16 vAddress)
 {
-/*#if 0
+#if 0
     if(!GSU.bCacheActive)
     {
 	uint8 v = GSU.pvCache[GSU.pvCache[vAddress&0x1ff];
 	fx_setCache();
 	GSU.pvCache[GSU.pvCache[vAddress&0x1ff] = v;
     }
-#endif*/
+#endif
     if((vAddress & 0x00f) == 0x00f)
 	GSU.vCacheFlags |= 1 << ((vAddress&0x1f0) >> 4);
-}
+}*/
 
-void FxFlushCache()
+/*void FxFlushCache()
 {
     GSU.vCacheFlags = 0;
     GSU.vCacheBaseReg = 0;
     GSU.bCacheActive = FALSE;
-//    GSU.vPipe = 0x1;
-}
+	//    GSU.vPipe = 0x1;
+}*/
 
-static inline void fx_backupCache()
+/*static void fx_backupCache()
 {
 #if 0
     uint32 i;
@@ -185,9 +242,9 @@ static inline void fx_backupCache()
 	    v >>= 1;
 	}
 #endif
-}
+}*/
 
-static inline void fx_restoreCache()
+/*static void fx_restoreCache()
 {
 #if 0
     uint32 i;
@@ -221,56 +278,49 @@ static inline void fx_restoreCache()
 	    v >>= 1;
 	}
 #endif
-}
+}*/
 
-void fx_flushCache()
+/*void fx_flushCache()
 {
-    //fx_restoreCache();
+	//fx_restoreCache();
     GSU.vCacheFlags = 0;
     GSU.bCacheActive = FALSE;
-}
+}*/
 
-
-void fx_updateRamBank(uint8 Byte)
+/*void fx_updateRamBank(uint8 Byte)
 {
 	// Update BankReg and Bank pointer
     GSU.vRamBankReg = (uint32)Byte & (FX_RAM_BANKS-1);
     GSU.pvRamBank = GSU.apvRamBank[Byte & 0x3];
-}
+}*/
 
-static void fx_readRegisterSpaceForCheck()
+/*static void fx_readRegisterSpaceForCheck(void)
 {
    R15 = GSU.pvRegisters[30];
-   R15 |= ((uint32) GSU.pvRegisters[31]) << 8;
-   GSU.vStatusReg = (uint32) GSU.pvRegisters[GSU_SFR];
-   GSU.vStatusReg |= ((uint32) GSU.pvRegisters[GSU_SFR + 1]) << 8;
-   GSU.vPrgBankReg = (uint32) GSU.pvRegisters[GSU_PBR];
-}
+   R15 |= ((uint32_t) GSU.pvRegisters[31]) << 8;
+}*/
 
-static inline void fx_readRegisterSpaceForUse()
+static void fx_readRegisterSpaceForUse()
 {
-    /*int i;
-    uint8 *p;*/
+    int i;
+    uint8 *p = GSU.pvRegisters;
     static uint32 avHeight[] = { 128, 160, 192, 256 };
     static uint32 avMult[] = { 16, 32, 32, 64 };
-	int i;
-	uint8 *p = GSU.pvRegisters;
-	
+
     GSU.vErrorCode = 0;
 
-    /* Update R0-R15 */
-    //p = GSU.pvRegisters;
-    for(i=0; i<15; i++)
+    /* Update R0-R14 */
+    for(i = 0; i < 15; i++)
     {
-	GSU.avReg[i] = *p++;
-	GSU.avReg[i] += ((uint32)(*p++)) << 8;
+		GSU.avReg[i] = *p++;
+		GSU.avReg[i] += ((uint32)(*p++)) << 8;
     }
 
     /* Update other registers */
     p = GSU.pvRegisters;
-    /*GSU.vStatusReg = (uint32)p[GSU_SFR];
+    GSU.vStatusReg = (uint32)p[GSU_SFR];
     GSU.vStatusReg |= ((uint32)p[GSU_SFR+1]) << 8;
-    GSU.vPrgBankReg = (uint32)p[GSU_PBR];*/
+    GSU.vPrgBankReg = (uint32)p[GSU_PBR];
     GSU.vRomBankReg = (uint32)p[GSU_ROMBR];
     GSU.vRamBankReg = ((uint32)p[GSU_RAMBR]) & (FX_RAM_BANKS-1);
     GSU.vCacheBaseReg = (uint32)p[GSU_CBR];
@@ -293,26 +343,18 @@ static inline void fx_readRegisterSpaceForUse()
     i |= ((int)(!!(p[GSU_SCMR] & 0x20))) << 1;
     GSU.vScreenHeight = GSU.vScreenRealHeight = avHeight[i];
     GSU.vMode = p[GSU_SCMR] & 0x03;
-/*#if 0
-    if(GSU.vMode == 2)
-	error illegal color depth GSU.vMode;
-#endif*/
+	
     if(i == 3)
-	GSU.vScreenSize = (256/8) * (256/8) * 32;
+		GSU.vScreenSize = 32768;
     else
-	GSU.vScreenSize = (GSU.vScreenHeight/8) * (256/8) * avMult[GSU.vMode];
+		GSU.vScreenSize = GSU.vScreenHeight * 4 * avMult[GSU.vMode];
+	
     if (GSU.vPlotOptionReg & 0x10)
-    {
-	/* OBJ Mode (for drawing into sprites) */
-	GSU.vScreenHeight = 256;
-    }
-/*#if 0
+		GSU.vScreenHeight = 256;// OBJ Mode (for drawing into sprites)
+	
     if(GSU.pvScreenBase + GSU.vScreenSize > GSU.pvRam + (GSU.nRamBanks * 65536))
-	error illegal address for screen base register
-#else*/
-    if(GSU.pvScreenBase + GSU.vScreenSize > GSU.pvRam + (GSU.nRamBanks * 65536))
-	GSU.pvScreenBase =  GSU.pvRam + (GSU.nRamBanks * 65536) - GSU.vScreenSize;
-//#endif
+		GSU.pvScreenBase =  GSU.pvRam + (GSU.nRamBanks * 65536) - GSU.vScreenSize;
+
     GSU.pfPlot = fx_apfPlotTable[GSU.vMode];
     GSU.pfRpix = fx_apfPlotTable[GSU.vMode + 5];
 
@@ -320,163 +362,77 @@ static inline void fx_readRegisterSpaceForUse()
     fx_ppfOpcodeTable[0x14c] = GSU.pfRpix;
     fx_ppfOpcodeTable[0x24c] = GSU.pfPlot;
     fx_ppfOpcodeTable[0x34c] = GSU.pfRpix;
-
-    fx_computeScreenPointers ();
-
-    //fx_backupCache();
+	
+	if(GSU.vMode != GSU.vPrevMode || GSU.vPrevScreenHeight != GSU.vScreenHeight || GSU.vSCBRDirty)
+		fx_computeScreenPointers ();
+	
+	//fx_backupCache();
 }
 
-void fx_dirtySCBR()
+/*void fx_dirtySCBR()
 {
 	GSU.vSCBRDirty = TRUE;
-}
+}*/
 
 void fx_computeScreenPointers ()
 {
-    if (GSU.vMode != GSU.vPrevMode || 
-	GSU.vPrevScreenHeight != GSU.vScreenHeight ||
-	GSU.vSCBRDirty)
-    {
-	int i;
-
+    int32_t i, j, condition, mask, result;
+	uint32_t apvIncrement, vMode, xIncrement;
 	GSU.vSCBRDirty = FALSE;
 
-	/* Make a list of pointers to the start of each screen column */
-	switch (GSU.vScreenHeight)
-	{
-	    case 128:
-		switch (GSU.vMode)
-		{
-		    case 0:
-			for (i = 0; i < 32; i++)
-			{
-			    GSU.apvScreen[i] = GSU.pvScreenBase + (i << 4);
-			    GSU.x[i] = i << 8;
-			}
-			break;
-		    case 1:
-			for (i = 0; i < 32; i++)
-			{
-			    GSU.apvScreen[i] = GSU.pvScreenBase + (i << 5);
-			    GSU.x[i] = i << 9;
-			}
-			break;
-		    case 2:
-		    case 3:
-			for (i = 0; i < 32; i++)
-			{
-			    GSU.apvScreen[i] = GSU.pvScreenBase + (i << 6);
-			    GSU.x[i] = i << 10;
-			}
-			break;
-		}
-		break;
-	    case 160:
-		switch (GSU.vMode)
-		{
-		    case 0:
-			for (i = 0; i < 32; i++)
-			{
-			    GSU.apvScreen[i] = GSU.pvScreenBase + (i << 4);
-			    GSU.x[i] = (i << 8) + (i << 6);
-			}
-			break;
-		    case 1:
-			for (i = 0; i < 32; i++)
-			{
-			    GSU.apvScreen[i] = GSU.pvScreenBase + (i << 5);
-			    GSU.x[i] = (i << 9) + (i << 7);
-			}
-			break;
-		    case 2:
-		    case 3:
-			for (i = 0; i < 32; i++)
-			{
-			    GSU.apvScreen[i] = GSU.pvScreenBase + (i << 6);
-			    GSU.x[i] = (i << 10) + (i << 8);
-			}
-			break;
-		}
-		break;
-	    case 192:
-		switch (GSU.vMode)
-		{
-		    case 0:
-			for (i = 0; i < 32; i++)
-			{
-			    GSU.apvScreen[i] = GSU.pvScreenBase + (i << 4);
-			    GSU.x[i] = (i << 8) + (i << 7);
-			}
-			break;
-		    case 1:
-			for (i = 0; i < 32; i++)
-			{
-			    GSU.apvScreen[i] = GSU.pvScreenBase + (i << 5);
-			    GSU.x[i] = (i << 9) + (i << 8);
-			}
-			break;
-		    case 2:
-		    case 3:
-			for (i = 0; i < 32; i++)
-			{
-			    GSU.apvScreen[i] = GSU.pvScreenBase + (i << 6);
-			    GSU.x[i] = (i << 10) + (i << 9);
-			}
-			break;
-		}
-		break;
-	    case 256:
-		switch (GSU.vMode)
-		{
-		    case 0:
-			for (i = 0; i < 32; i++)
-			{
-			    GSU.apvScreen[i] = GSU.pvScreenBase + ((i & 0x10) << 9) + ((i & 0xf) << 8);
-			    GSU.x[i] = ((i & 0x10) << 8) + ((i & 0xf) << 4);
-			}
-			break;
-		    case 1:
-			for (i = 0; i < 32; i++)
-			{
-			    GSU.apvScreen[i] = GSU.pvScreenBase + ((i & 0x10) << 10) + ((i & 0xf) << 9);
-			    GSU.x[i] = ((i & 0x10) << 9) + ((i & 0xf) << 5);
-			}
-			break;
-		    case 2:
-		    case 3:
-			for (i = 0; i < 32; i++)
-			{
-			    GSU.apvScreen[i] = GSU.pvScreenBase + ((i & 0x10) << 11) + ((i & 0xf) << 10);
-			    GSU.x[i] = ((i & 0x10) << 10) + ((i & 0xf) << 6);
-			}
-			break;
-		}
-		break;
-	}
-	GSU.vPrevMode = GSU.vMode;
-	GSU.vPrevScreenHeight = GSU.vScreenHeight;
-    }
+	/* Make a list of pointers to the start of each screen column*/
+   vMode = GSU.vMode;
+   condition = vMode - 2;
+   mask = (condition | -condition) >> 31;
+   result = (vMode & mask) | (3 & ~mask);
+   vMode = result + 1;
+   GSU.x[0] = 0;
+   GSU.apvScreen[0] = GSU.pvScreenBase;
+   apvIncrement = vMode << 4;
+
+   if(GSU.vScreenHeight == 256)
+   {
+      GSU.x[16] = vMode << 12;
+      GSU.apvScreen[16] = GSU.pvScreenBase + (vMode << 13);
+      apvIncrement <<= 4;
+      xIncrement = vMode << 4;
+
+      for(i = 1, j = 17 ; i < 16 ; i++, j++)
+      {
+         GSU.x[i] = GSU.x[i - 1] + xIncrement;
+         GSU.apvScreen[i] = GSU.apvScreen[i - 1] + apvIncrement;
+         GSU.x[j] = GSU.x[j - 1] + xIncrement;
+         GSU.apvScreen[j] = GSU.apvScreen[j - 1] + apvIncrement;
+      }
+   }
+   else
+   {
+      xIncrement = (vMode * GSU.vScreenHeight) << 1;
+      for(i = 1 ; i < 32 ; i++)
+      {
+         GSU.x[i] = GSU.x[i - 1] + xIncrement;
+         GSU.apvScreen[i] = GSU.apvScreen[i - 1] + apvIncrement;
+      }
+   }
+   GSU.vPrevMode = GSU.vMode;
+   GSU.vPrevScreenHeight = GSU.vScreenHeight;
 }
 
-static void fx_writeRegisterSpaceAfterCheck()
+/*static void fx_writeRegisterSpaceAfterCheck(void)
 {
-   GSU.pvRegisters[30] = (uint8) R15;
-   GSU.pvRegisters[31] = (uint8) (R15 >> 8);
-   GSU.pvRegisters[GSU_SFR] = (uint8) GSU.vStatusReg;
-   GSU.pvRegisters[GSU_SFR + 1] = (uint8) (GSU.vStatusReg >> 8);
-   GSU.pvRegisters[GSU_PBR] = (uint8) GSU.vPrgBankReg;
-}
+   GSU.pvRegisters[30] = (uint8_t) R15;
+   GSU.pvRegisters[31] = (uint8_t) (R15 >> 8);
+}*/
 
-static inline void fx_writeRegisterSpaceAfterUse()
+static void fx_writeRegisterSpaceAfterUse()
 {
     int i;
     uint8 *p = GSU.pvRegisters;
-    
-    //p = GSU.pvRegisters;
+ 
     for(i=0; i<15; i++)
     {
-	*p++ = (uint8)GSU.avReg[i];
-	*p++ = (uint8)(GSU.avReg[i] >> 8);
+		*p++ = (uint8)GSU.avReg[i];
+		*p++ = (uint8)(GSU.avReg[i] >> 8);
     }
 
     /* Update status register */
@@ -490,47 +446,31 @@ static inline void fx_writeRegisterSpaceAfterUse()
     else CF(CY);
     
     p = GSU.pvRegisters;
-    /*p[GSU_SFR] = (uint8)GSU.vStatusReg;
+    p[GSU_SFR] = (uint8)GSU.vStatusReg;
     p[GSU_SFR+1] = (uint8)(GSU.vStatusReg>>8);
-    p[GSU_PBR] = (uint8)GSU.vPrgBankReg;*/
+    p[GSU_PBR] = (uint8)GSU.vPrgBankReg;
     p[GSU_ROMBR] = (uint8)GSU.vRomBankReg;
     p[GSU_RAMBR] = (uint8)GSU.vRamBankReg;
     p[GSU_CBR] = (uint8)GSU.vCacheBaseReg;
     p[GSU_CBR+1] = (uint8)(GSU.vCacheBaseReg>>8);
-    
-    //fx_restoreCache();
+	
+	//fx_restoreCache();
 }
 
 /* Reset the FxChip */
 void FxReset(struct FxInit_s *psFxInfo)
 {
-    //int i;
+    int i;
     static uint32 (**appfFunction[])(uint32) = {
-	&fx_apfFunctionTable[0],
-/*#if 0
-	&fx_a_apfFunctionTable[0],
-	&fx_r_apfFunctionTable[0],
-	&fx_ar_apfFunctionTable[0],
-#endif	*/
-    };
-    static void (**appfPlot[])() = {
-	&fx_apfPlotTable[0],
-/*#if 0
-	&fx_a_apfPlotTable[0],
-	&fx_r_apfPlotTable[0],
-	&fx_ar_apfPlotTable[0],
-#endif	*/
-    };
-    static void (**appfOpcode[])() = {
-	&fx_apfOpcodeTable[0],
-/*#if 0	
-	&fx_a_apfOpcodeTable[0],
-	&fx_r_apfOpcodeTable[0],
-	&fx_ar_apfOpcodeTable[0],
-#endif	*/
-    };
+	&fx_apfFunctionTable[0], };
 
-    // Get function pointers for the current emulation mode 
+    static void (**appfPlot[])() = {
+	&fx_apfPlotTable[0], };
+
+    static void (**appfOpcode[])() = {
+	&fx_apfOpcodeTable[0], };
+
+    /* Get function pointers for the current emulation mode */
     fx_ppfFunctionTable = appfFunction[psFxInfo->vFlags & 0x3];
     fx_ppfPlotTable = appfPlot[psFxInfo->vFlags & 0x3];
     fx_ppfOpcodeTable = appfOpcode[psFxInfo->vFlags & 0x3];
@@ -561,23 +501,22 @@ void FxReset(struct FxInit_s *psFxInfo)
     GSU.pvRegisters[0x3b] = 0;
 
     /* Make ROM bank table */
-	int i;
     for(i=0; i<256; i++)
     {
 	uint32 b = i & 0x7f;
 	if (b >= 0x40)
 	{
-	    if (GSU.nRomBanks > 2)
+	    if (GSU.nRomBanks > 1)
 		b %= GSU.nRomBanks;
 	    else
 		b &= 1;
 
-	    GSU.apvRomBank[i] = &GSU.pvRom[b << 16];
+	    GSU.apvRomBank[i] = &GSU.pvRom[ b << 16 ];
 	}
 	else
 	{
 	    b %= GSU.nRomBanks * 2;
-	    GSU.apvRomBank[i] = &GSU.pvRom[(b << 16) + 0x200000];
+	    GSU.apvRomBank[i] = &GSU.pvRom[ (b << 16) + 0x200000];
 	}
     }
 
@@ -594,27 +533,28 @@ void FxReset(struct FxInit_s *psFxInfo)
     /* Set pointer to GSU cache */
     GSU.pvCache = &GSU.pvRegisters[0x100];
 
-    //fx_readRegisterSpace();
-	fx_readRegisterSpaceForCheck();
+    //fx_readRegisterSpaceForCheck();
+	R15 = GSU.pvRegisters[30];
+	R15 |= ((uint32_t) GSU.pvRegisters[31]) << 8;
+	//
 	fx_readRegisterSpaceForUse();
 }
 
 static uint8 fx_checkStartAddress()
 {
-    /* Check if we start inside the cache */
+    /* Check if we start inside the cache 
     if(GSU.bCacheActive && R15 >= GSU.vCacheBaseReg && R15 < (GSU.vCacheBaseReg+512))
-	return TRUE;
+	return TRUE;*/
    
     /*  Check if we're in an unused area */
-    /*if(GSU.vPrgBankReg < 0x40 && R15 < 0x8000)
-	return FALSE;*/
     if(GSU.vPrgBankReg >= 0x60 && GSU.vPrgBankReg <= 0x6f)
 	return FALSE;
+
     if(GSU.vPrgBankReg >= 0x74)
 	return FALSE;
 
     /* Check if we're in RAM and the RAN flag is not set */
-    if(GSU.vPrgBankReg >= 0x70 && GSU.vPrgBankReg <= 0x73 && !(SCMR&(1<<3)) )
+    if (GSU.vPrgBankReg >= 0x70 && !(SCMR & (1 << 3)))
 	return FALSE;
 
     /* If not, we're in ROM, so check if the RON flag is set */
@@ -625,63 +565,90 @@ static uint8 fx_checkStartAddress()
 }
 
 /* Execute until the next stop instruction */
-int FxEmulate(uint32 nInstructions)
+//int FxEmulate(uint32 nInstructions)
+void S9xSuperFXExec ()
 {
-    uint32 vCount;
-
-    /* Read registers and initialize GSU session */
-    //fx_readRegisterSpace();
-	fx_readRegisterSpaceForCheck();
-
-    /* Check if the start address is valid */
-    if(!fx_checkStartAddress())
-    {
-	CF(G);
-	//fx_writeRegisterSpace();
-	fx_writeRegisterSpaceAfterCheck();
-/*#if 0
-	GSU.vIllegalAddress = (GSU.vPrgBankReg << 24) | R15;
-	return FX_ERROR_ILLEGAL_ADDRESS;
-#else*/
-	return 0;
-//#endif
-    }
+	bool8 address_valid;
+	uint16 GSUStatus;
+    
+	uint32 nInstructions = (ROM_GLOBAL[0x3000 + GSU_CLSR] & 1) ? SuperFX.speedPerLinex2 : SuperFX.speedPerLine;
 	
+	/* Read registers and initialize GSU session */
+    //fx_readRegisterSpaceForCheck();
+	R15 = GSU.pvRegisters[30];
+	R15 |= ((uint32_t) GSU.pvRegisters[31]) << 8;
+
+   	/* Check if we start inside the cache*/
+	if (GSU.bCacheActive && R15 >= GSU.vCacheBaseReg && R15 < (GSU.vCacheBaseReg + 512))
+		address_valid = TRUE;
+	else
+		/* Check if the start address is valid*/
+		address_valid = fx_checkStartAddress();
+	
+	if (!address_valid)
+	{
+		CF(G);
+		//fx_writeRegisterSpaceAfterCheck();
+		GSU.pvRegisters[30] = (uint8_t) R15;
+		GSU.pvRegisters[31] = (uint8_t) (R15 >> 8);
+		
+		GSUStatus = ROM_GLOBAL[0x3000 + GSU_SFR] | (ROM_GLOBAL[0x3000 + GSU_SFR + 1] << 8);
+		if ((GSUStatus & (FLG_G | FLG_IRQ)) == FLG_IRQ)
+			// Trigger a GSU IRQ.
+			S9xSetIRQ (GSU_IRQ_SOURCE);
+		
+		return;	
+	}
+
 	fx_readRegisterSpaceForUse();
 	
-    /* Execute GSU session */
-    CF(IRQ);
+	/* Execute GSU session */
+	CF(IRQ);
 
-	//vCount = fx_run(nInstructions);
-	
-    /*if(GSU.bBreakPoint)
+	/*if(GSU.bBreakPoint)
 	vCount = fx_ppfFunctionTable[FX_FUNCTION_RUN_TO_BREAKPOINT](nInstructions);
-    else*/
-	vCount = fx_ppfFunctionTable[FX_FUNCTION_RUN](nInstructions);
-
-    /* Store GSU registers */
-    //fx_writeRegisterSpace();
+	else
+	vCount = fx_ppfFunctionTable[FX_FUNCTION_RUN](nInstructions);*/
+			
+	GSU.vCounter = nInstructions;
+	READR14;
+    while (TF(G) && GSU.vCounter-- > 0)
+	{
+		/* Execute instruction from the pipe, and fetch next byte to the pipe*/
+		uint32	vOpcode = (uint32) PIPE;
+		FETCHPIPE;
+		(*fx_ppfOpcodeTable[(GSU.vStatusReg & 0x300) | vOpcode])();
+	}
 	
-	fx_writeRegisterSpaceAfterCheck();
+    /* Store GSU registers */
+    //fx_writeRegisterSpaceAfterCheck();
+	GSU.pvRegisters[30] = (uint8_t) R15;
+	GSU.pvRegisters[31] = (uint8_t) (R15 >> 8);
+	//
 	fx_writeRegisterSpaceAfterUse();
-
+	
+	GSUStatus = ROM_GLOBAL[0x3000 + GSU_SFR] | (ROM_GLOBAL[0x3000 + GSU_SFR + 1] << 8);
+	if ((GSUStatus & (FLG_G | FLG_IRQ)) == FLG_IRQ)
+		S9xSetIRQ (GSU_IRQ_SOURCE);
+		
     /* Check for error code */
-    if(GSU.vErrorCode)
+    /*if(GSU.vErrorCode)
 	return GSU.vErrorCode;
-    else
-	return vCount;
+    else*/
+	//return vCount;
 }
 
 /* Breakpoints */
-void FxBreakPointSet(uint32 vAddress)
+/*void FxBreakPointSet(uint32 vAddress)
 {
     GSU.bBreakPoint = TRUE;
     GSU.vBreakPoint = USEX16(vAddress);
-}
-void FxBreakPointClear()
+}*/
+
+/*void FxBreakPointClear()
 {
     GSU.bBreakPoint = FALSE;
-}
+}*/
 
 /* Step by step execution */
 /*int FxStepOver(uint32 nInstructions)
@@ -716,18 +683,18 @@ void FxBreakPointClear()
 }*/
 
 /* Errors */
-int FxGetErrorCode()
+/*int FxGetErrorCode()
 {
     return GSU.vErrorCode;
-}
+}*/
 
-int FxGetIllegalAddress()
+/*int FxGetIllegalAddress()
 {
     return GSU.vIllegalAddress;
-}
+}*/
 
 /* Access to internal registers */
-uint32 FxGetColorRegister()
+/*uint32 FxGetColorRegister()
 {
     return GSU.vColorReg & 0xff;
 }
@@ -750,5 +717,5 @@ uint32 FxGetDestinationRegisterIndex()
 uint8 FxPipe()
 {
     return GSU.vPipe;
-}
+}*/
 

@@ -1119,10 +1119,19 @@ void S9xSetPPU (uint8 Byte, uint16 Address)
 		{
 		    ROM_GLOBAL [Address] = Byte;
 		    // Go flag has been changed
-		    if (Byte & FLG_G)
-			S9xSuperFXExec ();
+		    if ((Byte & FLG_G) && !SuperFX.oneLineDone)
+			{
+				if(CHECK_EXEC_SUPERFX())
+					S9xSuperFXExec ();
+				SuperFX.oneLineDone = true;
+			}
 		    else
-			FxFlushCache ();
+			{
+				//FxFlushCache ();
+				GSU.vCacheFlags = 0;
+				GSU.vCacheBaseReg = 0;
+				GSU.bCacheActive = FALSE;
+			}
 		}
 		else
 		    ROM_GLOBAL [Address] = Byte;
@@ -1145,7 +1154,8 @@ void S9xSetPPU (uint8 Byte, uint16 Address)
 		break;
 	    case 0x3038:
 		ROM_GLOBAL [Address] = Byte;
-		fx_dirtySCBR();
+		//fx_dirtySCBR(); SCBR write seen. We need to update our cached screen pointers
+		GSU.vSCBRDirty = TRUE;
 		break;
 	    case 0x3039:
 		ROM_GLOBAL [Address] = Byte;
@@ -1157,7 +1167,9 @@ void S9xSetPPU (uint8 Byte, uint16 Address)
 		break;
 		case 0x303c:
 		ROM_GLOBAL [Address] = Byte;
-		fx_updateRamBank(Byte);
+		//fx_updateRamBank(Byte); Update BankReg and Bank pointer
+		GSU.vRamBankReg = (uint32)Byte & (FX_RAM_BANKS-1);
+		GSU.pvRamBank = GSU.apvRamBank[Byte & 0x3];
 		break;
 	    case 0x303f:
 		ROM_GLOBAL [Address] = Byte;
@@ -1165,14 +1177,21 @@ void S9xSetPPU (uint8 Byte, uint16 Address)
 	    case 0x301f:
 		ROM_GLOBAL [Address] = Byte;
 		ROM_GLOBAL [0x3000 + GSU_SFR] |= FLG_G;
-		S9xSuperFXExec ();
+		if (!SuperFX.oneLineDone)
+		{
+			if(CHECK_EXEC_SUPERFX())
+				S9xSuperFXExec ();
+			SuperFX.oneLineDone = true;
+		}
 		return;
 
 	    default:
 		ROM_GLOBAL[Address] = Byte;
 		if (Address >= 0x3100)
 		{
-		    FxCacheWriteAccess (Address);
+		    //FxCacheWriteAccess (Address); Write access to the cache
+			if((Address & 0x00f) == 0x00f)
+				GSU.vCacheFlags |= 1 << ((Address&0x1f0) >> 4);
 		}
 		break;
 	    }
@@ -3159,19 +3178,20 @@ void S9xUpdateJoypads ()
     }
 }
 
-#ifndef ZSNES_FX
+/*#ifndef ZSNES_FX
 void S9xSuperFXExec ()
 {
 #if 1
-    /*if (Settings.SuperFX)*/
-    {
-	if ((ROM_GLOBAL [0x3000 + GSU_SFR] & FLG_G) &&
-	    (ROM_GLOBAL [0x3000 + GSU_SCMR] & 0x18) == 0x18)
-	{
-	    if (!Settings.WinterGold||Settings.StarfoxHack)
-		FxEmulate (~0);
-	    else
-		FxEmulate ((ROM_GLOBAL [0x3000 + GSU_CLSR] & 1) ? 700 : 350);
+    //if (Settings.SuperFX)
+    //{
+	//if ((ROM_GLOBAL [0x3000 + GSU_SFR] & FLG_G) &&
+	    //(ROM_GLOBAL [0x3000 + GSU_SCMR] & 0x18) == 0x18)
+	//{
+		FxEmulate ((ROM_GLOBAL [0x3000 + GSU_CLSR] & 1) ? SuperFX.speedPerLine * 2 : SuperFX.speedPerLine);
+	    //if (!Settings.WinterGold||Settings.StarfoxHack)
+		//FxEmulate (~0);
+	    //else
+		//FxEmulate ((ROM_GLOBAL [0x3000 + GSU_CLSR] & 1) ? 700 : 350);
 	    int GSUStatus = ROM_GLOBAL [0x3000 + GSU_SFR] |
 			    (ROM_GLOBAL [0x3000 + GSU_SFR + 1] << 8);
 	    if ((GSUStatus & (FLG_G | FLG_IRQ)) == FLG_IRQ)
@@ -3179,8 +3199,8 @@ void S9xSuperFXExec ()
 		// Trigger a GSU IRQ.
 		S9xSetIRQ (GSU_IRQ_SOURCE);
 	    }
-	}
-    }
+	//}
+    //}
 #else
     uint32 tmp =  (ROM_GLOBAL[0x3034] << 16) + *(uint16 *) &ROM_GLOBAL [0x301e];
 
@@ -3204,22 +3224,22 @@ void S9xSuperFXExec ()
 	    uint8 vPor;
 
 	    FxPipeString (tmp);
-	    /* Make the string 32 chars long */
+	    // Make the string 32 chars long 
 	    if(strlen(tmp) < 32) { memset(&tmp[strlen(tmp)],' ',32-strlen(tmp)); tmp[32] = 0; }
 
-	    /* Copy registers (so we can see if any changed) */
+	    // Copy registers (so we can see if any changed) 
 	    vColr = FxGetColorRegister();
 	    vPor = FxGetPlotOptionRegister();
 	    memcpy(avReg,SuperFX.pvRegisters,0x40);
 
-	    /* Print the pipe string */
+	    // Print the pipe string 
 	    printf(tmp);
 
-	    /* Execute the instruction in the pipe */
+	    // Execute the instruction in the pipe 
 	    vPipe = FxPipe();
 	    vError = FxEmulate(1);
 
-	    /* Check if any registers changed (and print them if they did) */
+	    // Check if any registers changed (and print them if they did) 
 	    for(i=0; i<16; i++)
 	    {
 		uint32 a = 0;
@@ -3231,7 +3251,7 @@ void S9xSuperFXExec ()
 		    printf(" r%d=$%04x",i,r2);
 	    }
 	    {
-		/* Check SFR */
+		// Check SFR 
 		uint32 r1 = ((uint32)avReg[0x30]) | (((uint32)avReg[0x31])<<8);
 		uint32 r2 = (uint32)(SuperFX.pvRegisters[0x30]) | (((uint32)SuperFX.pvRegisters[0x31])<<8);
 		if((r1&(1<<1)) != (r2&(1<<1)))
@@ -3260,40 +3280,40 @@ void S9xSuperFXExec ()
 		    printf(" IRQ=%d",(uint32)(!!(r2&(1<<15))));
 	    }
 	    {
-		/* Check PBR */
+		// Check PBR 
 		uint32 r1 = ((uint32)avReg[0x34]);
 		uint32 r2 = (uint32)(SuperFX.pvRegisters[0x34]);
 		if(r1 != r2)
 		    printf(" PBR=$%02x",r2);
 	    }
 	    {
-		/* Check ROMBR */
+		// Check ROMBR 
 		uint32 r1 = ((uint32)avReg[0x36]);
 		uint32 r2 = (uint32)(SuperFX.pvRegisters[0x36]);
 		if(r1 != r2)
 		    printf(" ROMBR=$%02x",r2);
 	    }
 	    {
-		/* Check RAMBR */
+		// Check RAMBR 
 		uint32 r1 = ((uint32)avReg[0x3c]);
 		uint32 r2 = (uint32)(SuperFX.pvRegisters[0x3c]);
 		if(r1 != r2)
 		    printf(" RAMBR=$%02x",r2);
 	    }
 	    {
-		/* Check CBR */
+		// Check CBR 
 		uint32 r1 = ((uint32)avReg[0x3e]) | (((uint32)avReg[0x3f])<<8);
 		uint32 r2 = (uint32)(SuperFX.pvRegisters[0x3e]) | (((uint32)SuperFX.pvRegisters[0x3f])<<8);
 		if(r1 != r2)
 		    printf(" CBR=$%04x",r2);
 	    }
 	    {
-		/* Check COLR */
+		// Check COLR 
 		if(vColr != FxGetColorRegister())
 		    printf(" COLR=$%02x",FxGetColorRegister());
 	    }
 	    {
-		/* Check POR */
+		// Check POR 
 		if(vPor != FxGetPlotOptionRegister())
 		    printf(" POR=$%02x",FxGetPlotOptionRegister());
 	    }
@@ -3333,4 +3353,4 @@ void S9xSuperFXExec ()
 }
 
 
-#endif
+#endif*/

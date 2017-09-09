@@ -599,7 +599,7 @@ typedef struct {
 
 int os9x_ignore_fixcol,os9x_ignore_winclip,os9x_ignore_addsub,os9x_ignore_palwrite,
 	os9x_gfx_fastmode7,os9x_fix_hires,os9x_apufix,os9x_old_accel;
-extern int os9x_SA1_exec;
+extern int os9x_SFX_overclock;
 #define DEBUGMENU_ITEMS 20
 
 menu_time_t os9xpsp_debugmenu[DEBUGMENU_ITEMS]={
@@ -622,7 +622,7 @@ menu_time_t os9xpsp_debugmenu[DEBUGMENU_ITEMS]={
 	{"BG1 : ", HELP_BG1, NULL, &os9x_BG1, 2, {0, 1}, 0, {"Off", "On"}},
 	{"BG2 : ", HELP_BG2, NULL, &os9x_BG2, 2, {0, 1}, 0, {"Off", "On"}},
 	{"BG3 : ", HELP_BG3, NULL, &os9x_BG3, 2, {0, 1}, 0, {"Off", "On"}},
-	{"SA1 Option : ",-1,NULL,&os9x_SA1_exec,9,{1,2,3,4,5,6,7,8,9},1,{"1","2","3","4","5","6","7","8","9"}}
+	{"SFX Overclock : ",-1,NULL,&os9x_SFX_overclock,10,{10,20,30,40,50,60,70,80,90,100},9,{"10","20","30","40","50","60","70","80","90","100"}}
 };
 
 

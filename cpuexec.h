@@ -96,6 +96,7 @@ struct SICPU
 START_EXTERN_C
 void S9xMainLoop (void);
 void S9xReset (void);
+void S9xResetSuperFX (bool8);
 //void S9xDoHBlankProcessing ();
 void S9xClearIRQ (uint32);
 void S9xSetIRQ (uint32);

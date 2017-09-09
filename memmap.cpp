@@ -3567,7 +3567,7 @@ bool CMemory::SpeedHackSA1Add(int address, int16 originalByte1, int16 originalBy
 // This fixes a critical bug because originally, ApplySpeedHackPatches
 // calls S9xGetByte, which increments the cycles counter unnecessarily!
 // Code based on snes9x 3DS
-uint8 CMemory::GetByte (uint32 Address)
+uint8 GetByte (uint32 Address)
 {
     int block;
     uint8 *GetAddress = CPU.MemoryMap [block = (Address >> MEMMAP_SHIFT) & MEMMAP_MASK];
@@ -3580,7 +3580,7 @@ uint8 CMemory::GetByte (uint32 Address)
 
 
 // Code based on snes9x 3DS
-void CMemory::ApplySpeedHackPatches()
+void ApplySpeedHackPatches()
 {
 	// Patch
 	//for (int n = 0; n < SNESGameFixes.SpeedHackCount; n++)
@@ -3625,6 +3625,7 @@ void CMemory::ApplySpeedHackPatches()
 			*SNESGameFixes.SpeedHackSA1Address[0] = 0x42;
 		}
 	}*/
+	S9xMainLoop();
 }
 
 void CMemory::ApplyROMFixes ()
@@ -3866,9 +3867,10 @@ void CMemory::ApplyROMFixes ()
     if (strcmp (ROMId, "ATQP") == 0)
 	Settings.WrestlemaniaArcade = TRUE;
 
-    if ((strncmp (ROMId, "A3ME", 3) == 0 || strncmp (ROMId, "A3ZE", 3) == 0) && Settings.CyclesPercentage == 100)
+    //if ((strncmp (ROMId, "A3ME", 3) == 0 || strncmp (ROMId, "A3ZE", 3) == 0) && Settings.CyclesPercentage == 100)
+	//if (strncmp (ROMId, "A3ME", 3) == 0 && Settings.CyclesPercentage == 100)
 	// Mortal Kombat 3. Fixes cut off speech sample
-	Settings.H_Max = (SNES_CYCLES_PER_SCANLINE * 110) / 100;
+	//Settings.H_Max = (SNES_CYCLES_PER_SCANLINE * 110) / 100;
 
     if (strcmp (ROMName, "\x0bd\x0da\x0b2\x0d4\x0b0\x0bd\x0de") == 0 &&
 	Settings.CyclesPercentage == 100)
@@ -4408,7 +4410,7 @@ if (ROM [adr] == ov) \
 		SpeedHackSA1Add(0x0181BC, 0x80, 0xFE);
     }
 	
-	ApplySpeedHackPatches();
+	//ApplySpeedHackPatches();
 }
 
 #define IPS_EOF 0x00454F46l

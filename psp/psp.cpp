@@ -292,6 +292,7 @@ int os9x_TurboMode;
 
 int os9x_BG0,os9x_BG1,os9x_BG2,os9x_BG3,os9x_OBJ,os9x_easy,os9x_hack,os9x_applyhacks;
 int os9x_SA1_exec;
+int os9x_SFX_overclock;
 
 int os9x_inputs[32],os9x_inputs_analog;
 int os9x_snespad,os9x_oldsnespad,os9x_specialaction,os9x_specialaction_old;
@@ -2230,6 +2231,9 @@ void S9xProcessEvents( bool8 block ) {
 			if (menu_modified) {
 				save_rom_settings(Memory.ROMCRC32,Memory.ROMName);
 				save_settings();
+				
+				if (Settings.SuperFX)
+					S9xResetSuperFX (false);
 			}
 		}
 		if ((in_emu==1)&&os9x_netplay&&os9x_getnewfile) {
@@ -2440,7 +2444,8 @@ static void initvar_withdefault() {
 	os9x_vsync=1;
 	os9x_cpuclock=333;
 	//os9x_SA1_exec=1;
-
+	os9x_SFX_overclock=100;
+	
 	os9x_apuenabled=2;
 
 	os9x_gammavalue=0;
@@ -3487,20 +3492,12 @@ static int os9x_getfile() {
 
 static void (*S9x_Current_Main_Loop)();
 
-// If we have harcoded speedhacks then apply them every frame before s9xMainLoop.
-//
-static void S9xMainLoopWithSpeedHacks()
-{
-	Memory.ApplySpeedHackPatches();
-	S9xMainLoop();
-}
-
 static void setup_Main_Loops()
 {
-	// If we have harcoded speedhacks then we use S9xMainLoopWithSpeedHacks.
+	// If we have harcoded speedhacks then apply them every frame before s9xMainLoop.
 	//
 	if (SNESGameFixes.SpeedHackCount || SNESGameFixes.SpeedHackSA1Count)
-		S9x_Current_Main_Loop = S9xMainLoopWithSpeedHacks;
+		S9x_Current_Main_Loop = ApplySpeedHackPatches;
 	else
 		S9x_Current_Main_Loop = S9xMainLoop;
 	
@@ -3521,7 +3518,10 @@ static void setup_Main_Loops()
 	}
 	
 	if (Settings.SuperFX)
+	{
+		S9xResetSuperFX (false);
 		S9x_Current_HBLANK_END_EVENT = S9xDoHBlankProcessing_HBLANK_END_EVENT_SFX;
+	}
 	else
 		S9x_Current_HBLANK_END_EVENT = S9xDoHBlankProcessing_HBLANK_END_EVENT;
 }
@@ -3625,7 +3625,10 @@ static int init_snes_rom() {
   Settings.StopEmulation = TRUE;
   Settings.Paused = FALSE;
   Settings.HBlankStart = (256 * Settings.H_Max) / SNES_HCOUNTER_MAX;
-	
+  
+  os9x_SFX_overclock = 100;
+  os9x_applyhacks = 1;
+    
   Settings.SNESAdvanceHack = false;
   ///////////////////
   ///////////////////

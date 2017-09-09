@@ -328,7 +328,7 @@ void S9xResetPPU ();
 void S9xFixColourBrightness ();
 void S9xUpdateJoypads ();
 void S9xProcessMouse(int which1);
-void S9xSuperFXExec ();
+//void S9xSuperFXExec ();
 
 void S9xSetPPU (uint8 Byte, uint16 Address);
 uint8 S9xGetPPU (uint16 Address);

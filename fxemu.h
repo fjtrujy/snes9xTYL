@@ -1,114 +1,150 @@
-/*******************************************************************************
+/**********************************************************************************
   Snes9x - Portable Super Nintendo Entertainment System (TM) emulator.
- 
-  (c) Copyright 1996 - 2002 Gary Henderson (gary.henderson@ntlworld.com) and
-                            Jerremy Koot (jkoot@snes9x.com)
 
-  (c) Copyright 2001 - 2004 John Weidman (jweidman@slip.net)
+  (c) Copyright 1996 - 2002  Gary Henderson (gary.henderson@ntlworld.com) and
+                             Jerremy Koot (jkoot@snes9x.com)
 
-  (c) Copyright 2002 - 2004 Brad Jorsch (anomie@users.sourceforge.net),
-                            funkyass (funkyass@spam.shaw.ca),
-                            Joel Yliluoma (http://iki.fi/bisqwit/)
-                            Kris Bleakley (codeviolation@hotmail.com),
-                            Matthew Kendora,
-                            Nach (n-a-c-h@users.sourceforge.net),
-                            Peter Bortas (peter@bortas.org) and
-                            zones (kasumitokoduck@yahoo.com)
+  (c) Copyright 2002 - 2004  Matthew Kendora
+
+  (c) Copyright 2002 - 2005  Peter Bortas (peter@bortas.org)
+
+  (c) Copyright 2004 - 2005  Joel Yliluoma (http://iki.fi/bisqwit/)
+
+  (c) Copyright 2001 - 2006  John Weidman (jweidman@slip.net)
+
+  (c) Copyright 2002 - 2006  Brad Jorsch (anomie@users.sourceforge.net),
+                             funkyass (funkyass@spam.shaw.ca),
+                             Kris Bleakley (codeviolation@hotmail.com),
+                             Nach (n-a-c-h@users.sourceforge.net), and
+                             zones (kasumitokoduck@yahoo.com)
+
+  BS-X C emulator code
+  (c) Copyright 2005 - 2006  Dreamer Nom,
+                             zones
 
   C4 x86 assembler and some C emulation code
-  (c) Copyright 2000 - 2003 zsKnight (zsknight@zsnes.com),
-                            _Demo_ (_demo_@zsnes.com), and Nach
+  (c) Copyright 2000 - 2003  _Demo_ (_demo_@zsnes.com),
+                             Nach,
+                             zsKnight (zsknight@zsnes.com)
 
   C4 C++ code
-  (c) Copyright 2003 Brad Jorsch
+  (c) Copyright 2003 - 2006  Brad Jorsch,
+                             Nach
 
   DSP-1 emulator code
-  (c) Copyright 1998 - 2004 Ivar (ivar@snes9x.com), _Demo_, Gary Henderson,
-                            John Weidman, neviksti (neviksti@hotmail.com),
-                            Kris Bleakley, Andreas Naive
+  (c) Copyright 1998 - 2006  _Demo_,
+                             Andreas Naive (andreasnaive@gmail.com)
+                             Gary Henderson,
+                             Ivar (ivar@snes9x.com),
+                             John Weidman,
+                             Kris Bleakley,
+                             Matthew Kendora,
+                             Nach,
+                             neviksti (neviksti@hotmail.com)
 
   DSP-2 emulator code
-  (c) Copyright 2003 Kris Bleakley, John Weidman, neviksti, Matthew Kendora, and
-                     Lord Nightmare (lord_nightmare@users.sourceforge.net
+  (c) Copyright 2003         John Weidman,
+                             Kris Bleakley,
+                             Lord Nightmare (lord_nightmare@users.sourceforge.net),
+                             Matthew Kendora,
+                             neviksti
+
+
+  DSP-3 emulator code
+  (c) Copyright 2003 - 2006  John Weidman,
+                             Kris Bleakley,
+                             Lancer,
+                             z80 gaiden
+
+  DSP-4 emulator code
+  (c) Copyright 2004 - 2006  Dreamer Nom,
+                             John Weidman,
+                             Kris Bleakley,
+                             Nach,
+                             z80 gaiden
 
   OBC1 emulator code
-  (c) Copyright 2001 - 2004 zsKnight, pagefault (pagefault@zsnes.com) and
-                            Kris Bleakley
-  Ported from x86 assembler to C by sanmaiwashi
+  (c) Copyright 2001 - 2004  zsKnight,
+                             pagefault (pagefault@zsnes.com),
+                             Kris Bleakley,
+                             Ported from x86 assembler to C by sanmaiwashi
 
   SPC7110 and RTC C++ emulator code
-  (c) Copyright 2002 Matthew Kendora with research by
-                     zsKnight, John Weidman, and Dark Force
+  (c) Copyright 2002         Matthew Kendora with research by
+                             zsKnight,
+                             John Weidman,
+                             Dark Force
 
   S-DD1 C emulator code
-  (c) Copyright 2003 Brad Jorsch with research by
-                     Andreas Naive and John Weidman
- 
+  (c) Copyright 2003         Brad Jorsch with research by
+                             Andreas Naive,
+                             John Weidman
+
   S-RTC C emulator code
-  (c) Copyright 2001 John Weidman
-  
+  (c) Copyright 2001-2006    byuu,
+                             John Weidman
+
   ST010 C++ emulator code
-  (c) Copyright 2003 Feather, Kris Bleakley, John Weidman and Matthew Kendora
+  (c) Copyright 2003         Feather,
+                             John Weidman,
+                             Kris Bleakley,
+                             Matthew Kendora
 
-  Super FX x86 assembler emulator code 
-  (c) Copyright 1998 - 2003 zsKnight, _Demo_, and pagefault 
+  Super FX x86 assembler emulator code
+  (c) Copyright 1998 - 2003  _Demo_,
+                             pagefault,
+                             zsKnight,
 
-  Super FX C emulator code 
-  (c) Copyright 1997 - 1999 Ivar, Gary Henderson and John Weidman
+  Super FX C emulator code
+  (c) Copyright 1997 - 1999  Ivar,
+                             Gary Henderson,
+                             John Weidman
 
+  Sound DSP emulator code is derived from SNEeSe and OpenSPC:
+  (c) Copyright 1998 - 2003  Brad Martin
+  (c) Copyright 1998 - 2006  Charles Bilyue'
 
   SH assembler code partly based on x86 assembler code
-  (c) Copyright 2002 - 2004 Marcus Comstedt (marcus@mc.pp.se) 
+  (c) Copyright 2002 - 2004  Marcus Comstedt (marcus@mc.pp.se)
 
- 
+  2xSaI filter
+  (c) Copyright 1999 - 2001  Derek Liauw Kie Fa
+
+  HQ2x filter
+  (c) Copyright 2003         Maxim Stepin (maxim@hiend3d.com)
+
   Specific ports contains the works of other authors. See headers in
   individual files.
- 
+
   Snes9x homepage: http://www.snes9x.com
- 
-  Permission to use, copy, modify and distribute Snes9x in both binary and
-  source form, for non-commercial purposes, is hereby granted without fee,
-  providing that this license information and copyright notice appear with
-  all copies and any derived work.
- 
+
+  Permission to use, copy, modify and/or distribute Snes9x in both binary
+  and source form, for non-commercial purposes, is hereby granted without 
+  fee, providing that this license information and copyright notice appear 
+  with all copies and any derived work.
+
   This software is provided 'as-is', without any express or implied
   warranty. In no event shall the authors be held liable for any damages
-  arising from the use of this software.
- 
+  arising from the use of this software or it's derivatives.
+
   Snes9x is freeware for PERSONAL USE only. Commercial users should
-  seek permission of the copyright holders first. Commercial use includes
-  charging money for Snes9x or software derived from Snes9x.
- 
+  seek permission of the copyright holders first. Commercial use includes,
+  but is not limited to, charging money for Snes9x or software derived from
+  Snes9x, including Snes9x or derivatives in commercial game bundles, and/or
+  using Snes9x as a promotion for your commercial product.
+
   The copyright holders request that bug fixes and improvements to the code
   should be forwarded to them so everyone can benefit from the modifications
   in future versions.
- 
+
   Super NES and Super Nintendo Entertainment System are trademarks of
   Nintendo Co., Limited and its subsidiary companies.
-*******************************************************************************/
+**********************************************************************************/
+
 #ifndef _FXEMU_H_
 #define _FXEMU_H_ 1
 
-/* Types used by structures and code */
-#ifndef snes9x_types_defined
-#define snes9x_types_defined
-
-typedef unsigned char uint8;
-typedef unsigned short uint16;
-typedef unsigned int uint32;
-typedef unsigned char bool8;
-typedef signed char int8;
-typedef short int16;
-typedef int int32;
-#endif
-
-#ifndef TRUE
-#define TRUE 1
-#endif
-
-#ifndef FALSE
-#define FALSE 0
-#endif
+#include "port.h"
 
 /* The FxInfo_s structure, the link between the FxEmulator and the Snes Emulator */
 struct FxInit_s
@@ -119,46 +155,52 @@ struct FxInit_s
     uint8 *	pvRam;		/* Pointer to GSU-RAM */
     uint32	nRomBanks;	/* Number of 32kb-banks in Cart-ROM */
     uint8 *	pvRom;		/* Pointer to Cart-ROM */
+	uint32	speedPerLine;
+	uint32	speedPerLinex2;
+	bool8	oneLineDone;
 };
+
+#define CHECK_EXEC_SUPERFX() ((ROM_GLOBAL [0x3000 + GSU_SFR] & FLG_G) && (ROM_GLOBAL[0x3000 + GSU_SCMR] & 0x18) == 0x18)
 
 /* Reset the FxChip */
 extern void FxReset(struct FxInit_s *psFxInfo);
 
 /* Execute until the next stop instruction */
-extern int FxEmulate(uint32 nInstructions);
+//extern int FxEmulate(uint32 nInstructions);
+extern void S9xSuperFXExec();
 
 /* Write access to the cache */
-extern void FxCacheWriteAccess(uint16 vAddress);
-extern void FxFlushCache();	/* Callled when the G flag in SFR is set to zero */
+//extern void FxCacheWriteAccess(uint16 vAddress);
+//extern void FxFlushCache();	/* Callled when the G flag in SFR is set to zero */
 
 /* Breakpoint */
-extern void FxBreakPointSet(uint32 vAddress);
-extern void FxBreakPointClear();
+//extern void FxBreakPointSet(uint32 vAddress);
+//extern void FxBreakPointClear();
 
 /* Step by step execution */
-extern int FxStepOver(uint32 nInstructions);
+//extern int FxStepOver(uint32 nInstructions);
 
 /* Errors */
-extern int FxGetErrorCode();
-extern int FxGetIllegalAddress();
+//extern int FxGetErrorCode();
+//extern int FxGetIllegalAddress();
 
 /* Access to internal registers */
-extern uint32 FxGetColorRegister();
-extern uint32 FxGetPlotOptionRegister();
-extern uint32 FxGetSourceRegisterIndex();
-extern uint32 FxGetDestinationRegisterIndex();
+//extern uint32 FxGetColorRegister();
+//extern uint32 FxGetPlotOptionRegister();
+//extern uint32 FxGetSourceRegisterIndex();
+//extern uint32 FxGetDestinationRegisterIndex();
 
 /* Get string for opcode currently in the pipe */
 extern void FxPipeString(char * pvString);
 
 /* Get the byte currently in the pipe */
-extern uint8 FxPipe();
+//extern uint8 FxPipe();
 
 /* SCBR write seen.  We need to update our cached screen pointers */
-extern void fx_dirtySCBR (void);
+//extern void fx_dirtySCBR (void);
 
 /* Update RamBankReg and RAM Bank pointer */
-extern void fx_updateRamBank(uint8 Byte);
+//extern void fx_updateRamBank(uint8 Byte);
 
 /* Option flags */
 #define FX_FLAG_ADDRESS_CHECKING	0x01

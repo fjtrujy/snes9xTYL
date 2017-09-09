@@ -51,9 +51,11 @@
 #include "apu.h"
 #include "dma.h"
 #include "fxemu.h"
+#include "fxinst.h"
 #include "sa1.h"
 
 extern struct SSA1 SA1;
+extern struct FxInit_s SuperFX;
 
 #ifdef DEBUGGER
 #define IRQ_ACTIVE	CPU.IRQActive && !Settings.DisableIRQ
@@ -296,7 +298,9 @@ void S9xDoHBlankProcessing_HBLANK_START_EVENT ()
 
 void S9xDoHBlankProcessing_HBLANK_END_EVENT_SFX ()
 {
-	S9xSuperFXExec();
+	if (!SuperFX.oneLineDone && CHECK_EXEC_SUPERFX())
+		S9xSuperFXExec();
+	SuperFX.oneLineDone = false;
 	S9xDoHBlankProcessing_HBLANK_END_EVENT();
 }
 

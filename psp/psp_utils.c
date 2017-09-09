@@ -252,7 +252,8 @@ int save_rom_settings(int game_crc32,const char *name){
 	fwrite(&os9x_SA1_exec,1,4,f);
 	fwrite(&os9x_autofskip_MaxSkipFrames,1,4,f);
 	fwrite(&os9x_applyhacks,1,4,f);
-
+	fwrite(&os9x_SFX_overclock,1,4,f);
+	
 	fclose(f);
 	return 0;
 }
@@ -331,9 +332,10 @@ else {fclose(f);check_settings();return -3;}
 	READ_SETTING(os9x_padindex)
 	READ_SETTING(os9x_inputs_analog)
 	READ_SETTING(os9x_fpslimit)
-	if (fread(&l,1,4,f)==4) os9x_SA1_exec=l; 
+	if (fread(&l,1,4,f)==4) os9x_SA1_exec=l;
 	if (fread(&l,1,4,f)==4) os9x_autofskip_MaxSkipFrames=l;
-	if (fread(&l,1,4,f)==4) os9x_applyhacks=l; 
+	if (fread(&l,1,4,f)==4) os9x_applyhacks=l; else os9x_applyhacks=1;
+	if (fread(&l,1,4,f)==4) os9x_SFX_overclock=l; else os9x_SFX_overclock=100;
 	fclose(f);
 	
 	check_settings();
@@ -341,8 +343,6 @@ else {fclose(f);check_settings();return -3;}
 	rom_name[63]=0;	
 	sprintf(tmp_str, s9xTYL_msg[SETTINGS_FOUND], rom_name);
 	msgBoxLines(tmp_str,30);
-	
-	
 		
 	return 0;
 }
