@@ -326,7 +326,7 @@ int os9x_DisableIRQ;
 int os9x_speedlimit;
 
 int os9x_sndfreq;
-
+int os9x_vol_adjust;
 char rom_filename[256];
 char shortrom_filename[64];
 
@@ -2445,6 +2445,7 @@ static void initvar_withdefault() {
 	os9x_cpuclock=333;
 	//os9x_SA1_exec=1;
 	os9x_SFX_overclock=100;
+	os9x_vol_adjust=100;
 	
 	os9x_apuenabled=2;
 
@@ -3627,6 +3628,7 @@ static int init_snes_rom() {
   Settings.HBlankStart = (256 * Settings.H_Max) / SNES_HCOUNTER_MAX;
   
   os9x_SFX_overclock = 100;
+  os9x_vol_adjust=100;
   os9x_applyhacks = 1;
     
   Settings.SNESAdvanceHack = false;

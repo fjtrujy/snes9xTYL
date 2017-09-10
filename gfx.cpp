@@ -589,15 +589,15 @@ void S9xStartScreenRefresh ()
 	IPPU.LatchedBlanking = PPUPack.PPU.ForcedBlanking;
 	IPPU.LatchedInterlace = (ROM_GLOBAL[0x2133] & 1);
 //	IPPU.Interlace = (ROM_GLOBAL[0x2133] & 1);
-	if (Settings.SupportHiRes && (PPUPack.PPU.BGMode == 5 || PPUPack.PPU.BGMode == 6 ||
-				      IPPU.LatchedInterlace/*IPPU.Interlace*/))
+	/*if (Settings.SupportHiRes && (PPUPack.PPU.BGMode == 5 || PPUPack.PPU.BGMode == 6 ||
+				      IPPU.LatchedInterlace))
 	{
 	    if (PPUPack.PPU.BGMode == 5 || PPUPack.PPU.BGMode == 6)
 	    {
 		IPPU.RenderedScreenWidth = 512;
 		IPPU.DoubleWidthPixels = TRUE;
 	    }
-	    if (/*IPPU.Interlace*/IPPU.LatchedInterlace)
+	    if (IPPU.LatchedInterlace)
 	    {
 		IPPU.RenderedScreenHeight = PPUPack.PPU.ScreenHeight << 1;
 		GPUPack.GFX.Pitch2 = GPUPack.GFX.RealPitch;
@@ -624,18 +624,18 @@ void S9xStartScreenRefresh ()
 #endif
 	}
 	else
-	{
+	{*/
 	    IPPU.RenderedScreenWidth = 256;
 	    IPPU.RenderedScreenHeight = PPUPack.PPU.ScreenHeight;
 	    IPPU.DoubleWidthPixels = FALSE;
-	    {
+	    
 		GPUPack.GFX.Pitch2 = GPUPack.GFX.Pitch = GPUPack.GFX.RealPitch;
 		GPUPack.GFX.PPL = GPUPack.GFX.PPLx2 >> 1;
 		GPUPack.GFX.ZPitch = GPUPack.GFX.RealPitch;
 		//if (Settings.SixteenBit)
 		    GPUPack.GFX.ZPitch >>= 1;
-	    }                        
-	}
+	    
+	//}
 	PPUPack.PPU.RecomputeClipWindows = TRUE;
 	GPUPack.GFX.DepthDelta = GPUPack.GFX.SubZBuffer - GPUPack.GFX.ZBuffer;
 	GPUPack.GFX.Delta = (GPUPack.GFX.SubScreen - GPUPack.GFX.Screen) >> 1;

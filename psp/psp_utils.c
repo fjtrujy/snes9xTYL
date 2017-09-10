@@ -253,6 +253,7 @@ int save_rom_settings(int game_crc32,const char *name){
 	fwrite(&os9x_autofskip_MaxSkipFrames,1,4,f);
 	fwrite(&os9x_applyhacks,1,4,f);
 	fwrite(&os9x_SFX_overclock,1,4,f);
+	fwrite(&os9x_vol_adjust,1,4,f);
 	
 	fclose(f);
 	return 0;
@@ -336,6 +337,7 @@ else {fclose(f);check_settings();return -3;}
 	if (fread(&l,1,4,f)==4) os9x_autofskip_MaxSkipFrames=l;
 	if (fread(&l,1,4,f)==4) os9x_applyhacks=l; else os9x_applyhacks=1;
 	if (fread(&l,1,4,f)==4) os9x_SFX_overclock=l; else os9x_SFX_overclock=100;
+	if (fread(&l,1,4,f)==4) os9x_vol_adjust=l; else os9x_vol_adjust=100;
 	fclose(f);
 	
 	check_settings();

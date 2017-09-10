@@ -238,6 +238,8 @@ const char *s9xTYL_msg_ml[MSG_TOTAL_LANG][MSG_TOTAL_ENTRIES] = {
 		[MENU_ICONS_SOUND_MODE_HELP] = "not emulated is the fastest\nbut some games won't run.",
 		[MENU_ICONS_SOUND_FREQ] = "Output frequency",
 		[MENU_ICONS_SOUND_FREQ_HELP] = "The lower the faster.\nThe higher the best sound\nquality.",
+		[MENU_ICONS_SOUND_VOLADJUST] = "Sound volume level",
+		[MENU_ICONS_SOUND_VOLADJUST_HELP] = "Increase sound volume level",
 		[MENU_ICONS_SOUND_APURATIO] = "APU Cycles ratio",
 		[MENU_ICONS_SOUND_APURATIO_HELP] = "For advanced users knowing\nwhat they do.",
 		// MISC OPTIONS
@@ -628,6 +630,8 @@ const char *s9xTYL_msg_ml[MSG_TOTAL_LANG][MSG_TOTAL_ENTRIES] = {
 		[MENU_ICONS_SOUND_MODE_HELP] = "エミュレートしないのが最も\n高速ですが、いくつかのゲームは\n動作しません。",
 		[MENU_ICONS_SOUND_FREQ] = "出力周波数",
 		[MENU_ICONS_SOUND_FREQ_HELP] = "低いほうが速くなります。\n高いほうが音質がよくなります。",
+		[MENU_ICONS_SOUND_VOLADJUST] = "音量レベル",
+		[MENU_ICONS_SOUND_VOLADJUST_HELP] = "音量レベルを上げる",
 		[MENU_ICONS_SOUND_APURATIO] = "APU周期比",
 		[MENU_ICONS_SOUND_APURATIO_HELP] = "それが何をするか知っている\n高度なユーザー向けです。",
 		// MISC OPTIONS
@@ -783,7 +787,7 @@ const char *s9xTYL_msg_ml[MSG_TOTAL_LANG][MSG_TOTAL_ENTRIES] = {
 		[INIT_OSK] = "OSKを初期化しています...",
 	},
 	[MSG_CH] = {
-	//english
+	//Chinese
 		//error
 		[ERR_OUT_OF_MEM] = "内存溢出",
 		[ERR_READ_MEMSTICK] = "Error reading memstick.\nPlease verify it (using a PC card reader), it may be corrupted.",
@@ -1017,6 +1021,8 @@ const char *s9xTYL_msg_ml[MSG_TOTAL_LANG][MSG_TOTAL_ENTRIES] = {
 		[MENU_ICONS_SOUND_MODE_HELP] = "關閉聲音是最快的，\n但是某些遊戲也許無法運行",
 		[MENU_ICONS_SOUND_FREQ] = "聲音頻率",
 		[MENU_ICONS_SOUND_FREQ_HELP] = "越低越快，越高音質越好。",
+		[MENU_ICONS_SOUND_VOLADJUST] = "音量級別",
+		[MENU_ICONS_SOUND_VOLADJUST_HELP] = "增加音量級別",
 		[MENU_ICONS_SOUND_APURATIO] = "APU周期比率",
 		[MENU_ICONS_SOUND_APURATIO_HELP] = "高級用戸知道這是幹什麼用的。",
 		// MISC OPTIONS

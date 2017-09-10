@@ -164,6 +164,8 @@
 #include "apu.h"
 #include "memmap.h"
 
+extern int os9x_vol_adjust;
+
 // gaussian table by libopenspc and SNEeSe
 static const int32 gauss[512] =
 {
@@ -291,7 +293,7 @@ static int OldNoiseFreq[32] =
 
 #define	FIXED_POINT 		0x10000UL
 #define	FIXED_POINT_SHIFT	16
-#define VOLUME_LEVEL		1.3
+//#define VOLUME_LEVEL		1.3
 
 #undef	ABS
 #define	ABS(a)	((a) < 0 ? -(a) : (a))
@@ -402,8 +404,8 @@ void S9xSetSoundVolume (int channel, short volume_left, short volume_right)
 	/*if (!stSoundStatus.stereo)
 		volume_left = (ABS(volume_right) + ABS(volume_left)) >> 1;*/
 
-	ch->volume_left  = volume_left * VOLUME_LEVEL;
-	ch->volume_right = volume_right * VOLUME_LEVEL;
+	ch->volume_left  = volume_left * os9x_vol_adjust / 100;
+	ch->volume_right = volume_right * os9x_vol_adjust / 100;
 }
 
 void S9xSetMasterVolume (short volume_left, short volume_right)
@@ -419,10 +421,10 @@ void S9xSetMasterVolume (short volume_left, short volume_right)
 		/*if (!stSoundStatus.stereo)
 			volume_left = (ABS(volume_right) + ABS(volume_left)) >> 1;*/
 
-		SoundData.master_volume_left  = volume_left * VOLUME_LEVEL;
-		SoundData.master_volume_right = volume_right * VOLUME_LEVEL;
-		SoundData.master_volume[0] = volume_left * VOLUME_LEVEL;
-		SoundData.master_volume[1] = volume_right * VOLUME_LEVEL;
+		SoundData.master_volume_left  = volume_left * os9x_vol_adjust / 100;
+		SoundData.master_volume_right = volume_right * os9x_vol_adjust / 100;
+		SoundData.master_volume[0] = volume_left * os9x_vol_adjust / 100;
+		SoundData.master_volume[1] = volume_right * os9x_vol_adjust / 100;
 	}
 }
 
@@ -431,10 +433,10 @@ void S9xSetEchoVolume (short volume_left, short volume_right)
 	/*if (!stSoundStatus.stereo)
 		volume_left = (ABS(volume_right) + ABS(volume_left)) >> 1;*/
 
-	SoundData.echo_volume_left  = volume_left * VOLUME_LEVEL;
-	SoundData.echo_volume_right = volume_right * VOLUME_LEVEL;
-	SoundData.echo_volume[0] = volume_left * VOLUME_LEVEL;
-	SoundData.echo_volume[1] = volume_right * VOLUME_LEVEL;
+	SoundData.echo_volume_left  = volume_left * os9x_vol_adjust / 100;
+	SoundData.echo_volume_right = volume_right * os9x_vol_adjust / 100;
+	SoundData.echo_volume[0] = volume_left * os9x_vol_adjust / 100;
+	SoundData.echo_volume[1] = volume_right * os9x_vol_adjust / 100;
 }
 
 void S9xSetEchoEnable (uint8 byte)

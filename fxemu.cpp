@@ -300,7 +300,7 @@ void fx_setCache()
    R15 |= ((uint32_t) GSU.pvRegisters[31]) << 8;
 }*/
 
-static void fx_readRegisterSpaceForUse()
+static inline void fx_readRegisterSpaceForUse()
 {
     int i;
     uint8 *p = GSU.pvRegisters;
@@ -424,7 +424,7 @@ void fx_computeScreenPointers ()
    GSU.pvRegisters[31] = (uint8_t) (R15 >> 8);
 }*/
 
-static void fx_writeRegisterSpaceAfterUse()
+static inline void fx_writeRegisterSpaceAfterUse()
 {
     int i;
     uint8 *p = GSU.pvRegisters;

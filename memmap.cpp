@@ -3567,7 +3567,7 @@ bool CMemory::SpeedHackSA1Add(int address, int16 originalByte1, int16 originalBy
 // This fixes a critical bug because originally, ApplySpeedHackPatches
 // calls S9xGetByte, which increments the cycles counter unnecessarily!
 // Code based on snes9x 3DS
-uint8 GetByte (uint32 Address)
+static uint8 GetByte (uint32 Address)
 {
     int block;
     uint8 *GetAddress = CPU.MemoryMap [block = (Address >> MEMMAP_SHIFT) & MEMMAP_MASK];

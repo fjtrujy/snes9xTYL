@@ -107,7 +107,7 @@ int menu_music;
 int menu_musiclen;
 char *menu_musicdata;
 int menu_musicidx=-1;
-
+extern int os9x_vol_adjust;
 extern char os9x_viewfile_path[256];
 
 extern void S9xReset (void);
@@ -1339,7 +1339,7 @@ menu_xmb_icon_t menu_xmb_icons[MENU_XMB_ICONS_NB]={
 	{1,0,0,7,MENU_ICONS_LOADSAVE},
 	{2,0,0,2,MENU_ICONS_CONTROLS},
 	{3,0,0,11,MENU_ICONS_VIDEO},
-	{4,0,0,3,MENU_ICONS_SOUND},
+	{4,0,0,4,MENU_ICONS_SOUND},
 	{5,0,0,10,MENU_ICONS_MISC},
 	{6,0,0,10,MENU_ICONS_CHEATS},
 	{7,0,0,2,MENU_ICONS_ABOUT},
@@ -3625,6 +3625,69 @@ static int menu_apuratio(char *mode) {
 	return retval;
 }
 
+static int menu_voladjust(char *mode) {
+	int retval=0;
+	int to_exit=0;
+	int new_value=os9x_vol_adjust;
+	if (mode) {
+		sprintf(mode,"%d%%", os9x_vol_adjust);
+		return 0;
+	}
+
+	menu_panel_pos=479;
+	menu_cnt2=0;
+	for (;;) {
+		menu_basic(2+to_exit);
+		if (!g_bLoop) {retval=1;break;}
+
+		sprintf(str_tmp,"%d%%", new_value);
+
+		mh_printLimit(menu_panel_pos+5,104,479,272,str_tmp,((31)|(24<<5)|(24<<10)));
+    mh_printLimit(menu_panel_pos+5, 130, 479, 272, s9xTYL_msg[MENU_CHANGE_VALUE_WITH_FAST], PANEL_TEXTCMD_COL);
+    mh_printLimit(menu_panel_pos+5,130,479,272,SJIS_UP " " SJIS_DOWN "                L,R",PANEL_BUTTONCMD_COL);
+    mh_printLimit(menu_panel_pos + 5, 142, 479, 272, s9xTYL_msg[MENU_DEFAULT_VALUE], PANEL_TEXTCMD_COL);
+    mh_printLimit(menu_panel_pos+5,142,479,272,SJIS_TRIANGLE ,PANEL_BUTTONCMD_COL);
+    mh_printLimit(menu_panel_pos + 5, 154, 479, 272, s9xTYL_msg[MENU_CANCEL_VALIDATE], PANEL_TEXTCMD_COL);
+    sprintf(str_tmp, SJIS_LEFT " %s              %s", os9x_btn_negative_str, os9x_btn_positive_str);
+    mh_printLimit(menu_panel_pos+5,154,479,272,str_tmp,PANEL_BUTTONCMD_COL);
+
+    if (to_exit) {
+    	if (menu_panel_pos>=479) return 0;
+    } else {
+    	if (new_pad&(os9x_btn_negative_code|PSP_CTRL_LEFT)) {
+    		os9x_beep1();
+    		to_exit=1;
+    		menu_cnt2=0;
+    	} else if (new_pad&os9x_btn_positive_code) {
+	    	os9x_beep1();
+	    	to_exit=1;
+	    	menu_cnt2=0;
+	    	os9x_vol_adjust=new_value;
+	    } else if (new_pad&PSP_CTRL_DOWN) {
+    		if (new_value>100) {new_value--;MENU_CHGVAL();}
+    	} else if (new_pad&PSP_CTRL_UP) {
+	    	if (new_value<300) {new_value++;MENU_CHGVAL();}
+    	} else if (new_pad&PSP_CTRL_LTRIGGER) {
+    		if (new_value>100) {new_value-=10;MENU_CHGVAL();}
+    		if (new_value<100) {new_value=100;}
+    	} else if (new_pad&PSP_CTRL_RTRIGGER) {
+	    	if (new_value<300) {new_value+=10;MENU_CHGVAL();}
+	    	if (new_value>300) {new_value=300;}
+    	}  else if (new_pad&PSP_CTRL_TRIANGLE) {
+	    	new_value=100;
+    	} else if (new_pad & PSP_CTRL_SELECT) {
+					if (os9x_menumusic) {
+						menu_stopmusic();
+						menu_startmusic();
+					}
+			 }  SNAPSHOT_CODE()
+    }
+    //swap screen
+		pgScreenFlipV2();
+	}
+	return retval;
+}
+
 static int menu_swapbg(char *mode) {
 	if (mode) {
 		if (bg_img) sprintf(mode,"%d",bg_img_num + 1);
@@ -3714,7 +3777,7 @@ static int menu_swapbg(char *mode) {
 	return retval;
 }
 
-#define MENU_XMB_ENTRIES_NB (4+7+2+11+3+10+10+2)
+#define MENU_XMB_ENTRIES_NB (4+7+2+11+4+10+10+2)
 menu_xmb_entry_t menu_xmb_entries[MENU_XMB_ENTRIES_NB]={
 	// GAME
 	{0,0,menu_browser,MENU_ICONS_GAME_NEW,0},
@@ -3748,7 +3811,8 @@ menu_xmb_entry_t menu_xmb_entries[MENU_XMB_ENTRIES_NB]={
 	// SOUND OPTIONS
 	{4,0,menu_soundmode,MENU_ICONS_SOUND_MODE,MENU_ICONS_SOUND_MODE_HELP},
 	{4,1,menu_soundfreq,MENU_ICONS_SOUND_FREQ,MENU_ICONS_SOUND_FREQ_HELP},
-	{4,2,menu_apuratio,MENU_ICONS_SOUND_APURATIO,MENU_ICONS_SOUND_APURATIO_HELP},
+	{4,2,menu_voladjust,MENU_ICONS_SOUND_VOLADJUST,MENU_ICONS_SOUND_VOLADJUST_HELP},
+	{4,3,menu_apuratio,MENU_ICONS_SOUND_APURATIO,MENU_ICONS_SOUND_APURATIO_HELP},
 	// MISC OPTIONS
 	{5,0,menu_clockspeed,MENU_ICONS_MISC_PSPCLOCK,MENU_ICONS_MISC_PSPCLOCK_HELP},
 	{5,1,menu_viewfile,MENU_ICONS_MISC_FILEVIEWER,MENU_ICONS_MISC_FILEVIEWER_HELP},

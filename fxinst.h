@@ -512,7 +512,7 @@ extern uint32 (**fx_ppfFunctionTable)(uint32);
 extern void (**fx_ppfPlotTable)();
 extern void (**fx_ppfOpcodeTable)();
 
-uint32_t fx_run(uint32_t nInstructions);
+//uint32_t fx_run(uint32_t nInstructions);
 
 extern uint32 (*fx_apfFunctionTable[])(uint32);
 extern void (*fx_apfOpcodeTable[])();
