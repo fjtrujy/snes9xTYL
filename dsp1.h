@@ -1,50 +1,64 @@
 /*******************************************************************************
   Snes9x - Portable Super Nintendo Entertainment System (TM) emulator.
  
-  (c) Copyright 1996 - 2003 Gary Henderson (gary.henderson@ntlworld.com) and
+  (c) Copyright 1996 - 2002 Gary Henderson (gary.henderson@ntlworld.com) and
                             Jerremy Koot (jkoot@snes9x.com)
 
-  (c) Copyright 2002 - 2003 Matthew Kendora and
-                            Brad Jorsch (anomie@users.sourceforge.net)
- 
+  (c) Copyright 2001 - 2004 John Weidman (jweidman@slip.net)
 
-                      
+  (c) Copyright 2002 - 2004 Brad Jorsch (anomie@users.sourceforge.net),
+                            funkyass (funkyass@spam.shaw.ca),
+                            Joel Yliluoma (http://iki.fi/bisqwit/)
+                            Kris Bleakley (codeviolation@hotmail.com),
+                            Matthew Kendora,
+                            Nach (n-a-c-h@users.sourceforge.net),
+                            Peter Bortas (peter@bortas.org) and
+                            zones (kasumitokoduck@yahoo.com)
+
   C4 x86 assembler and some C emulation code
   (c) Copyright 2000 - 2003 zsKnight (zsknight@zsnes.com),
-                            _Demo_ (_demo_@zsnes.com), and
-                            Nach (n-a-c-h@users.sourceforge.net)
-                                          
+                            _Demo_ (_demo_@zsnes.com), and Nach
+
   C4 C++ code
   (c) Copyright 2003 Brad Jorsch
 
   DSP-1 emulator code
-  (c) Copyright 1998 - 2003 Ivar (ivar@snes9x.com), _Demo_, Gary Henderson,
-                            John Weidman (jweidman@slip.net),
-                            neviksti (neviksti@hotmail.com), and
-                            Kris Bleakley (stinkfish@bigpond.com)
- 
+  (c) Copyright 1998 - 2004 Ivar (ivar@snes9x.com), _Demo_, Gary Henderson,
+                            John Weidman, neviksti (neviksti@hotmail.com),
+                            Kris Bleakley, Andreas Naive
+
   DSP-2 emulator code
   (c) Copyright 2003 Kris Bleakley, John Weidman, neviksti, Matthew Kendora, and
                      Lord Nightmare (lord_nightmare@users.sourceforge.net
 
   OBC1 emulator code
-  (c) Copyright 2001 - 2003 zsKnight, pagefault (pagefault@zsnes.com)
+  (c) Copyright 2001 - 2004 zsKnight, pagefault (pagefault@zsnes.com) and
+                            Kris Bleakley
   Ported from x86 assembler to C by sanmaiwashi
 
   SPC7110 and RTC C++ emulator code
   (c) Copyright 2002 Matthew Kendora with research by
                      zsKnight, John Weidman, and Dark Force
 
+  S-DD1 C emulator code
+  (c) Copyright 2003 Brad Jorsch with research by
+                     Andreas Naive and John Weidman
+ 
   S-RTC C emulator code
   (c) Copyright 2001 John Weidman
   
+  ST010 C++ emulator code
+  (c) Copyright 2003 Feather, Kris Bleakley, John Weidman and Matthew Kendora
+
   Super FX x86 assembler emulator code 
   (c) Copyright 1998 - 2003 zsKnight, _Demo_, and pagefault 
 
   Super FX C emulator code 
-  (c) Copyright 1997 - 1999 Ivar and Gary Henderson.
+  (c) Copyright 1997 - 1999 Ivar, Gary Henderson and John Weidman
 
 
+  SH assembler code partly based on x86 assembler code
+  (c) Copyright 2002 - 2004 Marcus Comstedt (marcus@mc.pp.se) 
 
  
   Specific ports contains the works of other authors. See headers in
@@ -76,8 +90,21 @@
 #ifndef _DSP1_H_
 #define _DSP1_H_
 
-void DSP1SetByte(uint8 byte, uint16 address);
+extern void  (*SetDSP)(uint8, uint16);
+extern uint8 (*GetDSP)(uint16);
+
+void  DSP1SetByte(uint8 byte, uint16 address);
 uint8 DSP1GetByte(uint16 address);
+
+void  DSP2SetByte(uint8 byte, uint16 address);
+uint8 DSP2GetByte(uint16 address);
+
+void  DSP3SetByte(uint8 byte, uint16 address);
+uint8 DSP3GetByte(uint16 address);
+void  DSP3_Reset();
+
+void  DSP4SetByte(uint8 byte, uint16 address);
+uint8 DSP4GetByte(uint16 address);
 
 // Simple vector and matrix types
 //typedef float MATRIX[3][3];
@@ -86,87 +113,243 @@ uint8 DSP1GetByte(uint16 address);
 //enum AttitudeMatrix { MatrixA, MatrixB, MatrixC };
 
 struct SDSP1 {
-    bool8 waiting4command;
-    bool8 first_parameter;
-    uint8 command;
-    uint32 in_count;
-    uint32 in_index;
-    uint32 out_count;
-    uint32 out_index;
-	short Op02FX;
-	short Op02FY;
-	short Op02FZ;
-	short Op02LFE;
-	short Op02LES;
-	unsigned short Op02AAS;
-	unsigned short Op02AZS;
-	unsigned short Op02VOF;
-	unsigned short Op02VVA;
-	short ScrDispl;
-	short Op0AVS;
-	short Op0AA;
-	short Op0AB;
-	short Op0AC;
-	short Op0AD;
+	uint8 	version;
+	uint32	boundary;
+	bool8	waiting4command;
+	bool8	first_parameter;
+	uint8	command;
+	uint32	in_count;
+	uint32	in_index;
+	uint32	out_count;
+	uint32	out_index;
+	uint8	parameters[512];
+	uint8	output[512];
 
-	float RXRes,RYRes;
+	int16	CentreX;
+	int16	CentreY;
+	int16	VOffset;
 
-	float NAzsB,NAasB;
-	float ViewerXc;
-	float ViewerYc;
-	float ViewerZc;
-	float CenterX,CenterY;
-	//output was 512 for DSP-2 work, updated to reflect current thinking on DSP-3
-	union {
-		uint8 output [12];
-		uint16 output16 [6];
-		uint32 output32 [3];
-	};
-	union {
-	    uint8 parameters [512];
-		uint16 parameters16 [256];
-	};
-	short matrixC[3][3];
-	short matrixB[3][3];
-	short matrixA[3][3];
+	int16	VPlane_C;
+	int16	VPlane_E;
 
-	
-	
-/*
-    // Attitude matrices
-    MATRIX vMa;
-    MATRIX vMb;
-    MATRIX vMc;
-    
-    // Matrix and translaton vector for
-    // transforming a 3D position into the global coordinate system,
-    // from the view space coordinate system.
-    MATRIX vM;
-    VECTOR vT;
+	// Azimuth and Zenith angles
+	int16	SinAas;
+	int16	CosAas;
+	int16	SinAzs;
+	int16	CosAzs;
 
-    // Focal distance
-    float vFov;
+	// Clipped Zenith angle
+	int16	SinAZS;
+	int16	CosAZS;
+	int16	SecAZS_C1;
+	int16	SecAZS_E1;
+	int16	SecAZS_C2;
+	int16	SecAZS_E2;
 
-    // A precalculated value for optimization
-    float vPlaneD;
-    
-    // Raster position of horizon
-    float vHorizon;
+	int16	Nx;
+	int16	Ny;
+	int16	Nz;
+	int16	Gx;
+	int16	Gy;
+	int16	Gz;
+	int16	C_Les;
+	int16	E_Les;
+	int16	G_Les;
 
-    // Convert a 2D screen coordinate to a 3D ground coordinate in global coordinate system.
-    void ScreenToGround(VECTOR &v, float X2d, float Y2d);
+	int16	matrixA[3][3];
+	int16	matrixB[3][3];
+	int16	matrixC[3][3];
 
-    MATRIX &GetMatrix( AttitudeMatrix Matrix );*/
+	int16	Op00Multiplicand;
+	int16	Op00Multiplier;
+	int16	Op00Result;
+
+	int16	Op20Multiplicand;
+	int16	Op20Multiplier;
+	int16	Op20Result;
+
+	int16	Op10Coefficient;
+	int16	Op10Exponent;
+	int16	Op10CoefficientR;
+	int16	Op10ExponentR;
+
+	int16	Op04Angle;
+	int16	Op04Radius;
+	int16	Op04Sin;
+	int16	Op04Cos;
+
+	int16	Op0CA;
+	int16	Op0CX1;
+	int16	Op0CY1;
+	int16	Op0CX2;
+	int16	Op0CY2;
+
+	int16	Op02FX;
+	int16	Op02FY;
+	int16	Op02FZ;
+	int16	Op02LFE;
+	int16	Op02LES;
+	int16	Op02AAS;
+	int16	Op02AZS;
+	int16	Op02VOF;
+	int16	Op02VVA;
+	int16	Op02CX;
+	int16	Op02CY;
+
+	int16	Op0AVS;
+	int16	Op0AA;
+	int16	Op0AB;
+	int16	Op0AC;
+	int16	Op0AD;
+
+	int16	Op06X;
+	int16	Op06Y;
+	int16	Op06Z;
+	int16	Op06H;
+	int16	Op06V;
+	int16	Op06M;
+
+	int16	Op01m;
+	int16	Op01Zr;
+	int16	Op01Xr;
+	int16	Op01Yr;
+
+	int16	Op11m;
+	int16	Op11Zr;
+	int16	Op11Xr;
+	int16	Op11Yr;
+
+	int16	Op21m;
+	int16	Op21Zr;
+	int16	Op21Xr;
+	int16	Op21Yr;
+
+	int16	Op0DX;
+	int16	Op0DY;
+	int16	Op0DZ;
+	int16	Op0DF;
+	int16	Op0DL;
+	int16	Op0DU;
+
+	int16	Op1DX;
+	int16	Op1DY;
+	int16	Op1DZ;
+	int16	Op1DF;
+	int16	Op1DL;
+	int16	Op1DU;
+
+	int16	Op2DX;
+	int16	Op2DY;
+	int16	Op2DZ;
+	int16	Op2DF;
+	int16	Op2DL;
+	int16	Op2DU;
+
+	int16	Op03F;
+	int16	Op03L;
+	int16	Op03U;
+	int16	Op03X;
+	int16	Op03Y;
+	int16	Op03Z;
+
+	int16	Op13F;
+	int16	Op13L;
+	int16	Op13U;
+	int16	Op13X;
+	int16	Op13Y;
+	int16	Op13Z;
+
+	int16	Op23F;
+	int16	Op23L;
+	int16	Op23U;
+	int16	Op23X;
+	int16	Op23Y;
+	int16	Op23Z;
+
+	int16	Op14Zr;
+	int16	Op14Xr;
+	int16	Op14Yr;
+	int16	Op14U;
+	int16	Op14F;
+	int16	Op14L;
+	int16	Op14Zrr;
+	int16	Op14Xrr;
+	int16	Op14Yrr;
+
+	int16	Op0EH;
+	int16	Op0EV;
+	int16	Op0EX;
+	int16	Op0EY;
+
+	int16	Op0BX;
+	int16	Op0BY;
+	int16	Op0BZ;
+	int16	Op0BS;
+
+	int16	Op1BX;
+	int16	Op1BY;
+	int16	Op1BZ;
+	int16	Op1BS;
+
+	int16	Op2BX;
+	int16	Op2BY;
+	int16	Op2BZ;
+	int16	Op2BS;
+
+	int16	Op28X;
+	int16	Op28Y;
+	int16	Op28Z;
+	int16	Op28R;
+
+	int16	Op1CX;
+	int16	Op1CY;
+	int16	Op1CZ;
+	int16	Op1CXBR;
+	int16	Op1CYBR;
+	int16	Op1CZBR;
+	int16	Op1CXAR;
+	int16	Op1CYAR;
+	int16	Op1CZAR;
+	int16	Op1CX1;
+	int16	Op1CY1;
+	int16	Op1CZ1;
+	int16	Op1CX2;
+	int16	Op1CY2;
+	int16	Op1CZ2;
+
+	uint16	Op0FRamsize;
+	uint16	Op0FPass;
+
+	int16	Op2FUnknown;
+	int16	Op2FSize;
+
+	int16	Op08X;
+	int16	Op08Y;
+	int16	Op08Z;
+	int16	Op08Ll;
+	int16	Op08Lh;
+
+	int16	Op18X;
+	int16	Op18Y;
+	int16	Op18Z;
+	int16	Op18R;
+	int16	Op18D;
+
+	int16	Op38X;
+	int16	Op38Y;
+	int16	Op38Z;
+	int16	Op38R;
+	int16	Op38D;
 };
 
 
 START_EXTERN_C
 void S9xResetDSP1 ();
 
-#define S9xGetDSP(Address) DSP1GetByte(Address)
-#define S9xSetDSP(Byte, Address) DSP1SetByte(Byte, Address)
-//uint8 S9xGetDSP (uint16 Address);
-//void S9xSetDSP (uint8 Byte, uint16 Address);
+//#define S9xGetDSP(Address) DSP1GetByte(Address)
+//#define S9xSetDSP(Byte, Address) DSP1SetByte(Byte, Address)
+uint8 S9xGetDSP (uint16 Address);
+void S9xSetDSP (uint8 Byte, uint16 Address);
 END_EXTERN_C
 
 #ifndef __GP32__ 

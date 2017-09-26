@@ -1403,7 +1403,6 @@ void S9xDeinterleaveType2 (bool8 reset)
 	}
 }
 
-#ifdef _BSX_151_
 void CMemory::ParseSNESHeader (uint8 *RomHeader)
 {
 	bool8	bs = Settings.BS & !Settings.BSXItself;
@@ -1430,7 +1429,7 @@ void CMemory::ParseSNESHeader (uint8 *RomHeader)
 	SRAMSize  = bs ? 5 /* BS-X */    : RomHeader[0x28];
 	ROMSpeed  = bs ? RomHeader[0x28] : RomHeader[0x25];
 	ROMType   = bs ? 0xE5 /* BS-X */ : RomHeader[0x26];
-//	ROMRegion = bs ? 0               : RomHeader[0x29];//remove azz 080517
+	ROMRegion = bs ? 0               : RomHeader[0x29];//remove azz 080517
 
 	ROMChecksum           = RomHeader[0x2E] + (RomHeader[0x2F] << 8);
 	ROMComplementChecksum = RomHeader[0x2C] + (RomHeader[0x2D] << 8);
@@ -1442,6 +1441,8 @@ void CMemory::ParseSNESHeader (uint8 *RomHeader)
 	else
 		sprintf(CompanyId, "%02X", RomHeader[0x2A]);
 }
+
+#ifdef _BSX_151_
 void CMemory::BS_151()
 {
 	CalculatedChecksum = 0;
@@ -1685,6 +1686,7 @@ void CMemory::InitROM (bool8 Interleaved)
     Settings.SRTC = FALSE;
 	Settings.SPC7110 = FALSE;
 	Settings.SPC7110RTC = FALSE;
+	DSP1.version = 0;
 	
 	CalculatedChecksum=0;
 	Settings.BS = FALSE;//add azz 080517
@@ -1746,9 +1748,68 @@ void CMemory::InitROM (bool8 Interleaved)
 		memset (ROMId, 0, 5);
 		memset (CompanyId, 0, 3);
 		
+		ParseSNESHeader(RomHeader);
+		
+		// DSP1/2/3/4
+		if (Memory.ROMType == 0x03)
+		{
+		  if (Memory.ROMSpeed == 0x30)
+			 DSP1.version = 4; // DSP4
+		  else
+			 DSP1.version = 1; // DSP1
+		}
+		else if (Memory.ROMType == 0x05)
+		{
+		  if (Memory.ROMSpeed == 0x20)
+			 DSP1.version = 2; // DSP2
+		  else if (Memory.ROMSpeed == 0x30 && RomHeader[0x2a] == 0xb2)
+			 DSP1.version = 3; // DSP3
+		  else
+			 DSP1.version = 1; // DSP1
+		}
+
+		switch (DSP1.version)
+		{
+			case 1:	// DSP1
+				if (HiROM)
+					DSP1.boundary = 0x7000;
+				else
+				if (CalculatedSize > 0x100000)
+					DSP1.boundary = 0x4000;
+				else
+					DSP1.boundary = 0xc000;
+				
+				SetDSP = &DSP1SetByte;
+				GetDSP = &DSP1GetByte;
+				break;
+
+			case 2: // DSP2
+				DSP1.boundary = 0x10000;
+				SetDSP = &DSP2SetByte;
+				GetDSP = &DSP2GetByte;
+				break;
+
+			case 3: // DSP3
+				DSP1.boundary = 0xc000;
+				SetDSP = &DSP3SetByte;
+				GetDSP = &DSP3GetByte;
+				break;
+
+			case 4: // DSP4
+				DSP1.boundary = 0xc000;
+				SetDSP = &DSP4SetByte;
+				GetDSP = &DSP4GetByte;
+				break;
+
+			default:
+				SetDSP = NULL;
+				GetDSP = NULL;
+				break;
+		}
+		
 		if (Memory.HiROM)
 		{
-			Memory.SRAMSize = ROM [0xffd8];
+			/*Memory.SRAMSize = ROM [0xffd8];
 			strncpy (ROMName, (char *) &ROM[0xffc0], ROM_NAME_LEN - 1);
 			ROMSpeed = ROM [0xffd5];
 			ROMType = ROM [0xffd6];
@@ -1758,7 +1819,7 @@ void CMemory::InitROM (bool8 Interleaved)
 			ROMRegion= RomHeader[0x29];
 			
 			memmove (ROMId, &ROM [0xffb2], 4);
-			memmove (CompanyId, &ROM [0xffb0], 2);
+			memmove (CompanyId, &ROM [0xffb0], 2);*/
 			
 			// Try to auto-detect the DSP1 chip
 			if (!Settings.ForceNoDSP1 &&
@@ -1807,7 +1868,7 @@ void CMemory::InitROM (bool8 Interleaved)
 		}
 		else
 		{
-			Memory.HiROM = FALSE;
+			/*Memory.HiROM = FALSE;
 			Memory.SRAMSize = ROM [0x7fd8];
 			ROMSpeed = ROM [0x7fd5];
 			ROMType = ROM [0x7fd6];
@@ -1817,7 +1878,7 @@ void CMemory::InitROM (bool8 Interleaved)
 			ROMRegion= RomHeader[0x29];
 			
 			memmove (ROMId, &ROM [0x7fb2], 4);
-			memmove (CompanyId, &ROM [0x7fb0], 2);
+			memmove (CompanyId, &ROM [0x7fb0], 2);*/
 
 			strncpy (ROMName, (char *) &ROM[0x7fc0], ROM_NAME_LEN - 1);
 			Settings.SuperFX = Settings.ForceSuperFX;
@@ -3633,6 +3694,13 @@ void CMemory::ApplyROMFixes ()
     // Enable S-RTC (Real Time Clock) emulation for Dai Kaijyu Monogatari 2
     //Settings.SRTC = ((ROMType & 0xf0) >> 4) == 5;
 	//Settings.SRTC = (((ROMType & 0xff) << 8) + (ROMSpeed & 0xff))==0x5535;
+	
+	if(strncmp(ROMName, "SD\x0b6\x0de\x0dd\x0c0\x0de\x0d1GX", 10)==0)
+	{
+		//Set DSP-3
+		strncpy(ROMName, "SD Gundam GX", 13);
+		DSP3_Reset();
+	}
 
 	//memory map corrections
 	if(strncmp(ROMName, "XBAND",5)==0)

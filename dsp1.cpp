@@ -1,50 +1,64 @@
 /*******************************************************************************
   Snes9x - Portable Super Nintendo Entertainment System (TM) emulator.
  
-  (c) Copyright 1996 - 2003 Gary Henderson (gary.henderson@ntlworld.com) and
+  (c) Copyright 1996 - 2002 Gary Henderson (gary.henderson@ntlworld.com) and
                             Jerremy Koot (jkoot@snes9x.com)
 
-  (c) Copyright 2002 - 2003 Matthew Kendora and
-                            Brad Jorsch (anomie@users.sourceforge.net)
- 
+  (c) Copyright 2001 - 2004 John Weidman (jweidman@slip.net)
 
-                      
+  (c) Copyright 2002 - 2004 Brad Jorsch (anomie@users.sourceforge.net),
+                            funkyass (funkyass@spam.shaw.ca),
+                            Joel Yliluoma (http://iki.fi/bisqwit/)
+                            Kris Bleakley (codeviolation@hotmail.com),
+                            Matthew Kendora,
+                            Nach (n-a-c-h@users.sourceforge.net),
+                            Peter Bortas (peter@bortas.org) and
+                            zones (kasumitokoduck@yahoo.com)
+
   C4 x86 assembler and some C emulation code
   (c) Copyright 2000 - 2003 zsKnight (zsknight@zsnes.com),
-                            _Demo_ (_demo_@zsnes.com), and
-                            Nach (n-a-c-h@users.sourceforge.net)
-                                          
+                            _Demo_ (_demo_@zsnes.com), and Nach
+
   C4 C++ code
   (c) Copyright 2003 Brad Jorsch
 
   DSP-1 emulator code
-  (c) Copyright 1998 - 2003 Ivar (ivar@snes9x.com), _Demo_, Gary Henderson,
-                            John Weidman (jweidman@slip.net),
-                            neviksti (neviksti@hotmail.com), and
-                            Kris Bleakley (stinkfish@bigpond.com)
- 
+  (c) Copyright 1998 - 2004 Ivar (ivar@snes9x.com), _Demo_, Gary Henderson,
+                            John Weidman, neviksti (neviksti@hotmail.com),
+                            Kris Bleakley, Andreas Naive
+
   DSP-2 emulator code
   (c) Copyright 2003 Kris Bleakley, John Weidman, neviksti, Matthew Kendora, and
                      Lord Nightmare (lord_nightmare@users.sourceforge.net
 
   OBC1 emulator code
-  (c) Copyright 2001 - 2003 zsKnight, pagefault (pagefault@zsnes.com)
+  (c) Copyright 2001 - 2004 zsKnight, pagefault (pagefault@zsnes.com) and
+                            Kris Bleakley
   Ported from x86 assembler to C by sanmaiwashi
 
   SPC7110 and RTC C++ emulator code
   (c) Copyright 2002 Matthew Kendora with research by
                      zsKnight, John Weidman, and Dark Force
 
+  S-DD1 C emulator code
+  (c) Copyright 2003 Brad Jorsch with research by
+                     Andreas Naive and John Weidman
+ 
   S-RTC C emulator code
   (c) Copyright 2001 John Weidman
   
+  ST010 C++ emulator code
+  (c) Copyright 2003 Feather, Kris Bleakley, John Weidman and Matthew Kendora
+
   Super FX x86 assembler emulator code 
   (c) Copyright 1998 - 2003 zsKnight, _Demo_, and pagefault 
 
   Super FX C emulator code 
-  (c) Copyright 1997 - 1999 Ivar and Gary Henderson.
+  (c) Copyright 1997 - 1999 Ivar, Gary Henderson and John Weidman
 
 
+  SH assembler code partly based on x86 assembler code
+  (c) Copyright 2002 - 2004 Marcus Comstedt (marcus@mc.pp.se) 
 
  
   Specific ports contains the works of other authors. See headers in
@@ -84,9 +98,13 @@
 //#include "math.h"
 
 #include "dsp1emu.c"
-//#include "dsp2emu.c"
+#include "dsp2emu.c"
+#include "dsp3emu.c"
 
-void S9xInitDSP1 ()
+void (*SetDSP)(uint8, uint16)=NULL;
+uint8 (*GetDSP)(uint16)=NULL;
+
+/*void S9xInitDSP1 ()
 {
     static bool8 init = FALSE;
     
@@ -95,11 +113,11 @@ void S9xInitDSP1 ()
         InitDSP ();
         init = TRUE;
     }
-}
+}*/
 
 void S9xResetDSP1 ()
 {
-    S9xInitDSP1 ();
+ //   S9xInitDSP1 ();
     
     DSP1.waiting4command = TRUE;
     DSP1.in_count = 0;
@@ -109,122 +127,135 @@ void S9xResetDSP1 ()
     DSP1.first_parameter = TRUE;
 }
 
-void DSP1SetByte(uint8 byte, uint16 address)
+uint8 S9xGetDSP (uint16 address)
 {
-    if( (address & 0xf000) == 0x6000 || (address & 0x7fff) < 0x4000 )
-    {
-//		if ((address & 1) == 0)
-//		{
-		if((DSP1.command==0x0A||DSP1.command==0x1A)&&DSP1.out_count!=0)
+	return ((*GetDSP)(address));
+}
+
+void S9xSetDSP (uint8 byte, uint16 address)
+{
+	(*SetDSP)(byte, address);
+}
+
+void DSP1SetByte (uint8 byte, uint16 address)
+{
+	if (address < DSP1.boundary)
+	{
+		if ((DSP1.command == 0x0A || DSP1.command == 0x1A) && DSP1.out_count != 0)
 		{
 			DSP1.out_count--;
-			DSP1.out_index++;			
+			DSP1.out_index++;
 			return;
 		}
-		else if (DSP1.waiting4command)
+		else
+		if (DSP1.waiting4command)
 		{
-			DSP1.command = byte;
-			DSP1.in_index = 0;
+			DSP1.command         = byte;
+			DSP1.in_index        = 0;
 			DSP1.waiting4command = FALSE;
 			DSP1.first_parameter = TRUE;
-//			printf("Op%02X\n",byte);
-			// Mario Kart uses 0x00, 0x02, 0x06, 0x0c, 0x28, 0x0a
+			#ifdef DEBUGGER
+				//printf("OP%02X\n",byte);
+			#endif
+
 			switch (byte)
 			{
-			case 0x00: DSP1.in_count = 2;	break;
-			case 0x30:
-			case 0x10: DSP1.in_count = 2;	break;
-			case 0x20: DSP1.in_count = 2;	break;
-			case 0x24:
-			case 0x04: DSP1.in_count = 2;	break;
-			case 0x08: DSP1.in_count = 3;	break;
-			case 0x18: DSP1.in_count = 4;	break;
-			case 0x28: DSP1.in_count = 3;	break;
-			case 0x38: DSP1.in_count = 4;	break;
-			case 0x2c:
-			case 0x0c: DSP1.in_count = 3;	break;
-			case 0x3c:
-			case 0x1c: DSP1.in_count = 6;	break;
-			case 0x32:
-			case 0x22:
-			case 0x12:
-			case 0x02: DSP1.in_count = 7;	break;
-			case 0x0a: DSP1.in_count = 1;	break;
-			case 0x3a:
-			case 0x2a:
-			case 0x1a: 
-				DSP1. command =0x1a;
-				DSP1.in_count = 1;	break;
-			case 0x16:
-			case 0x26:
-			case 0x36:
-			case 0x06: DSP1.in_count = 3;	break;
-			case 0x1e:
-			case 0x2e:
-			case 0x3e:
-			case 0x0e: DSP1.in_count = 2;	break;
-			case 0x05:
-			case 0x35:
-			case 0x31:
-			case 0x01: DSP1.in_count = 4;	break;
-			case 0x15:
-			case 0x11: DSP1.in_count = 4;	break;
-			case 0x25:
-			case 0x21: DSP1.in_count = 4;	break;
-			case 0x09:
-			case 0x39:
-			case 0x3d:
-			case 0x0d: DSP1.in_count = 3;	break;
-			case 0x19:
-			case 0x1d: DSP1.in_count = 3;	break;
-			case 0x29:
-			case 0x2d: DSP1.in_count = 3;	break;
-			case 0x33:
-			case 0x03: DSP1.in_count = 3;	break;
-			case 0x13: DSP1.in_count = 3;	break;
-			case 0x23: DSP1.in_count = 3;	break;
-			case 0x3b:
-			case 0x0b: DSP1.in_count = 3;	break;
-			case 0x1b: DSP1.in_count = 3;	break;
-			case 0x2b: DSP1.in_count = 3;	break;
-			case 0x34:
-			case 0x14: DSP1.in_count = 6;	break;
-			case 0x07:
-			case 0x0f: DSP1.in_count = 1;	break;
-			case 0x27:
-			case 0x2F: DSP1.in_count=1; break;
-			case 0x17:
-			case 0x37:
-			case 0x3F:
-				DSP1.command=0x1f;
-			case 0x1f: DSP1.in_count = 1;	break;
-				//		    case 0x80: DSP1.in_count = 2;	break;
-			default:
-				//printf("Op%02X\n",byte);
-			case 0x80:
-				DSP1.in_count = 0;
-				DSP1.waiting4command = TRUE;
-				DSP1.first_parameter = TRUE;
-				break;
+				case 0x00: DSP1.in_count = 2; break;
+				case 0x30:
+				case 0x10: DSP1.in_count = 2; break;
+				case 0x20: DSP1.in_count = 2; break;
+				case 0x24:
+				case 0x04: DSP1.in_count = 2; break;
+				case 0x08: DSP1.in_count = 3; break;
+				case 0x18: DSP1.in_count = 4; break;
+				case 0x28: DSP1.in_count = 3; break;
+				case 0x38: DSP1.in_count = 4; break;
+				case 0x2c:
+				case 0x0c: DSP1.in_count = 3; break;
+				case 0x3c:
+				case 0x1c: DSP1.in_count = 6; break;
+				case 0x32:
+				case 0x22:
+				case 0x12:
+				case 0x02: DSP1.in_count = 7; break;
+				case 0x0a: DSP1.in_count = 1; break;
+				case 0x3a:
+				case 0x2a:
+				case 0x1a:
+					DSP1.command = 0x1a;
+					DSP1.in_count = 1;
+					break;
+				case 0x16:
+				case 0x26:
+				case 0x36:
+				case 0x06: DSP1.in_count = 3; break;
+				case 0x1e:
+				case 0x2e:
+				case 0x3e:
+				case 0x0e: DSP1.in_count = 2; break;
+				case 0x05:
+				case 0x35:
+				case 0x31:
+				case 0x01: DSP1.in_count = 4; break;
+				case 0x15:
+				case 0x11: DSP1.in_count = 4; break;
+				case 0x25:
+				case 0x21: DSP1.in_count = 4; break;
+				case 0x09:
+				case 0x39:
+				case 0x3d:
+				case 0x0d: DSP1.in_count = 3; break;
+				case 0x19:
+				case 0x1d: DSP1.in_count = 3; break;
+				case 0x29:
+				case 0x2d: DSP1.in_count = 3; break;
+				case 0x33:
+				case 0x03: DSP1.in_count = 3; break;
+				case 0x13: DSP1.in_count = 3; break;
+				case 0x23: DSP1.in_count = 3; break;
+				case 0x3b:
+				case 0x0b: DSP1.in_count = 3; break;
+				case 0x1b: DSP1.in_count = 3; break;
+				case 0x2b: DSP1.in_count = 3; break;
+				case 0x34:
+				case 0x14: DSP1.in_count = 6; break;
+				case 0x07:
+				case 0x0f: DSP1.in_count = 1; break;
+				case 0x27:
+				case 0x2F: DSP1.in_count = 1; break;
+				case 0x17:
+				case 0x37:
+				case 0x3F:
+					DSP1.command = 0x1f;
+				case 0x1f: DSP1.in_count = 1; break;
+				default:
+				#ifdef DEBUGGER
+					//printf("OP%02X\n", byte);
+				#endif
+				case 0x80:
+					DSP1.in_count        = 0;
+					DSP1.waiting4command = TRUE;
+					DSP1.first_parameter = TRUE;
+					break;
 			}
-			DSP1.in_count<<=1;
+
+			DSP1.in_count <<= 1;
 		}
 		else
 		{
-			DSP1.parameters [DSP1.in_index] = byte;
+			DSP1.parameters[DSP1.in_index] = byte;
 			DSP1.first_parameter = FALSE;
 			DSP1.in_index++;
 		}
-		
-		if (DSP1.waiting4command ||
-			(DSP1.first_parameter && byte == 0x80))
+
+		if (DSP1.waiting4command || (DSP1.first_parameter && byte == 0x80))
 		{
 			DSP1.waiting4command = TRUE;
 			DSP1.first_parameter = FALSE;
 		}
-		else if(DSP1.first_parameter && (DSP1.in_count != 0 || (DSP1.in_count==0&&DSP1.in_index==0)))
-		{
-		}
+		else
+		if (DSP1.first_parameter && (DSP1.in_count != 0 || (DSP1.in_count == 0 && DSP1.in_index == 0)))
+			;
 		else
 		{
 			if (DSP1.in_count)
@@ -233,310 +264,464 @@ void DSP1SetByte(uint8 byte, uint16 address)
 				{
 					// Actually execute the command
 					DSP1.waiting4command = TRUE;
-					DSP1.out_index = 0;
+					DSP1.out_index       = 0;
+
 					switch (DSP1.command)
 					{
-					case 0x1f:
-						DSP1.out_count=2048;
-						break;
-					case 0x00:	// Multiple
-						{
-						short Op00Multiplicand = (int16) DSP1.parameters16 [0];
-						short Op00Multiplier = (int16) DSP1.parameters16 [1];
-						
-						short Op00Result= Op00Multiplicand * Op00Multiplier >> 15;
-						
-						DSP1.out_count = 2;
-						DSP1.output16 [0] = Op00Result;
-						}
-						break;
+						case 0x1f:
+							DSP1.out_count = 2048;
+							break;
 
-					case 0x20:	// Multiple
-						{
-						short Op20Multiplicand = (int16) DSP1.parameters16 [0];
-						short Op20Multiplier = (int16) DSP1.parameters16 [1];
-						
-						short Op20Result= Op20Multiplicand * Op20Multiplier >> 15;
-						Op20Result++;
-						
-						DSP1.out_count = 2;
-						DSP1.output16 [0] = Op20Result;
-						}
-						break;
-						
-					case 0x30:
-					case 0x10:	// Inverse
-						{
-						signed short Op10Coefficient = (int16) DSP1.parameters16 [0];
-						signed short Op10Exponent = (int16) DSP1.parameters16 [1];
-						signed short Op10CoefficientR;
-						signed short Op10ExponentR;
+						case 0x00: // Multiple
+							DSP1.Op00Multiplicand = (int16) (DSP1.parameters[0] | (DSP1.parameters[1] << 8));
+							DSP1.Op00Multiplier   = (int16) (DSP1.parameters[2] | (DSP1.parameters[3] << 8));
 
-						DSP1_Inverse(Op10Coefficient, Op10Exponent, &Op10CoefficientR, &Op10ExponentR);
-						
-						DSP1.out_count = 4;
-						DSP1.output16 [0] = Op10CoefficientR;
-						DSP1.output16 [1] = Op10ExponentR;
-						}
-						break;
-						
-					case 0x24:
-					case 0x04:	// Sin and Cos of angle
-						{
-						short Op04Angle = (int16) DSP1.parameters16 [0];
-						short Op04Radius = (uint16) DSP1.parameters16 [1];
-						
-						short Op04Sin = DSP1_Sin(Op04Angle) * Op04Radius >> 15;
-						short Op04Cos = DSP1_Cos(Op04Angle) * Op04Radius >> 15;
-						
-						DSP1.out_count = 4;
-						DSP1.output16 [0] = Op04Sin;
-						DSP1.output16 [1] = Op04Cos;
-						}
-						break;
-						
-					case 0x08:	// Radius
-						{
-						short Op08X = (int16) DSP1.parameters16 [0];
-						short Op08Y = (int16) DSP1.parameters16 [1];
-						short Op08Z = (int16) DSP1.parameters16 [2];
-						
-						int Op08Size = (Op08X * Op08X + Op08Y * Op08Y + Op08Z * Op08Z) << 1;
-						
-						DSP1.out_count = 4;
-						DSP1.output32 [0] = Op08Size; 
-						}
-						break;
-					case 0x18:	// Range
-						{
-						short Op18X = (int16) DSP1.parameters16 [0];
-						short Op18Y = (int16) DSP1.parameters16 [1];
-						short Op18Z = (int16) DSP1.parameters16 [2];
-						short Op18R = (int16) DSP1.parameters16 [3];
-						
-						short Op18D = (Op18X * Op18X + Op18Y * Op18Y + Op18Z * Op18Z - Op18R * Op18R) >> 15;
-						
-						DSP1.out_count = 2;
-						DSP1.output16 [0] = Op18D;
-						}
-						break;
-					case 0x38:	// Range
-						{
-						short Op38X = (int16) DSP1.parameters16 [0];
-						short Op38Y = (int16) DSP1.parameters16 [1];
-						short Op38Z = (int16) DSP1.parameters16 [2];
-						short Op38R = (int16) DSP1.parameters16 [3];
-						
-						short Op38D = (Op38X * Op38X + Op38Y * Op38Y + Op38Z * Op38Z - Op38R * Op38R) >> 15;
-						Op38D++;
-						
-						DSP1.out_count = 2;
-						DSP1.output16 [0] = Op38D;
-						}
-						break;
-					case 0x28:	// Distance (vector length)
-						{
-						short Op28X = (int16) DSP1.parameters16 [0];
-						short Op28Y = (int16) DSP1.parameters16 [1];
-						short Op28Z = (int16) DSP1.parameters16 [2];
-						int Radius = Op28X * Op28X + Op28Y * Op28Y + Op28Z * Op28Z;
-						short Op28R;
+							DSP1_Op00();
 
-						if (Radius == 0) Op28R = 0;
-						else
-						{
-							short C, E;
-							DSP1_Normalizefloat(Radius, &C, &E);
-							if (E & 1) C = C * 0x4000 >> 15;
+							DSP1.out_count = 2;
+							DSP1.output[0] =  DSP1.Op00Result       & 0xFF;
+							DSP1.output[1] = (DSP1.Op00Result >> 8) & 0xFF;
+							break;
 
-							short Pos = C * 0x0040 >> 15;
+						case 0x20: // Multiple
+							DSP1.Op20Multiplicand = (int16) (DSP1.parameters[0] | (DSP1.parameters[1] << 8));
+							DSP1.Op20Multiplier   = (int16) (DSP1.parameters[2] | (DSP1.parameters[3] << 8));
 
-							short Node1 = DSP1ROM[(0x00d5 + Pos)&1023];
-							short Node2 = DSP1ROM[(0x00d6 + Pos)&1023];
+							DSP1_Op20();
 
-							Op28R = ((Node2 - Node1) * (C & 0x1ff) >> 9) + Node1;
-							Op28R >>= (E >> 1);
-						}
-						DSP1.out_count = 2;
-						DSP1.output16 [0] = Op28R;
-						}
-						break;
-						
-					case 0x2c:
-					case 0x0c:	// Rotate (2D rotate)
-						{
-						short Op0CA = (int16) DSP1.parameters16 [0];
-						short Op0CX1 = (int16) DSP1.parameters16 [1];
-						short Op0CY1 = (int16) DSP1.parameters16 [2];
-						
-						short Op0CX2 = (Op0CY1 * DSP1_Sin(Op0CA) >> 15) + (Op0CX1 * DSP1_Cos(Op0CA) >> 15);
-						short Op0CY2 = (Op0CY1 * DSP1_Cos(Op0CA) >> 15) - (Op0CX1 * DSP1_Sin(Op0CA) >> 15);
+							DSP1.out_count = 2;
+							DSP1.output[0] =  DSP1.Op20Result       & 0xFF;
+							DSP1.output[1] = (DSP1.Op20Result >> 8) & 0xFF;
+							break;
 
-						
-						DSP1.out_count = 4;
-						DSP1.output16 [0] = Op0CX2;
-						DSP1.output16 [1] = Op0CY2;
-						}
-						break;
-						
-					case 0x3c:
-					case 0x1c:	// Polar (3D rotate)
-						{
-						short Op1CZ = DSP1.parameters16 [0];
-						//MK: reversed X and Y on neviksti and John's advice.
-						short Op1CY = DSP1.parameters16 [1];
-						short Op1CX = DSP1.parameters16 [2];
-						short Op1CXBR = DSP1.parameters16 [3];
-						short Op1CYBR = DSP1.parameters16 [4];
-						short Op1CZBR = DSP1.parameters16 [5];
-						
-						// Rotate Around Op1CZ1
-						short Op1CX1 = (Op1CYBR * DSP1_Sin(Op1CZ) >> 15) + (Op1CXBR * DSP1_Cos(Op1CZ) >> 15);
-						short Op1CY1 = (Op1CYBR * DSP1_Cos(Op1CZ) >> 15) - (Op1CXBR * DSP1_Sin(Op1CZ) >> 15);
-						Op1CXBR = Op1CX1; Op1CYBR = Op1CY1;
+						case 0x30:
+						case 0x10: // Inverse
+							DSP1.Op10Coefficient = (int16) (DSP1.parameters[0] | (DSP1.parameters[1] << 8));
+							DSP1.Op10Exponent    = (int16) (DSP1.parameters[2] | (DSP1.parameters[3] << 8));
 
-						// Rotate Around Op1CY1
-						short Op1CZ1 = (Op1CXBR * DSP1_Sin(Op1CY) >> 15) + (Op1CZBR * DSP1_Cos(Op1CY) >> 15);
-						Op1CX1 = (Op1CXBR * DSP1_Cos(Op1CY) >> 15) - (Op1CZBR * DSP1_Sin(Op1CY) >> 15);
-						short Op1CXAR = Op1CX1; Op1CZBR = Op1CZ1;
+							DSP1_Op10();
 
-						// Rotate Around Op1CX1	
-						Op1CY1 = (Op1CZBR * DSP1_Sin(Op1CX) >> 15) + (Op1CYBR * DSP1_Cos(Op1CX) >> 15);
-						Op1CZ1 = (Op1CZBR * DSP1_Cos(Op1CX) >> 15) - (Op1CYBR * DSP1_Sin(Op1CX) >> 15);
-						short Op1CYAR = Op1CY1; short Op1CZAR = Op1CZ1;
-						
-						DSP1.out_count = 6;
-						DSP1.output16 [0] = Op1CXAR;
-						DSP1.output16 [1] = Op1CYAR;
-						DSP1.output16 [2] = Op1CZAR;
-						}
-						break;
-						
-					case 0x32:
-					case 0x22:
-					case 0x12:
-					case 0x02:	// Parameter (Projection)
-						
-						DSPOp02 ();
-						
-						break;
-						
-					case 0x3a:  //1a Mirror
-					case 0x2a:  //1a Mirror
-					case 0x1a:	// Raster mode 7 matrix data
-					case 0x0a:
-						DSP1.Op0AVS = (short)DSP1.parameters16 [0];
-						
-						DSPOp0A ();
-						
-						DSP1.out_count = 8;
-						DSP1.output16 [0] = DSP1.Op0AA;
-						DSP1.output16 [1] = DSP1.Op0AB;
-						DSP1.output16 [2] = DSP1.Op0AC;
-						DSP1.output16 [3] = DSP1.Op0AD;
-						DSP1.in_index=0;
-						break;
-						
-					case 0x16:
-					case 0x26:
-					case 0x36:
-					case 0x06:	// Project object
-						DSPOp06 ();
-						break;
-					case 0x1e:
-					case 0x2e:
-					case 0x3e:
-					case 0x0e:	// Target
-						{
-						short Op0EH = (int16) DSP1.parameters16 [0];
-						short Op0EV = (int16) DSP1.parameters16 [1];
-						
-						// screen Directions UP
-						GetRXYPos(Op0EV, Op0EH);
-						
-						DSP1.out_count = 4;
-						DSP1.output16 [0] = (short)(DSP1.RXRes);
-						DSP1.output16 [1] = (short)(DSP1.RYRes);
-						}
-						break;
-						// Extra commands used by Pilot Wings
-					case 0x05:
-					case 0x35:
-					case 0x31:
-					case 0x01: // Set attitude matrix A
-						DSPOp01 ();
-						break;
-					case 0x15:	
-					case 0x11:	// Set attitude matrix B
-						DSPOp11 ();
-						break;
-					case 0x25:
-					case 0x21:	// Set attitude matrix C
-						DSPOp21 ();
-						break;
-					case 0x09:
-					case 0x39:
-					case 0x3d:
-					case 0x0d:	// Objective matrix A
-						DSPOp0D ();
-						break;
-					case 0x19:
-					case 0x1d:	// Objective matrix B
-						DSPOp1D ();
-						break;
-					case 0x29:
-					case 0x2d:	// Objective matrix C
-						DSPOp2D ();
-						break;
-					case 0x33:
-					case 0x03:	// Subjective matrix A
-						DSPOp03 ();
-						break;
-					case 0x13:	// Subjective matrix B
-						DSPOp13 ();
-						break;
-					case 0x23:	// Subjective matrix C
-						DSPOp23 ();
-						break;
-					case 0x3b:
-					case 0x0b:
-						DSPOp0B ();
-						break;
-					case 0x1b:
-						DSPOp1B ();
-						break;
-					case 0x2b:
-						DSPOp2B ();
-						break;
-					case 0x34:
-					case 0x14:	
-						DSPOp14 ();
-						break;
-					case 0x27:
-					case 0x2F:
-						DSP1.out_count = 2;
-						DSP1.output16 [0] = 0x100;
-						break;
-					case 0x07:
-					case 0x0F:
-						DSP1.out_count = 2;
-						DSP1.output16 [0] = 0x0000;
-						break;
-					default:
-						break;
+							DSP1.out_count = 4;
+							DSP1.output[0] = (uint8) ( ((int16) DSP1.Op10CoefficientR)       & 0xFF);
+							DSP1.output[1] = (uint8) ((((int16) DSP1.Op10CoefficientR) >> 8) & 0xFF);
+							DSP1.output[2] = (uint8) ( ((int16) DSP1.Op10ExponentR   )       & 0xFF);
+							DSP1.output[3] = (uint8) ((((int16) DSP1.Op10ExponentR   ) >> 8) & 0xFF);
+							break;
+
+						case 0x24:
+						case 0x04: // Sin and Cos of angle
+							DSP1.Op04Angle  = (int16)  (DSP1.parameters[0] | (DSP1.parameters[1] << 8));
+							DSP1.Op04Radius = (uint16) (DSP1.parameters[2] | (DSP1.parameters[3] << 8));
+
+							DSP1_Op04();
+
+							DSP1.out_count = 4;
+							DSP1.output[0] = (uint8)  (DSP1.Op04Sin       & 0xFF);
+							DSP1.output[1] = (uint8) ((DSP1.Op04Sin >> 8) & 0xFF);
+							DSP1.output[2] = (uint8)  (DSP1.Op04Cos       & 0xFF);
+							DSP1.output[3] = (uint8) ((DSP1.Op04Cos >> 8) & 0xFF);
+							break;
+
+						case 0x08: // Radius
+							DSP1.Op08X = (int16) (DSP1.parameters[0] | (DSP1.parameters[1] << 8));
+							DSP1.Op08Y = (int16) (DSP1.parameters[2] | (DSP1.parameters[3] << 8));
+							DSP1.Op08Z = (int16) (DSP1.parameters[4] | (DSP1.parameters[5] << 8));
+
+							DSP1_Op08();
+
+							DSP1.out_count = 4;
+							DSP1.output[0] = (uint8) ( ((int16) DSP1.Op08Ll)       & 0xFF);
+							DSP1.output[1] = (uint8) ((((int16) DSP1.Op08Ll) >> 8) & 0xFF);
+							DSP1.output[2] = (uint8) ( ((int16) DSP1.Op08Lh)       & 0xFF);
+							DSP1.output[3] = (uint8) ((((int16) DSP1.Op08Lh) >> 8) & 0xFF);
+							break;
+
+						case 0x18: // Range
+
+							DSP1.Op18X = (int16) (DSP1.parameters[0] | (DSP1.parameters[1] << 8));
+							DSP1.Op18Y = (int16) (DSP1.parameters[2] | (DSP1.parameters[3] << 8));
+							DSP1.Op18Z = (int16) (DSP1.parameters[4] | (DSP1.parameters[5] << 8));
+							DSP1.Op18R = (int16) (DSP1.parameters[6] | (DSP1.parameters[7] << 8));
+
+							DSP1_Op18();
+
+							DSP1.out_count = 2;
+							DSP1.output[0] = (uint8)  (DSP1.Op18D       & 0xFF);
+							DSP1.output[1] = (uint8) ((DSP1.Op18D >> 8) & 0xFF);
+							break;
+
+						case 0x38: // Range
+
+							DSP1.Op38X = (int16) (DSP1.parameters[0] | (DSP1.parameters[1] << 8));
+							DSP1.Op38Y = (int16) (DSP1.parameters[2] | (DSP1.parameters[3] << 8));
+							DSP1.Op38Z = (int16) (DSP1.parameters[4] | (DSP1.parameters[5] << 8));
+							DSP1.Op38R = (int16) (DSP1.parameters[6] | (DSP1.parameters[7] << 8));
+
+							DSP1_Op38();
+
+							DSP1.out_count = 2;
+							DSP1.output[0] = (uint8)  (DSP1.Op38D       & 0xFF);
+							DSP1.output[1] = (uint8) ((DSP1.Op38D >> 8) & 0xFF);
+							break;
+
+						case 0x28: // Distance (vector length)
+							DSP1.Op28X = (int16) (DSP1.parameters[0] | (DSP1.parameters[1] << 8));
+							DSP1.Op28Y = (int16) (DSP1.parameters[2] | (DSP1.parameters[3] << 8));
+							DSP1.Op28Z = (int16) (DSP1.parameters[4] | (DSP1.parameters[5] << 8));
+
+							DSP1_Op28();
+
+							DSP1.out_count = 2;
+							DSP1.output[0] = (uint8)  (DSP1.Op28R       & 0xFF);
+							DSP1.output[1] = (uint8) ((DSP1.Op28R >> 8) & 0xFF);
+							break;
+
+						case 0x2c:
+						case 0x0c: // Rotate (2D rotate)
+							DSP1.Op0CA  = (int16) (DSP1.parameters[0] | (DSP1.parameters[1] << 8));
+							DSP1.Op0CX1 = (int16) (DSP1.parameters[2] | (DSP1.parameters[3] << 8));
+							DSP1.Op0CY1 = (int16) (DSP1.parameters[4] | (DSP1.parameters[5] << 8));
+
+							DSP1_Op0C();
+
+							DSP1.out_count = 4;
+							DSP1.output[0] = (uint8)  (DSP1.Op0CX2       & 0xFF);
+							DSP1.output[1] = (uint8) ((DSP1.Op0CX2 >> 8) & 0xFF);
+							DSP1.output[2] = (uint8)  (DSP1.Op0CY2       & 0xFF);
+							DSP1.output[3] = (uint8) ((DSP1.Op0CY2 >> 8) & 0xFF);
+							break;
+
+						case 0x3c:
+						case 0x1c: // Polar (3D rotate)
+							DSP1.Op1CZ   = (DSP1.parameters[ 0] | (DSP1.parameters[ 1] << 8));
+							//MK: reversed X and Y on neviksti and John's advice.
+							DSP1.Op1CY   = (DSP1.parameters[ 2] | (DSP1.parameters[ 3] << 8));
+							DSP1.Op1CX   = (DSP1.parameters[ 4] | (DSP1.parameters[ 5] << 8));
+							DSP1.Op1CXBR = (DSP1.parameters[ 6] | (DSP1.parameters[ 7] << 8));
+							DSP1.Op1CYBR = (DSP1.parameters[ 8] | (DSP1.parameters[ 9] << 8));
+							DSP1.Op1CZBR = (DSP1.parameters[10] | (DSP1.parameters[11] << 8));
+
+							DSP1_Op1C();
+
+							DSP1.out_count = 6;
+							DSP1.output[0] = (uint8)  (DSP1.Op1CXAR       & 0xFF);
+							DSP1.output[1] = (uint8) ((DSP1.Op1CXAR >> 8) & 0xFF);
+							DSP1.output[2] = (uint8)  (DSP1.Op1CYAR       & 0xFF);
+							DSP1.output[3] = (uint8) ((DSP1.Op1CYAR >> 8) & 0xFF);
+							DSP1.output[4] = (uint8)  (DSP1.Op1CZAR       & 0xFF);
+							DSP1.output[5] = (uint8) ((DSP1.Op1CZAR >> 8) & 0xFF);
+							break;
+
+						case 0x32:
+						case 0x22:
+						case 0x12:
+						case 0x02: // Parameter (Projection)
+							DSP1.Op02FX  = (int16)  (DSP1.parameters[ 0] | (DSP1.parameters[ 1] << 8));
+							DSP1.Op02FY  = (int16)  (DSP1.parameters[ 2] | (DSP1.parameters[ 3] << 8));
+							DSP1.Op02FZ  = (int16)  (DSP1.parameters[ 4] | (DSP1.parameters[ 5] << 8));
+							DSP1.Op02LFE = (int16)  (DSP1.parameters[ 6] | (DSP1.parameters[ 7] << 8));
+							DSP1.Op02LES = (int16)  (DSP1.parameters[ 8] | (DSP1.parameters[ 9] << 8));
+							DSP1.Op02AAS = (uint16) (DSP1.parameters[10] | (DSP1.parameters[11] << 8));
+							DSP1.Op02AZS = (uint16) (DSP1.parameters[12] | (DSP1.parameters[13] << 8));
+
+							DSP1_Op02();
+
+							DSP1.out_count = 8;
+							DSP1.output[0] = (uint8)  (DSP1.Op02VOF       & 0xFF);
+							DSP1.output[1] = (uint8) ((DSP1.Op02VOF >> 8) & 0xFF);
+							DSP1.output[2] = (uint8)  (DSP1.Op02VVA       & 0xFF);
+							DSP1.output[3] = (uint8) ((DSP1.Op02VVA >> 8) & 0xFF);
+							DSP1.output[4] = (uint8)  (DSP1.Op02CX        & 0xFF);
+							DSP1.output[5] = (uint8) ((DSP1.Op02CX  >> 8) & 0xFF);
+							DSP1.output[6] = (uint8)  (DSP1.Op02CY        & 0xFF);
+							DSP1.output[7] = (uint8) ((DSP1.Op02CY  >> 8) & 0xFF);
+							break;
+
+						case 0x3a:
+						case 0x2a:
+						case 0x1a: // Raster mode 7 matrix data
+						case 0x0a:
+							DSP1.Op0AVS = (int16) (DSP1.parameters[0] | (DSP1.parameters[1] << 8));
+
+							DSP1_Op0A();
+
+							DSP1.out_count = 8;
+							DSP1.output[0] = (uint8)  (DSP1.Op0AA       & 0xFF);
+							DSP1.output[1] = (uint8) ((DSP1.Op0AA >> 8) & 0xFF);
+							DSP1.output[2] = (uint8)  (DSP1.Op0AB       & 0xFF);
+							DSP1.output[3] = (uint8) ((DSP1.Op0AB >> 8) & 0xFF);
+							DSP1.output[4] = (uint8)  (DSP1.Op0AC       & 0xFF);
+							DSP1.output[5] = (uint8) ((DSP1.Op0AC >> 8) & 0xFF);
+							DSP1.output[6] = (uint8)  (DSP1.Op0AD       & 0xFF);
+							DSP1.output[7] = (uint8) ((DSP1.Op0AD >> 8) & 0xFF);
+							DSP1.in_index  = 0;
+							break;
+
+						case 0x16:
+						case 0x26:
+						case 0x36:
+						case 0x06: // Project object
+							DSP1.Op06X = (int16) (DSP1.parameters[0] | (DSP1.parameters[1] << 8));
+							DSP1.Op06Y = (int16) (DSP1.parameters[2] | (DSP1.parameters[3] << 8));
+							DSP1.Op06Z = (int16) (DSP1.parameters[4] | (DSP1.parameters[5] << 8));
+
+							DSP1_Op06();
+
+							DSP1.out_count = 6;
+							DSP1.output[0] = (uint8)  (DSP1.Op06H       & 0xFF);
+							DSP1.output[1] = (uint8) ((DSP1.Op06H >> 8) & 0xFF);
+							DSP1.output[2] = (uint8)  (DSP1.Op06V       & 0xFF);
+							DSP1.output[3] = (uint8) ((DSP1.Op06V >> 8) & 0xFF);
+							DSP1.output[4] = (uint8)  (DSP1.Op06M       & 0xFF);
+							DSP1.output[5] = (uint8) ((DSP1.Op06M >> 8) & 0xFF);
+							break;
+
+						case 0x1e:
+						case 0x2e:
+						case 0x3e:
+						case 0x0e: // Target
+							DSP1.Op0EH = (int16) (DSP1.parameters[0] | (DSP1.parameters[1] << 8));
+							DSP1.Op0EV = (int16) (DSP1.parameters[2] | (DSP1.parameters[3] << 8));
+
+							DSP1_Op0E();
+
+							DSP1.out_count = 4;
+							DSP1.output[0] = (uint8)  (DSP1.Op0EX       & 0xFF);
+							DSP1.output[1] = (uint8) ((DSP1.Op0EX >> 8) & 0xFF);
+							DSP1.output[2] = (uint8)  (DSP1.Op0EY       & 0xFF);
+							DSP1.output[3] = (uint8) ((DSP1.Op0EY >> 8) & 0xFF);
+							break;
+
+							// Extra commands used by Pilot Wings
+						case 0x05:
+						case 0x35:
+						case 0x31:
+						case 0x01: // Set attitude matrix A
+							DSP1.Op01m  = (int16) (DSP1.parameters[0] | (DSP1.parameters[1] << 8));
+							DSP1.Op01Zr = (int16) (DSP1.parameters[2] | (DSP1.parameters[3] << 8));
+							DSP1.Op01Yr = (int16) (DSP1.parameters[4] | (DSP1.parameters[5] << 8));
+							DSP1.Op01Xr = (int16) (DSP1.parameters[6] | (DSP1.parameters[7] << 8));
+
+							DSP1_Op01();
+							break;
+
+						case 0x15:
+						case 0x11: // Set attitude matrix B
+							DSP1.Op11m  = (int16) (DSP1.parameters[0] | (DSP1.parameters[1] << 8));
+							DSP1.Op11Zr = (int16) (DSP1.parameters[2] | (DSP1.parameters[3] << 8));
+							DSP1.Op11Yr = (int16) (DSP1.parameters[4] | (DSP1.parameters[5] << 8));
+							DSP1.Op11Xr = (int16) (DSP1.parameters[7] | (DSP1.parameters[7] << 8));
+
+							DSP1_Op11();
+							break;
+
+						case 0x25:
+						case 0x21: // Set attitude matrix C
+							DSP1.Op21m  = (int16) (DSP1.parameters[0] | (DSP1.parameters[1] << 8));
+							DSP1.Op21Zr = (int16) (DSP1.parameters[2] | (DSP1.parameters[3] << 8));
+							DSP1.Op21Yr = (int16) (DSP1.parameters[4] | (DSP1.parameters[5] << 8));
+							DSP1.Op21Xr = (int16) (DSP1.parameters[6] | (DSP1.parameters[7] << 8));
+
+							DSP1_Op21();
+							break;
+
+						case 0x09:
+						case 0x39:
+						case 0x3d:
+						case 0x0d: // Objective matrix A
+							DSP1.Op0DX = (int16) (DSP1.parameters[0] | (DSP1.parameters[1] << 8));
+							DSP1.Op0DY = (int16) (DSP1.parameters[2] | (DSP1.parameters[3] << 8));
+							DSP1.Op0DZ = (int16) (DSP1.parameters[4] | (DSP1.parameters[5] << 8));
+
+							DSP1_Op0D();
+
+							DSP1.out_count = 6;
+							DSP1.output [0] = (uint8)  (DSP1.Op0DF       & 0xFF);
+							DSP1.output [1] = (uint8) ((DSP1.Op0DF >> 8) & 0xFF);
+							DSP1.output [2] = (uint8)  (DSP1.Op0DL       & 0xFF);
+							DSP1.output [3] = (uint8) ((DSP1.Op0DL >> 8) & 0xFF);
+							DSP1.output [4] = (uint8)  (DSP1.Op0DU       & 0xFF);
+							DSP1.output [5] = (uint8) ((DSP1.Op0DU >> 8) & 0xFF);
+							break;
+
+						case 0x19:
+						case 0x1d: // Objective matrix B
+							DSP1.Op1DX = (int16) (DSP1.parameters[0] | (DSP1.parameters[1] << 8));
+							DSP1.Op1DY = (int16) (DSP1.parameters[2] | (DSP1.parameters[3] << 8));
+							DSP1.Op1DZ = (int16) (DSP1.parameters[4] | (DSP1.parameters[5] << 8));
+
+							DSP1_Op1D();
+
+							DSP1.out_count = 6;
+							DSP1.output[0] = (uint8)  (DSP1.Op1DF       & 0xFF);
+							DSP1.output[1] = (uint8) ((DSP1.Op1DF >> 8) & 0xFF);
+							DSP1.output[2] = (uint8)  (DSP1.Op1DL       & 0xFF);
+							DSP1.output[3] = (uint8) ((DSP1.Op1DL >> 8) & 0xFF);
+							DSP1.output[4] = (uint8)  (DSP1.Op1DU       & 0xFF);
+							DSP1.output[5] = (uint8) ((DSP1.Op1DU >> 8) & 0xFF);
+							break;
+
+						case 0x29:
+						case 0x2d: // Objective matrix C
+							DSP1.Op2DX = (int16) (DSP1.parameters[0] | (DSP1.parameters[1] << 8));
+							DSP1.Op2DY = (int16) (DSP1.parameters[2] | (DSP1.parameters[3] << 8));
+							DSP1.Op2DZ = (int16) (DSP1.parameters[4] | (DSP1.parameters[5] << 8));
+
+							DSP1_Op2D();
+
+							DSP1.out_count = 6;
+							DSP1.output[0] = (uint8)  (DSP1.Op2DF       & 0xFF);
+							DSP1.output[1] = (uint8) ((DSP1.Op2DF >> 8) & 0xFF);
+							DSP1.output[2] = (uint8)  (DSP1.Op2DL       & 0xFF);
+							DSP1.output[3] = (uint8) ((DSP1.Op2DL >> 8) & 0xFF);
+							DSP1.output[4] = (uint8)  (DSP1.Op2DU       & 0xFF);
+							DSP1.output[5] = (uint8) ((DSP1.Op2DU >> 8) & 0xFF);
+							break;
+
+						case 0x33:
+						case 0x03: // Subjective matrix A
+							DSP1.Op03F = (int16) (DSP1.parameters[0] | (DSP1.parameters[1] << 8));
+							DSP1.Op03L = (int16) (DSP1.parameters[2] | (DSP1.parameters[3] << 8));
+							DSP1.Op03U = (int16) (DSP1.parameters[4] | (DSP1.parameters[5] << 8));
+
+							DSP1_Op03();
+
+							DSP1.out_count = 6;
+							DSP1.output[0] = (uint8)  (DSP1.Op03X       & 0xFF);
+							DSP1.output[1] = (uint8) ((DSP1.Op03X >> 8) & 0xFF);
+							DSP1.output[2] = (uint8)  (DSP1.Op03Y       & 0xFF);
+							DSP1.output[3] = (uint8) ((DSP1.Op03Y >> 8) & 0xFF);
+							DSP1.output[4] = (uint8)  (DSP1.Op03Z       & 0xFF);
+							DSP1.output[5] = (uint8) ((DSP1.Op03Z >> 8) & 0xFF);
+							break;
+
+						case 0x13: // Subjective matrix B
+							DSP1.Op13F = (int16) (DSP1.parameters[0] | (DSP1.parameters[1] << 8));
+							DSP1.Op13L = (int16) (DSP1.parameters[2] | (DSP1.parameters[3] << 8));
+							DSP1.Op13U = (int16) (DSP1.parameters[4] | (DSP1.parameters[5] << 8));
+
+							DSP1_Op13();
+
+							DSP1.out_count = 6;
+							DSP1.output[0] = (uint8)  (DSP1.Op13X       & 0xFF);
+							DSP1.output[1] = (uint8) ((DSP1.Op13X >> 8) & 0xFF);
+							DSP1.output[2] = (uint8)  (DSP1.Op13Y       & 0xFF);
+							DSP1.output[3] = (uint8) ((DSP1.Op13Y >> 8) & 0xFF);
+							DSP1.output[4] = (uint8)  (DSP1.Op13Z       & 0xFF);
+							DSP1.output[5] = (uint8) ((DSP1.Op13Z >> 8) & 0xFF);
+							break;
+
+						case 0x23: // Subjective matrix C
+							DSP1.Op23F = (int16) (DSP1.parameters[0] | (DSP1.parameters[1] << 8));
+							DSP1.Op23L = (int16) (DSP1.parameters[2] | (DSP1.parameters[3] << 8));
+							DSP1.Op23U = (int16) (DSP1.parameters[4] | (DSP1.parameters[5] << 8));
+
+							DSP1_Op23();
+
+							DSP1.out_count = 6;
+							DSP1.output[0] = (uint8)  (DSP1.Op23X       & 0xFF);
+							DSP1.output[1] = (uint8) ((DSP1.Op23X >> 8) & 0xFF);
+							DSP1.output[2] = (uint8)  (DSP1.Op23Y       & 0xFF);
+							DSP1.output[3] = (uint8) ((DSP1.Op23Y >> 8) & 0xFF);
+							DSP1.output[4] = (uint8)  (DSP1.Op23Z       & 0xFF);
+							DSP1.output[5] = (uint8) ((DSP1.Op23Z >> 8) & 0xFF);
+							break;
+
+						case 0x3b:
+						case 0x0b:
+							DSP1.Op0BX = (int16) (DSP1.parameters[0] | (DSP1.parameters[1] << 8));
+							DSP1.Op0BY = (int16) (DSP1.parameters[2] | (DSP1.parameters[3] << 8));
+							DSP1.Op0BZ = (int16) (DSP1.parameters[4] | (DSP1.parameters[5] << 8));
+
+							DSP1_Op0B();
+
+							DSP1.out_count = 2;
+							DSP1.output[0] = (uint8)  (DSP1.Op0BS       & 0xFF);
+							DSP1.output[1] = (uint8) ((DSP1.Op0BS >> 8) & 0xFF);
+							break;
+
+						case 0x1b:
+							DSP1.Op1BX = (int16) (DSP1.parameters[0] | (DSP1.parameters[1] << 8));
+							DSP1.Op1BY = (int16) (DSP1.parameters[2] | (DSP1.parameters[3] << 8));
+							DSP1.Op1BZ = (int16) (DSP1.parameters[4] | (DSP1.parameters[5] << 8));
+
+							DSP1_Op1B();
+
+							DSP1.out_count = 2;
+							DSP1.output[0] = (uint8)  (DSP1.Op1BS       & 0xFF);
+							DSP1.output[1] = (uint8) ((DSP1.Op1BS >> 8) & 0xFF);
+							break;
+
+						case 0x2b:
+							DSP1.Op2BX = (int16) (DSP1.parameters[0] | (DSP1.parameters[1] << 8));
+							DSP1.Op2BY = (int16) (DSP1.parameters[2] | (DSP1.parameters[3] << 8));
+							DSP1.Op2BZ = (int16) (DSP1.parameters[4] | (DSP1.parameters[5] << 8));
+
+							DSP1_Op2B();
+
+							DSP1.out_count = 2;
+							DSP1.output[0] = (uint8)  (DSP1.Op2BS       & 0xFF);
+							DSP1.output[1] = (uint8) ((DSP1.Op2BS >> 8) & 0xFF);
+							break;
+
+						case 0x34:
+						case 0x14:
+							DSP1.Op14Zr = (int16) (DSP1.parameters[ 0] | (DSP1.parameters[ 1] << 8));
+							DSP1.Op14Xr = (int16) (DSP1.parameters[ 2] | (DSP1.parameters[ 3] << 8));
+							DSP1.Op14Yr = (int16) (DSP1.parameters[ 4] | (DSP1.parameters[ 5] << 8));
+							DSP1.Op14U  = (int16) (DSP1.parameters[ 6] | (DSP1.parameters[ 7] << 8));
+							DSP1.Op14F  = (int16) (DSP1.parameters[ 8] | (DSP1.parameters[ 9] << 8));
+							DSP1.Op14L  = (int16) (DSP1.parameters[10] | (DSP1.parameters[11] << 8));
+
+							DSP1_Op14();
+
+							DSP1.out_count = 6;
+							DSP1.output[0] = (uint8)  (DSP1.Op14Zrr       & 0xFF);
+							DSP1.output[1] = (uint8) ((DSP1.Op14Zrr >> 8) & 0xFF);
+							DSP1.output[2] = (uint8)  (DSP1.Op14Xrr       & 0xFF);
+							DSP1.output[3] = (uint8) ((DSP1.Op14Xrr >> 8) & 0xFF);
+							DSP1.output[4] = (uint8)  (DSP1.Op14Yrr       & 0xFF);
+							DSP1.output[5] = (uint8) ((DSP1.Op14Yrr >> 8) & 0xFF);
+							break;
+
+						case 0x27:
+						case 0x2F:
+							DSP1.Op2FUnknown = (int16) (DSP1.parameters[0] | (DSP1.parameters[1] << 8));
+
+							DSP1_Op2F();
+
+							DSP1.out_count = 2;
+							DSP1.output[0] = (uint8)  (DSP1.Op2FSize       & 0xFF);
+							DSP1.output[1] = (uint8) ((DSP1.Op2FSize >> 8) & 0xFF);
+							break;
+
+
+						case 0x07:
+						case 0x0F:
+							DSP1.Op0FRamsize = (int16) (DSP1.parameters[0] | (DSP1.parameters[1] << 8));
+
+							DSP1_Op0F();
+
+							DSP1.out_count = 2;
+							DSP1.output[0] = (uint8)  (DSP1.Op0FPass       & 0xFF);
+							DSP1.output[1] = (uint8) ((DSP1.Op0FPass >> 8) & 0xFF);
+							break;
+
+						default:
+							break;
 					}
 				}
 			}
 		}
-    }
+	}
 }
 
-uint8 DSP1GetByte(uint16 address)
+uint8 DSP1GetByte (uint16 address)
 {
-	uint8 t;
-    if ((address & 0xf000) == 0x6000 ||
-		(address&0x7fff) < 0x4000)
-    {
+	uint8	t;
+
+	if (address < DSP1.boundary)
+	{
 		if (DSP1.out_count)
 		{
 			t = (uint8) DSP1.output [DSP1.out_index];
@@ -545,31 +730,436 @@ uint8 DSP1GetByte(uint16 address)
 			{
 				if (DSP1.command == 0x1a || DSP1.command == 0x0a)
 				{
-					DSPOp0A ();
+					DSP1_Op0A ();
 					DSP1.out_count = 8;
 					DSP1.out_index = 0;
-					DSP1.output16 [0] = DSP1.Op0AA;
-					DSP1.output16 [1] = DSP1.Op0AB;
-					DSP1.output16 [2] = DSP1.Op0AC;
-					DSP1.output16 [3] = DSP1.Op0AD;
+					DSP1.output[0] =  DSP1.Op0AA       & 0xFF;
+					DSP1.output[1] = (DSP1.Op0AA >> 8) & 0xFF;
+					DSP1.output[2] =  DSP1.Op0AB       & 0xFF;
+					DSP1.output[3] = (DSP1.Op0AB >> 8) & 0xFF;
+					DSP1.output[4] =  DSP1.Op0AC       & 0xFF;
+					DSP1.output[5] = (DSP1.Op0AC >> 8) & 0xFF;
+					DSP1.output[6] =  DSP1.Op0AD       & 0xFF;
+					DSP1.output[7] = (DSP1.Op0AD >> 8) & 0xFF;
 				}
-				if(DSP1.command==0x1f)
+
+				if (DSP1.command == 0x1f)
 				{
-					t=((uint8*)DSP1ROM)[DSP1.out_index-1];
+					if ((DSP1.out_index % 2) != 0)
+						t = (uint8) DSP1ROM[DSP1.out_index >> 1];
+					else
+						t = DSP1ROM[DSP1.out_index >> 1] >> 8;
 				}
 			}
+
 			DSP1.waiting4command = TRUE;
 		}
 		else
+			t = 0xff;
+	}
+	else
+		t = 0x80;
+
+	return (t);
+}
+
+void DSP2SetByte(uint8 byte, uint16 address)
+{
+	if ((address & 0xf000) == 0x6000 ||
+		(address >= 0x8000 && address < 0xc000))
+    {
+		if (DSP1.waiting4command)
 		{
-			// Top Gear 3000 requires this value....
-	//		if(4==Settings.DSPVersion)
-				t = 0xff;
-			//Ballz3d requires this one:
-	//		else t = 0x00;
+			DSP1.command = byte;
+			DSP1.in_index = 0;
+			DSP1.waiting4command = FALSE;
+//			DSP1.first_parameter = TRUE;
+//			printf("Op%02X\n",byte);
+			switch (byte)
+			{
+			case 0x01:DSP1.in_count=32;break;
+			case 0x03:DSP1.in_count=1;break;
+			case 0x05:DSP1.in_count=1;break;
+			case 0x09:DSP1.in_count=4;break;
+			case 0x06:DSP1.in_count=1;break;
+			case 0x0D:DSP1.in_count=2;break;
+			default:
+				printf("Op%02X\n",byte);
+			case 0x0f:DSP1.in_count=0;break;
+			}
+		}
+		else
+		{
+			DSP1.parameters [DSP1.in_index] = byte;
+//			DSP1.first_parameter = FALSE;
+			DSP1.in_index++;
+		}
+		
+		if (DSP1.in_count==DSP1.in_index)
+		{
+			//DSP1.parameters [DSP1.in_index] |= (byte << 8);
+			// Actually execute the command
+			DSP1.waiting4command = TRUE;
+			DSP1.out_index = 0;
+			switch (DSP1.command)
+			{
+			case 0x0D:
+				if(DSP2Op0DHasLen)
+				{
+					DSP2Op0DHasLen=false;
+					DSP1.out_count=DSP2Op0DOutLen;
+					//execute Op5
+					DSP2_Op0D();
+				}
+				else
+				{
+					DSP2Op0DInLen=DSP1.parameters[0];
+					DSP2Op0DOutLen=DSP1.parameters[1];
+					DSP1.in_index=0;
+					DSP1.in_count=(DSP2Op0DInLen+1)>>1;
+					DSP2Op0DHasLen=true;
+					if(byte)
+						DSP1.waiting4command=false;
+				}
+				break;
+			case 0x06:
+				if(DSP2Op06HasLen)
+				{
+					DSP2Op06HasLen=false;
+					DSP1.out_count=DSP2Op06Len;
+					//execute Op5
+					DSP2_Op06();
+				}
+				else
+				{
+					DSP2Op06Len=DSP1.parameters[0];
+					DSP1.in_index=0;
+					DSP1.in_count=DSP2Op06Len;
+					DSP2Op06HasLen=true;
+					if(byte)
+						DSP1.waiting4command=false;
+				}
+				break;
+			case 0x01:
+				DSP1.out_count=32;
+				DSP2_Op01();
+				break;
+			case 0x09:
+				// Multiply - don't yet know if this is signed or unsigned
+				DSP2Op09Word1 = DSP1.parameters[0] | (DSP1.parameters[1]<<8);
+                DSP2Op09Word2 = DSP1.parameters[2] | (DSP1.parameters[3]<<8);
+				DSP1.out_count=4;
+#ifdef FAST_LSB_WORD_ACCESS
+                *(uint32 *)DSP1.output = DSP2Op09Word1 * DSP2Op09Word2;
+#else
+				uint32 temp;
+				temp=DSP2Op09Word1 * DSP2Op09Word2;
+				DSP1.output[0]=temp&0xFF;
+				DSP1.output[1]=(temp>>8)&0xFF;
+				DSP1.output[2]=(temp>>16)&0xFF;
+				DSP1.output[3]=(temp>>24)&0xFF;
+#endif
+				break;
+			case 0x05:
+				if(DSP2Op05HasLen)
+				{
+					DSP2Op05HasLen=false;
+					DSP1.out_count=DSP2Op05Len;
+					//execute Op5
+					DSP2_Op05();
+				}
+				else
+				{
+					DSP2Op05Len=DSP1.parameters[0];
+					DSP1.in_index=0;
+					DSP1.in_count=2*DSP2Op05Len;
+					DSP2Op05HasLen=true;
+					if(byte)
+						DSP1.waiting4command=false;
+				}
+				break;
+
+			case 0x03:
+				DSP2Op05Transparent= DSP1.parameters[0];
+				//DSP2Op03();
+				break;
+			case 0x0f:
+				default:
+					break;
+			}
+		}
+	}
+}
+
+uint8 DSP2GetByte(uint16 address)
+{
+	uint8 t;
+    if ((address & 0xf000) == 0x6000 ||
+		(address >= 0x8000 && address < 0xc000))
+    {
+		if (DSP1.out_count)
+		{
+			t = (uint8) DSP1.output [DSP1.out_index];
+			DSP1.out_index++;
+			if(DSP1.out_count==DSP1.out_index)
+				DSP1.out_count=0;
+		}
+		else
+		{
+			t = 0xff;
 		}
     }
     else t = 0x80;
 	return t;
 }
 
+struct SDSP4 {
+    bool8 waiting4command;
+    bool8 half_command;
+    uint16 command;
+    uint32 in_count;
+    uint32 in_index;
+    uint32 out_count;
+    uint32 out_index;
+    uint8 parameters [512];
+    uint8 output [512];
+};
+
+SDSP4 DSP4;
+
+#include "dsp4emu.cpp"
+
+bool DSP4_init=FALSE;
+
+void DSP4SetByte(uint8 byte, uint16 address)
+{
+	if(!DSP4_init)
+	{
+		// bootup
+		DSP4.waiting4command=1;
+		DSP4_init=TRUE;
+	}
+
+	if (address < DSP1.boundary)
+	{
+		if(DSP4.out_index<DSP4.out_count)
+		{
+			DSP4.out_index++;
+			return;
+		}
+
+		if (DSP4.waiting4command)
+		{
+			if(DSP4.half_command)
+			{
+				DSP4.command |= (byte<<8);
+				DSP4.in_index = 0;
+				DSP4.waiting4command = FALSE;
+	//			DSP4.first_parameter = TRUE;
+				DSP4.half_command=0;
+				DSP4.out_count=0;
+				DSP4.out_index=0;
+				DSP4_Logic=0;
+
+				switch (DSP4.command)
+				{
+				case 0x0000:DSP4.in_count=4;break;
+				case 0x0001:DSP4.in_count=36;break;
+				case 0x0003:DSP4.in_count=0;break;
+				case 0x0005:DSP4.in_count=0;break;
+				case 0x0006:DSP4.in_count=0;break;
+				case 0x0007:DSP4.in_count=22;break;
+				case 0x0008:DSP4.in_count=72;break;
+				case 0x0009:DSP4.in_count=14;break;
+				case 0x000A:DSP4.in_count=6;break;
+				case 0x000B:DSP4.in_count=6;break;
+				case 0x000D:DSP4.in_count=34;break;
+				case 0x000E:DSP4.in_count=0;break;
+				case 0x0011:DSP4.in_count=8;break;
+				default:
+					DSP4.waiting4command=TRUE;
+					//printf("(line %d) Unknown Op%02X\n",line,DSP4.command);
+					break;
+				}
+			}
+			else
+			{
+				DSP4.command=byte;
+				DSP4.half_command=1;
+			}
+		}
+		else
+		{
+			DSP4.parameters [DSP4.in_index] = byte;
+//			DSP4.first_parameter = FALSE;
+			DSP4.in_index++;
+		}
+		
+		if (!DSP4.waiting4command && DSP4.in_count==DSP4.in_index)
+		{
+			//DSP4.parameters [DSP4.in_index] |= (byte << 8);
+			// Actually execute the command
+			DSP4.waiting4command = TRUE;
+			DSP4.out_index = 0;
+			DSP4.in_index=0;
+			switch (DSP4.command)
+			{
+			// 16-bit multiplication
+			case 0x0000:
+				{
+					int16 multiplier, multiplicand;
+					int product;
+					
+					multiplier = DSP4_READ_WORD(0);
+					multiplicand = DSP4_READ_WORD(2);
+
+					DSP4_Multiply(multiplicand,multiplier,product);
+
+					DSP4.out_count = 4;
+					DSP4_WRITE_WORD(0,product);
+					DSP4_WRITE_WORD(2,product>>16);
+				}
+				break;
+
+			// unknown: horizontal mapping command
+			case 0x0011:
+				{
+					int16 a,b,c,d,m;
+
+					a = DSP4_READ_WORD(6);
+					b = DSP4_READ_WORD(4);
+					c = DSP4_READ_WORD(2);
+					d = DSP4_READ_WORD(0);
+
+					DSP4_UnknownOP11(a,b,c,d,m);
+
+					DSP4.out_count = 2;
+					DSP4_WRITE_WORD(0,m);
+					break;
+				}
+
+			// track projection
+			case 0x0001: DSP4_Op01(); break;
+
+			// track projection (pass 2)
+			case 0x0007: DSP4_Op07(); break;
+
+			// zone projections (fuel/repair/lap/teleport/...)
+			case 0x0008: DSP4_Op08(); break;
+
+			// sprite transformation
+			case 0x0009: DSP4_Op09(); break;
+
+			// fast track projection
+			case 0x000D: DSP4_Op0D(); break;
+
+			// single-player selection
+			case 0x0003: DSP4_Op03(); break;
+
+			// clear OAM
+			case 0x0005:
+				{
+					op06_index = 0;
+					op06_offset = 0;
+					for( int lcv=0; lcv<32; lcv++ )
+						op06_OAM[lcv] = 0;
+					break;
+				}
+
+			// multi-player selection
+			case 0x000E: DSP4_Op0E(); break;
+
+#undef PRINT
+
+			// transfer OAM
+			case 0x0006:
+				{
+					DSP4.out_count = 32;
+					for( int lcv=0; lcv<32; lcv++ )
+						DSP4.output[lcv] = op06_OAM[lcv];
+				}
+				break;
+
+			// unknown
+			case 0x000A:
+				{
+					//int16 in1a = DSP4_READ_WORD(0);
+					int16 in2a = DSP4_READ_WORD(2);
+					//int16 in3a = DSP4_READ_WORD(4);
+					int16 out1a,out2a,out3a,out4a;
+
+					// NOTE: Snes9x only!
+					// For some odd reason, the input nybbles are reversed
+
+					DSP4_Op0A(in2a,out1a,out2a,out3a,out4a);
+
+					DSP4.out_count=8;
+
+					// Hack: Reverse the outputs for now to compensate
+					//       Otherwise the AI gets really flaky
+					DSP4_WRITE_WORD(0,out2a);
+					DSP4_WRITE_WORD(2,out1a);
+					DSP4_WRITE_WORD(4,out4a);
+					DSP4_WRITE_WORD(6,out3a);
+				}
+				break;
+
+			// set OAM
+			case 0x000B:
+				{
+					int16 sp_x = DSP4_READ_WORD(0);
+					int16 sp_y = DSP4_READ_WORD(2);
+					int16 oam = DSP4_READ_WORD(4);
+
+					if ((sp_y < 0) || ((sp_y & 0x01ff) < 0x00eb))
+					{
+						short Row = (sp_y >> 3) & 0x1f;
+
+						if (RowCount[Row] < MaxTilesPerRow)
+						{
+							RowCount[Row]++;
+
+							// yield OAM output
+							DSP4.out_count = 6;
+							DSP4_WRITE_WORD(0,1);
+
+							// pack OAM data: x,y,name,attr
+							DSP4.output[2] = sp_x & 0xff;
+							DSP4.output[3] = sp_y & 0xff;
+							DSP4_WRITE_WORD(4,oam);
+
+							// OAM: size,msb data
+							DSP4_Op06(0,0);
+						}
+					}
+				}
+				break;
+			
+			default: break;
+			}
+		}
+	}
+}
+
+uint8 DSP4GetByte(uint16 address)
+{
+	uint8 t;
+	if (address < DSP1.boundary)
+	{
+		if (DSP4.out_count)
+		{
+			t = (uint8) DSP4.output [DSP4.out_index];
+			DSP4.out_index++;
+			if(DSP4.out_count==DSP4.out_index)
+				DSP4.out_count=0;
+		}
+		else
+			t = 0xff;
+	}
+	else
+	{
+		t = 0x80;
+	}
+
+	return t;
+}

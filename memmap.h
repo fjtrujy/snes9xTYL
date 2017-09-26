@@ -148,10 +148,10 @@ public:
 	//add azz 080517
 	void CMemory::map_WriteProtectROM (void);
 	void CMemory::Map_Initialize (void);
-	void CMemory::ParseSNESHeader (uint8 *RomHeader);
 	int CMemory::LoadROMMore_151(int TotalFileSize,int &retry_count);
 	void BS_151();
 #endif
+	void ParseSNESHeader (uint8 *RomHeader);
 	uint8 ROMRegion;
 	uint8 ExtendedFormat;
 	enum { NOPE, YEAH, BIGFIRST, SMALLFIRST };

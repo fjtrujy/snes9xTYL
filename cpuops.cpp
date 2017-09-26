@@ -4105,6 +4105,8 @@ static void OpCB (void)
 	//CPU.PC--;
 #ifdef CPU_SHUTDOWN
 #ifndef SA1_OPCODES
+
+	if (DSP1.version == 4) return;
 	
 	// We are basically moving all the checks for CPU.WaitingForInterrupt
     // in the S9xHandleFlags() method to here.
@@ -4194,59 +4196,33 @@ static void CPUSpeedhack (void)
 			doSkip = true;
 	}
 	
-	//int foundHackIndex = -1;
-
-    // Search for the appropriate speed hack
+	// Search for the appropriate speed hack
     //
     uint8* prevCPUPC = (uint8 *)(CPU.PC - 1);
 	
-	// Make sure we check again SpeedHackCount.
-	//
-	//for (int i = 0; i < SNESGameFixes.SpeedHackCount; i++)
-	//{
-		if (SNESGameFixes.SpeedHackAddress[0] == prevCPUPC) 
-		{ 
-			//foundHackIndex = i; 
-			//break; 
-		//}
-	//}
-
-	// Some games actually use NOP. So we must ensure
-	// That this is a registered speed hack
-	//
-	/*if (foundHackIndex == -1)
-	{
-		// If we can't find the speed hack, then
-		// we will treat this like a NOP (as it was before)
+	if (SNESGameFixes.SpeedHackAddress[0] == prevCPUPC) 
+	{ 
+		// Executes the original opcode that we replaced.
 		//
-		return;
-	}*/
-	
-	/*if (Settings.SA1)
-		if (SA1.Executing)
-			doSkip = false;*/
-    
-	// Executes the original opcode that we replaced.
-	//
-	(*ICPU.S9xOpcodes [SNESGameFixes.SpeedHackOriginalOpcode[0]].S9xOpcode) (); 
+		(*ICPU.S9xOpcodes [SNESGameFixes.SpeedHackOriginalOpcode[0]].S9xOpcode) (); 
 
-	// If we decide to skip, then we add cycles to the CPU.Cycles
-	// until just before the next event.
-	//
-	if (doSkip)
-	{	
-		int cyclesToSkip = SNESGameFixes.SpeedHackCycles[0];
+		// If we decide to skip, then we add cycles to the CPU.Cycles
+		// until just before the next event.
+		//
+		if (doSkip)
+		{	
+			int cyclesToSkip = SNESGameFixes.SpeedHackCycles[0];
 
-		if (cyclesToSkip == -1)
-			CPU.Cycles = CPU.NextEvent;
-		else
-		{
-			while (CPU.Cycles + cyclesToSkip < CPU.NextEvent)
+			if (cyclesToSkip == -1)
+				CPU.Cycles = CPU.NextEvent;
+			else
 			{
-				CPU.Cycles = CPU.Cycles + cyclesToSkip;
+				while (CPU.Cycles + cyclesToSkip < CPU.NextEvent)
+				{
+					CPU.Cycles = CPU.Cycles + cyclesToSkip;
+				}
 			}
 		}
-	}
 	}
 #endif
 }
