@@ -425,7 +425,8 @@ struct SSNESGameFixes
 	// Additional game hacks
 	// Based on snes9x 3DS by bubble2k16
 	int    IRQCycleCount;           // Set the IRQCycleCount whenever an IRQ is triggered. Hack for Power Rangers Fighting Edition.
-    
+    bool   AceONeraeHack;           // Hack the $2131 register to avoid FLUSH_REDRAW when not required.
+	
     // Speed hacks on specific branch instructions.
     // Based on snes9x 3DS by bubble2k16
     // Main CPU

@@ -237,13 +237,7 @@ void S9xResetAPU ()
 	S9xSuspendSoundProcess();
 
     Settings.APUEnabled = Settings.NextAPUEnabled;
-    
-    //taken from sneese
-    APUI00a=APUI00b=APUI00c=0;
-    APUI01a=APUI01b=APUI01c=0;
-    APUI02a=APUI02b=APUI02c=0;
-    APUI03a=APUI03b=APUI03c=0;
-    
+       
     apu_init_after_load=0;    
     //apu_can_execute=0;
     
@@ -258,9 +252,7 @@ void S9xResetAPU ()
 	memset((IAPUuncached.RAM)+0xE0, 0xFF, 0x20);
 
 	for(i=1;i<256;i++)
-	{
 		memcpy((IAPUuncached.RAM)+(i<<8), (IAPUuncached.RAM), 0x100);
-	}
 
     ZeroMemory ((APUPack.APU.OutPorts), 4);   
     ZeroMemory ((void*)Uncache_APU_OutPorts, 4);   
@@ -364,9 +356,7 @@ void S9xSetAPUDSP (uint8 byte)
 		{
 			S9xSetEchoWriteEnable (!(byte & APU_ECHO_DISABLED));
 			if (byte & APU_MUTE)
-			{
 				S9xSetSoundMute (TRUE);
-			}
 			else
 				S9xSetSoundMute (FALSE);
 			
@@ -381,44 +371,29 @@ void S9xSetAPUDSP (uint8 byte)
 			{
 				int type;
 				if (byte & mask)
-				{
 					type = SOUND_NOISE;
-				}
 				else
-				{
 					type = SOUND_SAMPLE;
-				}
+
 				S9xSetSoundType (c, type);
 			}
 		}
 		break;
     case APU_MVOL_LEFT:
 		if (byte != APUPack.APU.DSP[APU_MVOL_LEFT])
-		{
-			S9xSetMasterVolume ((signed char) byte,
-				(signed char) APUPack.APU.DSP[APU_MVOL_RIGHT]);
-		}
+			S9xSetMasterVolume ((signed char) byte,	(signed char) APUPack.APU.DSP[APU_MVOL_RIGHT]);
 		break;
     case APU_MVOL_RIGHT:
 		if (byte != APUPack.APU.DSP[APU_MVOL_RIGHT])
-		{
-			S9xSetMasterVolume ((signed char) APUPack.APU.DSP[APU_MVOL_LEFT],
-				(signed char) byte);
-		}
+			S9xSetMasterVolume ((signed char) APUPack.APU.DSP[APU_MVOL_LEFT], (signed char) byte);
 		break;
     case APU_EVOL_LEFT:
 		if (byte != APUPack.APU.DSP[APU_EVOL_LEFT])
-		{
-			S9xSetEchoVolume ((signed char) byte,
-				(signed char) APUPack.APU.DSP[APU_EVOL_RIGHT]);
-		}
+			S9xSetEchoVolume ((signed char) byte, (signed char) APUPack.APU.DSP[APU_EVOL_RIGHT]);
 		break;
     case APU_EVOL_RIGHT:
 		if (byte != APUPack.APU.DSP[APU_EVOL_RIGHT])
-		{
-			S9xSetEchoVolume ((signed char) APUPack.APU.DSP[APU_EVOL_LEFT],
-				(signed char) byte);
-		}
+			S9xSetEchoVolume ((signed char) APUPack.APU.DSP[APU_EVOL_LEFT], (signed char) byte);
 		break;
     case APU_ENDX:
 		byte = 0;
@@ -434,13 +409,11 @@ void S9xSetAPUDSP (uint8 byte)
 				{
 					if ((APUPack.APU.KeyedChannels) & mask)
 					{
-						{
-							KeyOnPrev&=~mask;
-							(APUPack.APU.KeyedChannels) &= ~mask;
-							APUPack.APU.DSP[APU_KON] &= ~mask;
-							//APUPack.APU.DSP[APU_KOFF] |= mask;
-							S9xSetSoundKeyOff (c);
-						}
+						KeyOnPrev&=~mask;
+						(APUPack.APU.KeyedChannels) &= ~mask;
+						APUPack.APU.DSP[APU_KON] &= ~mask;
+						//APUPack.APU.DSP[APU_KOFF] |= mask;
+						S9xSetSoundKeyOff (c);						
 					}
 				}
 				else if((KeyOnPrev&mask)!=0)

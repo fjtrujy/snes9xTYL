@@ -1961,7 +1961,7 @@ static int menu_soundmode(char *mode) {
 	    	menu_cnt2=0;
 	    	os9x_apuenabled=new_value;
 	    } else if (new_pad&PSP_CTRL_DOWN) {
-    		if (new_value) {new_value--;MENU_CHGVAL();}
+    		if (new_value>1) {new_value--;MENU_CHGVAL();}
     	} else if (new_pad&PSP_CTRL_UP) {
 	    	if (new_value<2) {new_value++;MENU_CHGVAL();}
     	}  else if (new_pad & PSP_CTRL_SELECT) {

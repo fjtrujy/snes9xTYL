@@ -149,83 +149,6 @@ void S9xMainLoop_NoSA1_APU (void) {
 	}
 }
 
-void S9xMainLoop_SA1_NoAPU (void) {
-	for (;;) { 
-	
-	#ifdef CPU_SHUTDOWN
-		CPU.PCAtOpcodeStart = CPU.PC;
-	#endif
-		
-		if (CPU.Cycles >= CPU.NextEvent){
-	#ifdef CPU_SHUTDOWN
-			CPU.WaitCounter++;
-	#endif
-			(*S9x_Current_HBlank_Event)();
-		}
-		CPU.Cycles += CPU.MemSpeed;
-		(*ICPU.S9xOpcodes [*CPU.PC++].S9xOpcode)();
-		if (SA1.Executing)
-		{
-			if (SA1.Flags & IRQ_PENDING_FLAG) S9xSA1CheckIRQ();
-			(*SA1.S9xOpcodes [*SA1.PC++].S9xOpcode) ();
-			(*SA1.S9xOpcodes [*SA1.PC++].S9xOpcode) ();
-			(*SA1.S9xOpcodes [*SA1.PC++].S9xOpcode) ();
-		}
-	
-		if (CPU.Flags) {
-			if (CPU.Flags & NMI_FLAG)
-				if (--CPU.NMICycleCount == 0){
-					CPU.Flags &= ~NMI_FLAG;
-					S9xOpcode_NMI ();
-				}
-			if (CPU.Flags & IRQ_PENDING_FLAG){
-				if (CPU.IRQCycleCount == 0){
-					if (!CheckFlag (IRQ))
-						S9xOpcode_IRQ ();
-				}
-				else
-					CPU.IRQCycleCount--;
-			}
-			if (CPU.Flags & SCAN_KEYS_FLAG) break;
-		}
-	}
-}
-
-void S9xMainLoop_NoSA1_NoAPU (void) {
-	for (;;) { 
-	
-	#ifdef CPU_SHUTDOWN
-		CPU.PCAtOpcodeStart = CPU.PC;
-	#endif
-	
-		if (CPU.Cycles >= CPU.NextEvent){
-	#ifdef CPU_SHUTDOWN
-			CPU.WaitCounter++;
-	#endif
-			(*S9x_Current_HBlank_Event)();
-		}
-		CPU.Cycles += CPU.MemSpeed;
-		(*ICPU.S9xOpcodes [*CPU.PC++].S9xOpcode)();
-
-		if (CPU.Flags) {
-			if (CPU.Flags & NMI_FLAG)
-				if (--CPU.NMICycleCount == 0){
-					CPU.Flags &= ~NMI_FLAG;
-					S9xOpcode_NMI ();
-				}
-			if (CPU.Flags & IRQ_PENDING_FLAG){
-				if (CPU.IRQCycleCount == 0){
-					if (!CheckFlag (IRQ))
-						S9xOpcode_IRQ ();
-				}
-				else
-					CPU.IRQCycleCount--;
-			}
-			if (CPU.Flags & SCAN_KEYS_FLAG) break;
-		}
-	}
-}
-
 void S9xMainLoop (void)
 {
 	START_PROFILE_FUNC (S9xMainLoop);
@@ -251,14 +174,7 @@ void S9xMainLoop (void)
     S9xSyncSpeed ();
     CPU.Flags &= ~SCAN_KEYS_FLAG;
   }
-  /*if (CPU.BRKTriggered && Settings.SuperFX && !CPU.TriedInterleavedMode2) {
-    CPU.TriedInterleavedMode2 = TRUE;
-    CPU.BRKTriggered = FALSE;
-    S9xDeinterleaveMode2 ();
-  }*/
 
-  /*(APURegistersUncached.PC) = (IAPUuncached.PC) - (IAPUuncached.RAM);
-  S9xAPUPackStatusUncached ();*/
 }
 
 void S9xSetIRQ (uint32 source)
@@ -296,20 +212,58 @@ void S9xDoHBlankProcessing_HBLANK_START_EVENT ()
   //FINISH_PROFILE_FUNC (S9xDoHBlankProcessing); 
 }
 
+static void S9xDoHBlankProcessing_HBLANK_END_EVENT_2();
+
 void S9xDoHBlankProcessing_HBLANK_END_EVENT_SFX ()
 {
 	if (!SuperFX.oneLineDone && CHECK_EXEC_SUPERFX())
 		S9xSuperFXExec();
 	SuperFX.oneLineDone = false;
-	S9xDoHBlankProcessing_HBLANK_END_EVENT();
+	
+	static const int addr[] = { 0x2c, 0x2d, 0x2e, 0x2f, 0x30, 0x31 };
+	uint sizeAddr = sizeof(addr) / sizeof(int);
+	
+	for (uint i = 0; i < sizeAddr; i++)
+	{
+		int a = addr[i];
+		if (IPPU.DeferredRegisterWrite[a] != 0xff00 &&
+			IPPU.DeferredRegisterWrite[a] != ROM_GLOBAL[a + 0x2100])
+		{
+			//DEBUG_FLUSH_REDRAW(a + 0x2100, IPPU.DeferredRegisterWrite[a]);
+			FLUSH_REDRAW();
+			ROM_GLOBAL[a + 0x2100] = IPPU.DeferredRegisterWrite[a];
+		}
+		IPPU.DeferredRegisterWrite[a] = 0xff00;
+	}
+	
+	S9xDoHBlankProcessing_HBLANK_END_EVENT_2();
+}
+
+void S9xDoHBlankProcessing_HBLANK_END_EVENT_SA1()
+{
+	static const int addr[] = { 0x2c, 0x2d, 0x2e, 0x2f, 0x30, 0x31 };
+	uint sizeAddr = sizeof(addr) / sizeof(int);
+	
+	for (uint i = 0; i < sizeAddr; i++)
+	{
+		int a = addr[i];
+		if (IPPU.DeferredRegisterWrite[a] != 0xff00 &&
+			IPPU.DeferredRegisterWrite[a] != ROM_GLOBAL[a + 0x2100])
+		{
+			//DEBUG_FLUSH_REDRAW(a + 0x2100, IPPU.DeferredRegisterWrite[a]);
+			FLUSH_REDRAW();
+			ROM_GLOBAL[a + 0x2100] = IPPU.DeferredRegisterWrite[a];
+		}
+		IPPU.DeferredRegisterWrite[a] = 0xff00;
+	}
+	
+	S9xDoHBlankProcessing_HBLANK_END_EVENT_2();
 }
 
 void S9xDoHBlankProcessing_HBLANK_END_EVENT ()
 {
 	//START_PROFILE_FUNC (S9xDoHBlankProcessing);			
 	//if (Settings.SuperFX) S9xSuperFXExec ();
-
-	static const int addr[] = { 0x2c, 0x2d, 0x2e, 0x2f, 0x30, 0x31 };
 
 	// Based on snes9x 3DS
 	// Optimization for a small number of PPU registers,
@@ -326,20 +280,52 @@ void S9xDoHBlankProcessing_HBLANK_END_EVENT ()
 	// at least one of the registers have changed from the
 	// value in the previous scanline.
 	//
+	static const int addr[] = { 0x2c, 0x2d, 0x2e, 0x2f, 0x30, 0x31 };
 	uint sizeAddr = sizeof(addr) / sizeof(int);
-	for (uint i = 0; i < sizeAddr; i++)
+	
+	if (SNESGameFixes.AceONeraeHack)
 	{
-		int a = addr[i];
-		if (IPPU.DeferredRegisterWrite[a] != 0xff00 &&
-			IPPU.DeferredRegisterWrite[a] != ROM_GLOBAL[a + 0x2100])
+		for (uint i = 0; i < sizeAddr; i++)
 		{
-			//DEBUG_FLUSH_REDRAW(a + 0x2100, IPPU.DeferredRegisterWrite[a]);
-			FLUSH_REDRAW();
-			ROM_GLOBAL[a + 0x2100] = IPPU.DeferredRegisterWrite[a];
+			int a = addr[i];
+			if (IPPU.DeferredRegisterWrite[a] != 0xff00 &&
+				IPPU.DeferredRegisterWrite[a] != ROM_GLOBAL[a + 0x2100])
+			{
+				if (a == 0x31 &&
+					ROM_GLOBAL[0x2126] == 0xFF && ROM_GLOBAL[0x2127] == 0x00 &&
+					ROM_GLOBAL[0x2128] == 0xFF && ROM_GLOBAL[0x2129] == 0x00)
+				{
+					ROM_GLOBAL[a + 0x2100] = IPPU.DeferredRegisterWrite[a];
+					continue;
+				}
+				//DEBUG_FLUSH_REDRAW(a + 0x2100, IPPU.DeferredRegisterWrite[a]);
+				FLUSH_REDRAW();
+				ROM_GLOBAL[a + 0x2100] = IPPU.DeferredRegisterWrite[a];
+			}
+			IPPU.DeferredRegisterWrite[a] = 0xff00;
 		}
-		IPPU.DeferredRegisterWrite[a] = 0xff00;
+	}
+	else
+	{
+		for (uint i = 0; i < sizeAddr; i++)
+		{
+			int a = addr[i];
+			if (IPPU.DeferredRegisterWrite[a] != 0xff00 &&
+				IPPU.DeferredRegisterWrite[a] != ROM_GLOBAL[a + 0x2100])
+			{
+				//DEBUG_FLUSH_REDRAW(a + 0x2100, IPPU.DeferredRegisterWrite[a]);
+				FLUSH_REDRAW();
+				ROM_GLOBAL[a + 0x2100] = IPPU.DeferredRegisterWrite[a];
+			}
+			IPPU.DeferredRegisterWrite[a] = 0xff00;
+		}
 	}
 	
+	S9xDoHBlankProcessing_HBLANK_END_EVENT_2();
+}
+
+static void S9xDoHBlankProcessing_HBLANK_END_EVENT_2()
+{
 	cpu_glob_cycles += CPU.Cycles-old_cpu_cycles;		
 	CPU.Cycles -= Settings.H_Max;	
 	old_cpu_cycles=CPU.Cycles;
@@ -366,13 +352,8 @@ void S9xDoHBlankProcessing_HBLANK_END_EVENT ()
   	//(APUPack.APU.Cycles) -= Settings.H_Max;
 		apu_glob_cycles=cpu_glob_cycles;
 #ifdef ME_SOUND		
-		if (cpu_glob_cycles>=0x00700000) {		
+		if (cpu_glob_cycles>=0x00700000)
 			APU_EXECUTE2 ();
-		}
-#else
-//		if (cpu_glob_cycles>=0x00000000) {		
-//			APU_EXECUTE2 ();
-//		}
 #endif		
   }
   else {
@@ -382,7 +363,6 @@ void S9xDoHBlankProcessing_HBLANK_END_EVENT ()
   }
 #endif
   
-       
   CPU.NextEvent = -1;
 // not use
 //  ICPU.Scanline++;
@@ -419,45 +399,13 @@ void S9xDoHBlankProcessing_HBLANK_END_EVENT ()
 
   //APU_EXECUTE2 ();
     
-  /*if ((APUPack.APU.TimerEnabled) [2]) {
-		(APUPack.APU.Timer) [2] += 4;
-		while ((APUPack.APU.Timer) [2] >= (APUPack.APU.TimerTarget) [2]) {
-		  (IAPUuncached.RAM) [0xff] = ((IAPUuncached.RAM) [0xff] + 1) & 0xf;
-		  (APUPack.APU.Timer) [2] -= (APUPack.APU.TimerTarget) [2];
-#ifdef SPC700_SHUTDOWN
-		  (IAPUuncached.WaitCounter)++;
-		  (IAPU_APUExecuting)= TRUE;
-#endif		
-		}
-	}*/
 #else
 	if (CPU.V_Counter & 1) {		
 		apu_event2[(apu_event2_cpt2)&0xFFFF]=cpu_glob_cycles * os9x_apu_ratio / 256;  
-  	(apu_event2_cpt2)++;
-		/*if ((APUPack.APU.TimerEnabled) [0]) {
-		  (APUPack.APU.Timer) [0]++;
-		  if ((APUPack.APU.Timer) [0] >= (APUPack.APU.TimerTarget) [0]) {
-				(IAPUuncached.RAM) [0xfd] = ((IAPUuncached.RAM) [0xfd] + 1) & 0xf;
-				(APUPack.APU.Timer) [0] = 0;
-#ifdef SPC700_SHUTDOWN		
-				(IAPUuncached.WaitCounter)++;
-				(IAPU_APUExecuting)= TRUE;
-#endif		    
-		  }
-		}
-		if ((APUPack.APU.TimerEnabled) [1]) {
-		  (APUPack.APU.Timer) [1]++;
-		  if ((APUPack.APU.Timer) [1] >= (APUPack.APU.TimerTarget) [1]) {
-				(IAPUuncached.RAM) [0xfe] = ((IAPUuncached.RAM) [0xfe] + 1) & 0xf;
-				(APUPack.APU.Timer) [1] = 0;
-#ifdef SPC700_SHUTDOWN		
-				(IAPUuncached.WaitCounter)++;
-				(IAPU_APUExecuting) = TRUE;
-#endif		    
-		  }
-		}*/		
+		(apu_event2_cpt2)++;
 	}	  
 #endif
+
   if (CPU.V_Counter == FIRST_VISIBLE_LINE)
     {
       ROM_GLOBAL[0x4210] = 0;
@@ -513,7 +461,6 @@ void S9xDoHBlankProcessing_HBLANK_END_EVENT ()
   if (CPU.V_Counter == PPUPack.PPU.ScreenHeight + 3)
     S9xUpdateJoypads ();
 
-  
   S9xReschedule ();
   //FINISH_PROFILE_FUNC (S9xDoHBlankProcessing); 
 }

@@ -58,6 +58,7 @@ extern void S9xMainLoop_NoSA1_NoAPU();
 void S9xDoHBlankProcessing_HBLANK_START_EVENT();
 void S9xDoHBlankProcessing_HBLANK_END_EVENT();
 void S9xDoHBlankProcessing_HBLANK_END_EVENT_SFX();
+void S9xDoHBlankProcessing_HBLANK_END_EVENT_SA1();
 void S9xDoHBlankProcessing_HTIMER_BEFORE_EVENT();
 void S9xDoHBlankProcessing_HTIMER_AFTER_EVENT();
 
@@ -107,14 +108,6 @@ extern struct SOpcodes S9xOpcodesM1X0 [256];
 extern struct SOpcodes S9xOpcodesM0X1 [256];
 extern struct SOpcodes S9xOpcodesM0X0 [256];
 
-#ifndef VAR_CYCLES
-extern uint8 S9xE1M1X1 [256];
-extern uint8 S9xE0M1X0 [256];
-extern uint8 S9xE0M1X1 [256];
-extern uint8 S9xE0M0X0 [256];
-extern uint8 S9xE0M0X1 [256];
-#endif
-
 extern struct SCPUPACK CPUPack;
 END_EXTERN_C
 
@@ -143,47 +136,22 @@ STATIC inline void CLEAR_IRQ_SOURCE (uint32 M)
 STATIC inline void S9xFixCycles ()
 {
     if (CheckEmulation ())
-    {
-#ifndef VAR_CYCLES
-	ICPU.Speed = S9xE1M1X1;
-#endif
-	ICPU.S9xOpcodes = S9xOpcodesE1;
-    }
+		ICPU.S9xOpcodes = S9xOpcodesE1;
     else
-    if (CheckMemory ())
-    {
-	if (CheckIndex ())
-	{
-#ifndef VAR_CYCLES
-	    ICPU.Speed = S9xE0M1X1;
-#endif
-	    ICPU.S9xOpcodes = S9xOpcodesM1X1;
-	}
-	else
-	{
-#ifndef VAR_CYCLES
-	    ICPU.Speed = S9xE0M1X0;
-#endif
-	    ICPU.S9xOpcodes = S9xOpcodesM1X0;
-	}
-    }
-    else
-    {
-	if (CheckIndex ())
-	{
-#ifndef VAR_CYCLES
-	    ICPU.Speed = S9xE0M0X1;
-#endif
-	    ICPU.S9xOpcodes = S9xOpcodesM0X1;
-	}
-	else
-	{
-#ifndef VAR_CYCLES
-	    ICPU.Speed = S9xE0M0X0;
-#endif
-	    ICPU.S9xOpcodes = S9xOpcodesM0X0;
-	}
-    }
+		if (CheckMemory ())
+		{
+			if (CheckIndex ())
+				ICPU.S9xOpcodes = S9xOpcodesM1X1;
+			else
+				ICPU.S9xOpcodes = S9xOpcodesM1X0;
+		}
+		else
+		{
+			if (CheckIndex ())
+				ICPU.S9xOpcodes = S9xOpcodesM0X1;
+			else
+				ICPU.S9xOpcodes = S9xOpcodesM0X0;
+		}
 }
 
 STATIC inline void S9xReschedule ()

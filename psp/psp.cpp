@@ -3498,33 +3498,32 @@ static void setup_Main_Loops()
 	// If we have harcoded speedhacks then apply them every frame before s9xMainLoop.
 	//
 	if (SNESGameFixes.SpeedHackCount || SNESGameFixes.SpeedHackSA1Count)
-		S9x_Current_Main_Loop = ApplySpeedHackPatches;
+		S9x_Current_Main_Loop = &ApplySpeedHackPatches;
 	else
-		S9x_Current_Main_Loop = S9xMainLoop;
+		S9x_Current_Main_Loop = &S9xMainLoop;
 	
 	// This is a modification inspired on CATSFC.
 	// The emulator selects a Main Loop based on the chip used by game.
-	// This avoids the constant Settings.SA1, Settings.APUEnabled and Settings.SuperFX checks on S9xMainLoop.
+	// This avoids the constant Settings.SA1 and Settings.SuperFX checks on S9xMainLoop.
 	//
-	if (Settings.APUEnabled) {
-		if (Settings.SA1)
-			S9x_Current_Main_Loop_cpuexec = S9xMainLoop_SA1_APU;
-		else
-			S9x_Current_Main_Loop_cpuexec = S9xMainLoop_NoSA1_APU;
-	} else {
-		if (Settings.SA1)
-			S9x_Current_Main_Loop_cpuexec = S9xMainLoop_SA1_NoAPU;
-		else
-			S9x_Current_Main_Loop_cpuexec = S9xMainLoop_NoSA1_NoAPU;
-	}
 	
-	if (Settings.SuperFX)
+	if (Settings.SA1)
 	{
-		S9xResetSuperFX (false);
-		S9x_Current_HBLANK_END_EVENT = S9xDoHBlankProcessing_HBLANK_END_EVENT_SFX;
+		S9x_Current_Main_Loop_cpuexec = &S9xMainLoop_SA1_APU;
+		S9x_Current_HBLANK_END_EVENT = &S9xDoHBlankProcessing_HBLANK_END_EVENT_SA1;
 	}
 	else
-		S9x_Current_HBLANK_END_EVENT = S9xDoHBlankProcessing_HBLANK_END_EVENT;
+	{
+		S9x_Current_Main_Loop_cpuexec = &S9xMainLoop_NoSA1_APU;
+		if (Settings.SuperFX)
+		{
+			S9xResetSuperFX (false);
+			S9x_Current_HBLANK_END_EVENT = &S9xDoHBlankProcessing_HBLANK_END_EVENT_SFX;
+		}
+		else
+			S9x_Current_HBLANK_END_EVENT = &S9xDoHBlankProcessing_HBLANK_END_EVENT;
+	}
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////

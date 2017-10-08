@@ -4333,6 +4333,7 @@ if (ROM [adr] == ov) \
 	
 	SNESGameFixes.SpeedHackCount = 0;
 	SNESGameFixes.SpeedHackSA1Count = 0;
+	SNESGameFixes.AceONeraeHack = false;
 	
 	if (strcmp (ROMName, "YOSHI'S ISLAND") == 0)
 	{
@@ -4346,8 +4347,10 @@ if (ROM [adr] == ov) \
 	{
 		SpeedHackAdd(0x00803C, 46, 0xf0, 0xfc, -1, -1);  // US + EUR version
 	}
-	if (strcmp (ROMName, "\xb4\xb0\xbd\xa6\xc8\xd7\xb4\x21") == 0)	// Ace o Nerae
+	if (strcmp (ROMName, "\xb4\xb0\xbd\xa6\xc8\xd7\xb4\x21") == 0 || // Ace o Nerae
+		strcmp (ROMName, "AIM FOR THE ACE v1.2") == 0)	// Ace o Nerae english translation
 	{
+		SNESGameFixes.AceONeraeHack = true;
 		SpeedHackAdd(0x80C458, -1, 0x10, 0xfb);
 	}
 	if (strcmp (ROMName, "AXELAY") == 0)
