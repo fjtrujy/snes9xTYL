@@ -44,6 +44,8 @@
 #include "memmap.h"
 #include "65c816.h"
 
+extern bool8 finishedFrame;
+
 extern void (*S9x_Current_HBlank_Event)();
 extern void (*S9x_Current_Main_Loop_cpuexec)();
 extern void (*S9x_Current_HBLANK_END_EVENT)();

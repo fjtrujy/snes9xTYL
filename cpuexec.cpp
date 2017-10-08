@@ -56,6 +56,7 @@
 
 extern struct SSA1 SA1;
 extern struct FxInit_s SuperFX;
+bool8 finishedFrame = false;
 
 #ifdef DEBUGGER
 #define IRQ_ACTIVE	CPU.IRQActive && !Settings.DisableIRQ
@@ -71,7 +72,7 @@ void (*S9x_Current_HBLANK_END_EVENT)();
 // Optimizations based on snes9x 3DS
 //
 void S9xMainLoop_SA1_APU (void) {
-	for (;;) { 
+	do{//for (;;) {
 		UPDATE_APU_COUNTER();
 	
 	#ifdef CPU_SHUTDOWN
@@ -83,9 +84,13 @@ void S9xMainLoop_SA1_APU (void) {
 			CPU.WaitCounter++;
 	#endif
 			(*S9x_Current_HBlank_Event)();
+			
+			if (finishedFrame) return;
 		}
+		
 		CPU.Cycles += CPU.MemSpeed;
 		(*ICPU.S9xOpcodes [*CPU.PC++].S9xOpcode)();
+		
 		if (SA1.Executing)
 		{
 			if (SA1.Flags & IRQ_PENDING_FLAG) S9xSA1CheckIRQ();
@@ -110,11 +115,11 @@ void S9xMainLoop_SA1_APU (void) {
 			}
 			if (CPU.Flags & SCAN_KEYS_FLAG) break;
 		}
-	}
+	}while(1);
 }
 
 void S9xMainLoop_NoSA1_APU (void) {
-	for (;;) { 
+	do{//for (;;) {
 		UPDATE_APU_COUNTER();
 	
 	#ifdef CPU_SHUTDOWN
@@ -126,7 +131,10 @@ void S9xMainLoop_NoSA1_APU (void) {
 			CPU.WaitCounter++;
 	#endif
 			(*S9x_Current_HBlank_Event)();
+			
+			if (finishedFrame) return;
 		}
+		
 		CPU.Cycles += CPU.MemSpeed;
 		(*ICPU.S9xOpcodes [*CPU.PC++].S9xOpcode)();
 	
@@ -146,35 +154,40 @@ void S9xMainLoop_NoSA1_APU (void) {
 			}
 			if (CPU.Flags & SCAN_KEYS_FLAG) break;
 		}
-	}
+	}while(1);
 }
 
 void S9xMainLoop (void)
 {
-	START_PROFILE_FUNC (S9xMainLoop);
+	//START_PROFILE_FUNC (S9xMainLoop);
 	
-	// This is a modification inspired on CATSFC.
-	// The emulator executes the Main Loop selected on init_snes_rom
-	// This avoids the constant Settings.SA1 and Settings.APUEnabled checks on S9xMainLoop.
-	//
-	(*S9x_Current_Main_Loop_cpuexec)();
-	
+	do{
+		// This is a modification inspired on CATSFC.
+		// The emulator executes the Main Loop selected on init_snes_rom
+		// This avoids the constant Settings.SA1 and Settings.APUEnabled checks on S9xMainLoop.
+		//
+		(*S9x_Current_Main_Loop_cpuexec)();
+		
+		if (!finishedFrame)
+        {
 #ifndef ME_SOUND	
-	if (cpu_glob_cycles>=0x00000000) {		
-			APU_EXECUTE2 ();
-	}		
+			if (cpu_glob_cycles>=0x00000000)
+					APU_EXECUTE2 ();
 #endif	
-	
-  Registers.PCw = CPU.PC - CPU.PCBase;
-    
-  S9xPackStatus ();
-      
-  if (CPU.Flags & SCAN_KEYS_FLAG) {
-    FINISH_PROFILE_FUNC (S9xMainLoop);
-    S9xSyncSpeed ();
-    CPU.Flags &= ~SCAN_KEYS_FLAG;
-  }
-
+			Registers.PCw = CPU.PC - CPU.PCBase;
+			S9xPackStatus ();
+			if (CPU.Flags & SCAN_KEYS_FLAG) {
+				//FINISH_PROFILE_FUNC (S9xMainLoop);
+				S9xSyncSpeed ();
+				CPU.Flags &= ~SCAN_KEYS_FLAG;
+			}
+		}
+        else
+        {
+            finishedFrame = false;
+            break;
+        }
+    }while(!finishedFrame);
 }
 
 void S9xSetIRQ (uint32 source)

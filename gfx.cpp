@@ -710,6 +710,7 @@ void S9xEndScreenRefresh ()
         GPUPack.GFX.Pitch = GPUPack.GFX.Pitch2 = GPUPack.GFX.RealPitch;
         GPUPack.GFX.PPL = GPUPack.GFX.PPLx2 >> 1;
         
+		finishedFrame = true;
 
 /*	if (Settings.DisplayFrameRate)
 	    S9xDisplayFrameRate ();
