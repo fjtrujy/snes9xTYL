@@ -113,7 +113,7 @@ void S9xMainLoop_SA1_APU (void) {
 				else
 					CPU.IRQCycleCount--;
 			}
-			if (CPU.Flags & SCAN_KEYS_FLAG) break;
+			if (CPU.Flags & SCAN_KEYS_FLAG) return;
 		}
 	}while(1);
 }
@@ -152,7 +152,7 @@ void S9xMainLoop_NoSA1_APU (void) {
 				else
 					CPU.IRQCycleCount--;
 			}
-			if (CPU.Flags & SCAN_KEYS_FLAG) break;
+			if (CPU.Flags & SCAN_KEYS_FLAG) return;
 		}
 	}while(1);
 }
@@ -168,13 +168,15 @@ void S9xMainLoop (void)
 		//
 		(*S9x_Current_Main_Loop_cpuexec)();
 		
+		
+#ifndef ME_SOUND	
+		if (cpu_glob_cycles>=0x00000000)
+				APU_EXECUTE2 ();
+#endif	
+		Registers.PCw = CPU.PC - CPU.PCBase;
+
 		if (!finishedFrame)
         {
-#ifndef ME_SOUND	
-			if (cpu_glob_cycles>=0x00000000)
-					APU_EXECUTE2 ();
-#endif	
-			Registers.PCw = CPU.PC - CPU.PCBase;
 			S9xPackStatus ();
 			if (CPU.Flags & SCAN_KEYS_FLAG) {
 				//FINISH_PROFILE_FUNC (S9xMainLoop);
