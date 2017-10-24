@@ -657,7 +657,7 @@ int CMemory::LoadROMMore(int TotalFileSize,int &retry_count)
     int hi_score = ScoreHiROM (FALSE);
     int lo_score = ScoreLoROM (FALSE);
 	
-	uint8* RomHeader=ROM;
+	//uint8* RomHeader=ROM;
 	
 	ExtendedFormat=NOPE;
 	
@@ -716,7 +716,7 @@ int CMemory::LoadROMMore(int TotalFileSize,int &retry_count)
 			ExtendedFormat = BIGFIRST;
 			hi_score=swappedhirom;
 			lo_score=swappedlorom;
-			RomHeader=ROM+0x400000;
+			//RomHeader=ROM+0x400000;
 		}
 		else
 			ExtendedFormat = SMALLFIRST;
@@ -3305,13 +3305,13 @@ void CMemory::JumboLoROMMap (bool8 Interleaved)
     int i;
 	
 	uint32 OFFSET0 = 0x400000;
-    uint32 OFFSET1 = 0x400000;
+    //uint32 OFFSET1 = 0x400000;
     uint32 OFFSET2 = 0x000000;
 	
     if (Interleaved)
     {
 		OFFSET0 = 0x000000;
-		OFFSET1 = 0x000000;
+		//OFFSET1 = 0x000000;
 		OFFSET2 = CalculatedSize-0x400000; //changed to work with interleaved DKJM2.
     }
     // Banks 00->3f and 80->bf
@@ -3399,6 +3399,24 @@ void CMemory::JumboLoROMMap (bool8 Interleaved)
     WriteProtectROM ();
 }
 
+static uint32 map_mirror (uint32 size, uint32 pos)
+{
+	// from bsnes
+	if (size == 0)
+		return (0);
+	if (pos < size)
+		return (pos);
+
+	uint32	mask = 1 << 31;
+	while (!(pos & mask))
+		mask >>= 1;
+
+	if (size <= (pos & mask))
+		return (map_mirror(size, pos - mask));
+	else
+		return (mask + map_mirror(size - mask, pos - mask));
+}
+
 void CMemory::SPC7110HiROMMap ()
 {
 	int c;
@@ -3458,7 +3476,21 @@ void CMemory::SPC7110HiROMMap ()
 			BlockIsROM [i + 0x400] = BlockIsROM [i + 0xc00] = TRUE;
 		}
 	}
-
+	
+	uint32	p, addr;
+	
+	for (c = 0x40; c <= 0x4f; c++)
+	{
+		for (i = 0x0000; i <= 0xffff; i += 0x1000)
+		{
+			p = (c << 4) | (i >> 12);
+			addr = (c - 0x40) << 16;
+			Map[p] = ROM + 0x600000 + map_mirror(CalculatedSize, addr);
+			BlockIsROM[p] = TRUE;
+			BlockIsRAM[p] = FALSE;
+		}
+	}
+		
 	for (c = 0; c < 0x10; c++)
 	{
 		Map [0x500 + c] = (uint8 *) MAP_SPC7110_DRAM;
