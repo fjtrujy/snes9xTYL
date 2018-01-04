@@ -123,7 +123,7 @@ INLINE uint16 S9xGetWord (uint32 Address)
 				
 #ifdef VAR_CYCLES
 		if ((intptr_t) GetAddress != Memory.MAP_CPU || !CPU.InDMA)
-  	  	    CPU.Cycles += CPU.MemorySpeed [block];
+  	  	    CPU.Cycles += CPU.MemorySpeed [block] << 1;
 #endif
 
 		if (GetAddress >= (uint8 *) CMemory::MAP_LAST)
@@ -194,7 +194,7 @@ INLINE void S9xSetWord(uint16 Word, uint32 Address)
 	
 #ifdef VAR_CYCLES
 	if ((intptr_t) SetAddress != Memory.MAP_CPU || !CPU.InDMA)
-		CPU.Cycles += CPU.MemorySpeed [block];
+		CPU.Cycles += CPU.MemorySpeed [block] << 1;
 #endif
 
 	if (SetAddress >= (uint8 *) CMemory::MAP_LAST)
