@@ -2,7 +2,7 @@
 
 Super Nintendo emulator for PlayStation Portable.
 
-Download the latest compiled commit here: https://github.com/esmjanus/snes9xTYL/blob/mecm/Release/Versions.md
+Download the latest compiled commit here: [Releases](https://github.com/esmjanus/snes9xTYL/blob/mecm/Release/Releases.md)
 
 ***Before updating, make sure to backup your SAVES and/or S9XTYLSAVES folders just in case something goes wrong.
 
