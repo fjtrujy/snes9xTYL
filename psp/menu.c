@@ -237,7 +237,7 @@ static int menu_screencalibrate(char *mode){
 				break;
 			case 5:
 				guClear(480,272);
-				guDrawBuffer(snes_image,256,os9x_snesheight-16,256,480,272);
+				guDrawBuffer(snes_image,256,os9x_snesheight/*-16*/,256,480,272);
 				break;
 		}
 		sprintf(st, s9xTYL_msg[MENU_STATUS_VIDEO_SCRCALIB], os9x_btn_negative_str);

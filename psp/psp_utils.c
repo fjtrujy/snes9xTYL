@@ -609,7 +609,11 @@ static void checkdirs() {
 			return;
 		}
 		if (i & PSP_CTRL_CROSS)
+		{
+			strcpy(SaveDir, "ms0:/PSP/SAVEDATA/S9XTYLSAVES");
+			sceIoMkdir(SaveDir, 0777);
 			break;
+		}
 	}
 
 

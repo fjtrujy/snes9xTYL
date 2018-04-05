@@ -1,8 +1,16 @@
-## Snes9xTYL Mod versions
+## Snes9xTYL Mod Releases
 
-- s9xTYLcm version is mean to be used on PSVita with Adrenaline, eCFW ARK, VHBL, etc. It works on PSP too but is slower than s9xTYLme version.
-- s9xTYLme version is for all PSP models, It uses Media Engine for sound emulation and is faster than s9xTYLcm. It is not compatible with PSVita.
-Before updating, make sure to backup your SAVES and/or S9XTYLSAVES folders just in case something goes wrong.
+#### s9xTYLme 
+This version is for all PSP models, It uses Media Engine for sound emulation and is faster than s9xTYLcm. It is not compatible with PSVita.
+
+#### Download [s9xTYLme](https://github.com/esmjanus/snes9xTYL/raw/mecm/Release/s9xTYLme_mod.rar)
+
+#### s9xTYLcm
+This version is mean to be used on PSVita with Adrenaline, eCFW ARK, VHBL, etc. It works on PSP too but is slower than s9xTYLme version.
+
+#### Download [s9xTYLcm](https://github.com/esmjanus/snes9xTYL/raw/mecm/Release/s9xTYLcm_mod.rar)
+
+***Before updating, make sure to backup your SAVES and/or S9XTYLSAVES folders just in case something goes wrong.
 
 ### Help and Tips
 

@@ -1826,7 +1826,7 @@ static void resync_var(){
 
 		/*if ((!os9x_apuenabled)||(os9x_apuenabled==3))*/ //os9x_hack|=APU_FIX;
 
-		os9x_snesheight=(Settings.PAL&&(!os9x_forcepal_ntsc)?240:224);
+		os9x_snesheight=(/*Settings.PAL&&*/(!os9x_forcepal_ntsc)?240:224);
 
 		set_cpu_clock();
 

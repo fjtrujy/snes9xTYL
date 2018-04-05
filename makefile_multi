@@ -1,9 +1,9 @@
 TARGET = snes9xTYL
 
 ifdef ME_ACTIVE
-EMUNAME_VERSION = Snes9xTYLme Mod 180103
+EMUNAME_VERSION = Snes9xTYLme Mod 180404
 else
-EMUNAME_VERSION = Snes9xTYLcm Mod 180103
+EMUNAME_VERSION = Snes9xTYLcm Mod 180404
 endif
 
 INCDIR = psp psp/me psp/openspc++ psp/adhoc zlib danzeff
