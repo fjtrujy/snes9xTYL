@@ -696,7 +696,7 @@ time_t time(time_t *tm){
 }
 
 int gettimeofday(struct timeval *__p, struct timezone *__z){
-	return sceKernelLibcGettimeofday(__p,__z);
+	return gettimeofday(__p,__z);
 }
 
 int isatty (int fd){
@@ -723,14 +723,14 @@ _raise (){
 
 static struct timeval s_analyze;
 void StartAnalyze(){
-	sceKernelLibcGettimeofday( &s_analyze, 0 );
+	gettimeofday( &s_analyze, 0 );
 }
 
 void StopAnalyze(){
 	struct timeval now;
 	int		diff;
 
-	sceKernelLibcGettimeofday( &now, 0 );
+	gettimeofday( &now, 0 );
 
 	diff  = (now.tv_sec - s_analyze.tv_sec) * 1000000 + now.tv_usec - s_analyze.tv_usec;
 

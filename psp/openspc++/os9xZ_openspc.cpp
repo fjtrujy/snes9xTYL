@@ -165,7 +165,7 @@ int OSPC_IsFinished() {
 	int i;
 	if (!OSPC_id) return 0;
 	if (!(OSPC_id->playtime)) return 0;
-	sceKernelLibcGettimeofday( &OSPC_cur_time, 0 );
+	gettimeofday( &OSPC_cur_time, 0 );
 	i=(OSPC_cur_time.tv_sec-OSPC_start_time.tv_sec)+(OSPC_cur_time.tv_usec-OSPC_start_time.tv_usec)/1000000;
 	return i>(OSPC_id->playtime);
 }
@@ -247,7 +247,7 @@ void OSPC_Play(char *fname,int release,int vol) {
 #ifndef ME_SOUND
 	  scePowerSetClockFrequency(266,266,133);
 #endif
-	  sceKernelLibcGettimeofday( &OSPC_start_time, 0 );
+	  gettimeofday( &OSPC_start_time, 0 );
 
   	sceKernelStartThread( OSPC_thread, 0, 0 );
 
@@ -304,7 +304,7 @@ void OSPC_Play(char *fname,int release,int vol) {
   		pgDrawFrame(13,93,20+65+5+2,117,28|(28<<5)|(31<<10));
   		pgDrawFrame(12,92,20+65+5+3,118,8|(8<<5)|(16<<10));
 			pgFillBoxHalfer(15,95,20+65+5,115);
-			sceKernelLibcGettimeofday( &OSPC_cur_time, 0 );
+			gettimeofday( &OSPC_cur_time, 0 );
 			i=(OSPC_cur_time.tv_sec-OSPC_start_time.tv_sec)+(OSPC_cur_time.tv_usec-OSPC_start_time.tv_usec)/1000000;
   		sprintf(str,"%2d%c%.2d / %2d:%.2d",i/60,((i&1)?':':' '),i%60,OSPC_id->playtime/60,OSPC_id->playtime%60);
   		mh_print(20,100,(char*)str,(20)|(31<<5)|(18<<10));
@@ -355,7 +355,7 @@ void OSPC_PlayBuffer(char *buff,int len,int release,int vol)
   	msgBoxLines("Cannot create OSPC playback thread",60);
   } else {
   	//init start time		
-		sceKernelLibcGettimeofday( &OSPC_start_time, 0 );
+		gettimeofday( &OSPC_start_time, 0 );
   	
   	sceKernelStartThread( OSPC_thread, 0, 0 );
   	

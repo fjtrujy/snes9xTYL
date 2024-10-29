@@ -100,7 +100,8 @@ extern char LastPath[256];
 extern char str_tmp[256];
 extern int os9x_inputs[32],os9x_inputs_analog,os9x_fpslimit,os9x_apu_ratio;
 extern unsigned int os9x_gammavalue, os9x_autofskip_MaxSkipFrames;
-int exit_menu,menu_modified,cheats_modified;
+extern int menu_modified;
+int exit_menu,cheats_modified;
 int cheats_first = 0;
 int cheats_nextpage_available = 0;
 int menu_music;
@@ -1372,7 +1373,7 @@ static void menu_startmusic(){
 		unz_global_info pglobal_info;
 		int num;
 		struct timeval now;
-		sceKernelLibcGettimeofday( &now, 0 );
+		gettimeofday( &now, 0 );
 		srand((now.tv_usec+now.tv_sec*1000000));
 
 		unzGetGlobalInfo(zip_file,&pglobal_info);

@@ -1661,7 +1661,7 @@ void S9xSyncSpeed()
 
 	S9xProcessEvents( FALSE );
 
-	sceKernelLibcGettimeofday( &now, 0 );
+	gettimeofday( &now, 0 );
 	if ( next1.tv_sec == 0 ){
 		next1 = now;
 		++next1.tv_usec;
@@ -1701,7 +1701,7 @@ void S9xSyncSpeed()
 		  	//wait to sync
 		  	waited = (now.tv_sec - next1.tv_sec) * 1000000 + now.tv_usec - next1.tv_usec;
 		  	while ( timercmp( &next1, &now, > ) ){
-					sceKernelLibcGettimeofday( &now, 0 );
+					gettimeofday( &now, 0 );
 		  	}
 		  }
 		}
@@ -1830,7 +1830,7 @@ static void resync_var(){
 
 		set_cpu_clock();
 
-		sceKernelLibcGettimeofday( &s_tvStart, 0 );
+		gettimeofday( &s_tvStart, 0 );
 		os9x_autosavetimer_tv=s_tvStart;
 
 		//reset timer for synchro stuff
@@ -1926,7 +1926,7 @@ static void GeCallback(int id, void *arg)
 	}*/
 
 	s_iFrameReal++;
-	sceKernelLibcGettimeofday( &now, 0 );
+	gettimeofday( &now, 0 );
 	if (os9x_showfps) {
 		diff  = (now.tv_sec - s_tvStart.tv_sec) * 1000000 + now.tv_usec - s_tvStart.tv_usec;
 		diff /= 1000000;
@@ -2385,7 +2385,7 @@ void S9xProcessEvents( bool8 block ) {
 	if (os9x_autosavetimer) {
 		struct timeval now;
 		int diff;
-		sceKernelLibcGettimeofday( &now, 0 );
+		gettimeofday( &now, 0 );
 		diff  = (now.tv_sec - os9x_autosavetimer_tv.tv_sec) * 1000000 + now.tv_usec - os9x_autosavetimer_tv.tv_usec;
 		diff/=1000000;
 		if ( diff>=60*os9x_autosavetimer ) {

@@ -254,7 +254,7 @@ static struct LightSettings
 void fx_init() {		
 	int i;
 	struct timeval now;
-	sceKernelLibcGettimeofday( &now, 0 );
+	gettimeofday( &now, 0 );
 	val=(now.tv_usec+now.tv_sec*1000000)>>16;	
 	srand(val);
 	for (i = 0; i < 8; ++i)
@@ -302,7 +302,7 @@ void fx_main(void *drawbuffer) {
 	// run sample
 	static int cpt=0;
 	struct timeval now;
-	sceKernelLibcGettimeofday( &now, 0 );
+	gettimeofday( &now, 0 );
 	val=(now.tv_usec+now.tv_sec*1000000)>>16;
 	
 	sceGuStart(GU_DIRECT,list);

@@ -2,6 +2,7 @@
 
 // headerfiles needed for the GU version
 #ifdef DANZEFF_SCEGU
+#include <string.h>
 #include <malloc.h>
 #include "pspkernel.h"
 #include "pspgu.h"

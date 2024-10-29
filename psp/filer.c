@@ -70,8 +70,6 @@ char FilerMsg[256];
 char FileName[MAXPATH];
 u16 *filer_bg;
 
-#define timercmp(a, b, CMP)	(((a)->tv_sec == (b)->tv_sec) ? ((a)->tv_usec CMP (b)->tv_usec) : ((a)->tv_sec CMP (b)->tv_sec))
-
 struct timeval filer_next,filer_cur;
 
 extern void show_bg(u16 *bg);
@@ -382,7 +380,7 @@ int getFilePath(char *out,int can_exit) {
 	while (get_pad()) pgWaitV();
   old_pad=0;
   
-  sceKernelLibcGettimeofday( &filer_next, 0 );
+  gettimeofday( &filer_next, 0 );
   filer_next.tv_usec+=33*1000;
   
 	for(;;){
@@ -403,7 +401,7 @@ int getFilePath(char *out,int can_exit) {
 		if (!g_bLoop) {retval=0;break;}
 		
 		for (;;) {
-			sceKernelLibcGettimeofday( &filer_cur, 0 );
+			gettimeofday( &filer_cur, 0 );
 			if ( timercmp( &filer_next, &filer_cur, < ) ){
 				break;
   		}
@@ -704,7 +702,7 @@ int getNoExtFilePath(char *out,int can_exit) {
 	while (get_pad()) pgWaitV();
   old_pad=0;
 
-  sceKernelLibcGettimeofday( &filer_next, 0 );
+  gettimeofday( &filer_next, 0 );
   filer_next.tv_usec+=33*1000;
 
 	for(;;){
@@ -727,7 +725,7 @@ int getNoExtFilePath(char *out,int can_exit) {
 		if (!g_bLoop) {retval=0;break;}
 		
 		for (;;) {
-			sceKernelLibcGettimeofday( &filer_cur, 0 );
+			gettimeofday( &filer_cur, 0 );
 			if ( timercmp( &filer_next, &filer_cur, < ) ){
 				break;  		
   		}

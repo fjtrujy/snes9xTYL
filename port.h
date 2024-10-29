@@ -160,17 +160,17 @@ extern int g_debuginfo;
 #ifndef snes9x_types_defined
 #define snes9x_types_defined
 
-#define bool8 u8
+#define bool8 uint8_t
 
 
-#define int8 s8
-#define uint8 u8
-#define int16 s16
-#define uint16 u16
-#define int32 s32
-#define uint32 u32
-#define int64 s64
-#define uint64 u64
+#define int8 int8_t
+#define uint8 uint8_t
+#define int16 int16_t
+#define uint16 uint16_t
+#define int32 int32_t
+#define uint32 uint32_t
+#define int64 int64_t
+#define uint64 uint64_t
 
 
 #include "pixform.h"

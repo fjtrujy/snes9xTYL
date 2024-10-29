@@ -124,7 +124,7 @@ void fx_init() {
 void fx_main(void *drawbuffer) {
 	// run sample
 	struct timeval now;
-	sceKernelLibcGettimeofday( &now, 0 );
+	gettimeofday( &now, 0 );
 	val=(now.tv_usec+now.tv_sec*1000000)>>14;
 			
 	ScePspFVector3 lpos0 = { 1, 0, 1 };
