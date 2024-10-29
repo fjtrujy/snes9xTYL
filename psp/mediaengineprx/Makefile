@@ -12,7 +12,7 @@ PRX_EXPORTS = $(TARGET).exp
 USE_KERNEL_LIBS=1
 
 LIBDIR =
-LDFLAGS = -mno-crt0 -nostartfiles
+LDFLAGS = -nostartfiles
 LIBS = -lpspkernel
 
 

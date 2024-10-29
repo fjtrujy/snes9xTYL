@@ -122,7 +122,7 @@ int psp_net_recv_file(char *filename) {
 		return -3;
 	}
 	//buffer=(uint8*)malloc(0x1004);
-	//if (!buffer) {msgBoxLines("malloc error while sending state!",60*1);sceKernelExitGame();}
+	//if (!buffer) {msgBoxLines("malloc error while sending state!",60*1);exit(1);}
 
 	do {
 		sprintf(str, s9xTYL_msg[ADHOC_STILL], file_size);

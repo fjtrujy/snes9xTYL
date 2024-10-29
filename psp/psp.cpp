@@ -131,7 +131,7 @@ PSP_MODULE_INFO("snes9xTYL", 0, 1, 0);
 /* Define the main thread's attribute value (optional) */
 //PSP_MAIN_THREAD_ATTR(PSP_THREAD_ATTR_VFPU);
 PSP_MAIN_THREAD_ATTR(THREAD_ATTR_USER|PSP_THREAD_ATTR_VFPU);
-PSP_MAIN_THREAD_STACK_SIZE_KB(256); /* smaller stack for kernel thread */
+// PSP_MAIN_THREAD_STACK_SIZE_KB(256); /* smaller stack for kernel thread */
 //7000 not enough
 //9000 not enough rom ok next ng
 //11000 user ok me anime ng
@@ -139,11 +139,11 @@ PSP_MAIN_THREAD_STACK_SIZE_KB(256); /* smaller stack for kernel thread */
 //14000x
 //28000x
 //PSP_HEAP_SIZE_MAX();
-#ifdef FAT_SUPPORT
-PSP_HEAP_SIZE_KB(-256);
-#else
-PSP_HEAP_SIZE_KB(12000);
-#endif
+// #ifdef FAT_SUPPORT
+// PSP_HEAP_SIZE_KB(-256);
+// #else
+// PSP_HEAP_SIZE_KB(12000);
+// #endif
 
 #ifdef PROFILE
 profile_t profile_data;
@@ -406,7 +406,7 @@ static void ErrorExit(const char *msg)
 	}
 	fwrite(msg,1,strlen(msg),f);
 	fclose(f);
-    sceKernelExitGame();
+    exit(1);
 }
 ////////////////////////////////////////////////////////////////////////////////////////
 // Read inputs
@@ -2118,7 +2118,7 @@ void S9xExit (){
 	//g_bLoop = false;
 	// Exit game
 
-	sceKernelExitGame();
+	exit();
 #endif
 	return;
 }
@@ -2533,7 +2533,7 @@ static void MyExceptionHandler(PspDebugRegBlock *regs)
 
 	pgWaitVn(60*10);
 
-	sceKernelExitGame();
+	exit();
 }
 #endif
 
@@ -2724,7 +2724,6 @@ int main(int argc,char **argv) {
   sceKernelStartThread(g_mainthread, 0, NULL);
   sceKernelWaitThreadEnd(g_mainthread, NULL);
 
-  sceKernelExitGame();
   return 0;
 }
 

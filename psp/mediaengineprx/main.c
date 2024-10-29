@@ -317,7 +317,7 @@ void ResetME(int devkitVersion){
 }
 int module_start(SceSize args, void *argp)
 {
-	mod = sceKernelFindModuleByName("sceMeCodecWrapper");
+	mod = (SceModule2 *)sceKernelFindModuleByName("sceMeCodecWrapper");
 	return 0;
 }
 
